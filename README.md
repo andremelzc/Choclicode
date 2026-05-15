@@ -8,10 +8,10 @@
 
 | Nombre | Rol en el Proyecto |
 |---|---|
-| **Cristobal Rojas, Mihael Jhire** | Desarrollador / Autor CU04 |
-| **Mantari Flores, Fabrizio Armando** | Arquitecto de Software / DBA / Autor CU02 |
-| **Melendez Cava, Andre Ivan** | Project Manager / Diseñador UX / Autor CU03 |
-| **Solis Cunza, Miguel Alonso** | Desarrollador / Autor CU01 |
+| **Cristobal Rojas, Mihael Jhire** | Desarrollador / Tester |
+| **Mantari Flores, Fabrizio Armando** | Arquitecto de Software / DBA |
+| **Melendez Cava, Andre Ivan** | Project Manager / Diseñador UX |
+| **Solis Cunza, Miguel Alonso** | Desarrollador / AnalistaQA |
 
 **Empresa:** Choclicode  
 **Cliente:** Facultad de Ingeniería de Sistemas e Informática — UNMSM  
