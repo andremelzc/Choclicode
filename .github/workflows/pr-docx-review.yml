@@ -1,0 +1,27 @@
+name: PR DOCX Review
+
+on:
+  pull_request:
+    paths:
+      - '**/*.docx'
+
+jobs:
+  docx-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install python-docx
+        run: pip install python-docx
+
+      - name: Validate .docx files
+        run: |
+          for file in $(git diff --name-only origin/${{ github.event.pull_request.base.ref }}... -- '*.docx'); do
+            python -c "from docx import Document; Document('$file')"
+          done
