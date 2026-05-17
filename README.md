@@ -309,9 +309,9 @@ Usuario escribe consulta
 
 | Tipo | Cantidad |
 |---|---|
-| 📝 Documentos Word (.docx) | **18** |
+| 📝 Documentos Word (.docx) | **19** |
 | 📊 Hojas de cálculo (.xlsx) | **5** |
-| 📄 **Total** | **23** |
+| 📄 **Total** | **24** |
 
 
 #### 📁 `Desarrollo/CACIF/Analisis/`
@@ -338,6 +338,7 @@ Usuario escribe consulta
 |---|---|---|---|
 | 📝 | `CACIF-CPRAG.docx` | 2026-05-14 | Miguel Solis |
 | 📝 | `CACIF-DA.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-DI.docx` | 2026-05-16 | andremelzc |
 | 📝 | `CACIF-EBC.docx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-ELT.docx` | 2026-05-13 | Mantari Flores Fabrizio Armando |
 | 📝 | `CACIF-MD.docx` | 2026-05-14 | andremelzc |
