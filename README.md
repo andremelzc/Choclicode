@@ -28,14 +28,15 @@
 5. [Flujo del Pipeline RAG](#-flujo-del-pipeline-rag)
 6. [Stack Tecnológico](#-stack-tecnológico)
 7. [Estructura del Repositorio](#-estructura-del-repositorio)
-8. [Modelo de Datos](#-modelo-de-datos)
-9. [Diseño UI/UX](#-diseño-uiux)
-10. [Base de Conocimientos](#-base-de-conocimientos)
-11. [Logs y Trazabilidad](#-logs-y-trazabilidad)
-12. [Gestión de la Configuración](#-gestión-de-la-configuración)
-13. [Cronograma e Hitos](#-cronograma-e-hitos)
-14. [Presupuesto](#-presupuesto)
-15. [Artefactos del Proyecto](#-artefactos-del-proyecto)
+8. [Índice de Documentos](#-índice-de-documentos)
+9. [Modelo de Datos](#-modelo-de-datos)
+10. [Diseño UI/UX](#-diseño-uiux)
+11. [Base de Conocimientos](#-base-de-conocimientos)
+12. [Logs y Trazabilidad](#-logs-y-trazabilidad)
+13. [Gestión de la Configuración](#-gestión-de-la-configuración)
+14. [Cronograma e Hitos](#-cronograma-e-hitos)
+15. [Presupuesto](#-presupuesto)
+16. [Artefactos del Proyecto](#-artefactos-del-proyecto)
 
 ---
 
@@ -251,88 +252,26 @@ Usuario escribe consulta
 
 ## 📁 Estructura del Repositorio
 
-```
-CACIF/
-│
-├── 📄 README.md                          ← Este archivo
-│
-├── 📁 docs/                              ← Documentación del proyecto
-│   ├── 📁 analisis/                      ← Fase de Análisis
-│   │   ├── CACIF-PC.docx                 Ej: Project Charter (alcance, hitos, presupuesto)
-│   │   ├── CACIF-DN.docx                 Ej: Documento de Negocio (procesos PROC-001 al 004)
-│   │   ├── CACIF-MR.xlsx                 Ej: Matriz de Requisitos Funcionales
-│   │   ├── CACIF-RNF.xlsx                Ej: Matriz de Requisitos No Funcionales
-│   │   ├── CACIF-CU01.docx               Ej: Especificación CU001 - Orientación y Selección de GI
-│   │   ├── CACIF-CU02.docx               Ej: Especificación CU002 - Gestión de Convocatorias
-│   │   ├── CACIF-CU03.docx               Ej: Especificación CU003 - Asesoría Administrativa
-│   │   └── CACIF-CU04.docx               Ej: Especificación CU004 - Marco Normativo
-│   │
-│   ├── 📁 diseno/                        ← Fase de Diseño
-│   │   ├── CACIF-DAS.docx                Ej: Documento de Arquitectura de Software
-│   │   ├── CACIF-DER.docx                Ej: Diagrama Entidad-Relación + DDL PostgreSQL
-│   │   ├── CACIF-DIUX.docx               Ej: Mockups, paleta de colores, breakpoints responsive
-│   │   ├── CACIF-BDC.docx                Ej: Estructuración de la Base de Conocimientos (FAQs)
-│   │   ├── CACIF-ELT.docx                Ej: Especificación de Logs y Trazabilidad
-│   │   └── CACIF-CP.xlsx                 Ej: Matriz de Casos de Prueba
-│   │
-│   ├── 📁 configuracion/                 ← Gestión de la Configuración
-│   │   └── CACIF-PGC.docx                Ej: Plan de Gestión de Configuración (GitHub, ramas, CI/CD)
-│   │
-│   └── 📁 despliegue/                    ← Fase de Despliegue (a completar)
-│       ├── CACIF-MT.docx                 Ej: Manual Técnico
-│       ├── CACIF-MUS.docx                Ej: Manual de Usuario
-│       └── CACIF-AC.docx                 Ej: Acta de Cierre
-│
-├── 📁 frontend/                          ← Aplicación React.js
-│   ├── 📁 public/
-│   │   └── index.html                    Ej: HTML base de la SPA
-│   ├── 📁 src/
-│   │   ├── 📁 components/                Ej: ChatBubble.jsx, ConvocatoriaCard.jsx
-│   │   ├── 📁 pages/                     Ej: Login.jsx, Home.jsx, Chat.jsx
-│   │   ├── 📁 hooks/                     Ej: useAuth.js, useChat.js
-│   │   ├── 📁 services/                  Ej: api.js (llamadas al backend)
-│   │   └── 📁 styles/                    Ej: globals.css (tokens Tailwind)
-│   ├── tailwind.config.js
-│   └── package.json
-│
-├── 📁 backend/                           ← API FastAPI
-│   ├── 📁 app/
-│   │   ├── 📁 routers/                   Ej: chat.py, auth.py
-│   │   ├── 📁 services/                  Ej: rag_engine.py, intent_classifier.py
-│   │   ├── 📁 models/                    Ej: student.py, conversation.py, message.py
-│   │   ├── 📁 middleware/                Ej: auth_middleware.py (JWT)
-│   │   └── main.py                       Ej: Punto de entrada FastAPI
-│   ├── 📁 tests/                         Ej: test_chat.py, test_rag.py
-│   ├── Dockerfile
-│   └── requirements.txt
-│
-├── 📁 rag/                               ← Motor RAG y base de conocimientos
-│   ├── 📁 ingestor/                      ← Pipeline de ingesta de PDFs
-│   │   ├── ingest.py                     Ej: Script de procesamiento de reglamentos PDF
-│   │   └── chunk_strategy.py             Ej: Estrategia de chunking y overlap
-│   ├── 📁 knowledge_base/                ← FAQs estructuradas por CU
-│   │   ├── 📁 CU01/                      Ej: faqs_grupos_investigacion.json
-│   │   ├── 📁 CU02/                      Ej: faqs_convocatorias.json
-│   │   ├── 📁 CU03/                      Ej: faqs_tesis_ppp.json
-│   │   └── 📁 CU04/                      Ej: faqs_normativa.json
-│   └── 📁 source_docs/                   ← PDFs normativos fuente (no versionados en git)
-│       ├── DOC-01_Reglamento_GI.pdf      Ej: Reglamento General de Grupos de Investigación
-│       ├── DOC-04_Grados_Titulos.pdf     Ej: Reglamento de Grados y Títulos FISI
-│       └── DOC-06_RR_947_PIDS.pdf        Ej: Directiva de Originalidad y Similitud
-│
-├── 📁 database/                          ← Scripts de base de datos
-│   ├── schema.sql                        Ej: DDL PostgreSQL (tablas, relaciones, triggers)
-│   └── seed.sql                          Ej: Datos iniciales de grupos de investigación
-│
-└── 📁 .github/                           ← Configuración CI/CD
-    └── 📁 workflows/
-        ├── deploy-frontend.yml           Ej: Deploy automático a Vercel en push a main
-        └── deploy-backend.yml            Ej: Deploy automático a Render en push a main
-```
+<!-- REPO-STRUCTURE-START -->
+
+> 🤖 *Esta sección se actualiza automáticamente vía GitHub Actions cada vez que se abre un PR hacia `main`.*
+> *Las carpetas vacías (sin archivos reales) son omitidas.*
+
+<!-- REPO-STRUCTURE-END -->
 
 > **Nota sobre la nomenclatura:** Todos los artefactos siguen el estándar definido en el Plan de Gestión de Configuración:
 > - `[Acrónimo Proyecto]-[Acrónimo Ítem].[Extensión]` → ej. `CACIF-DAS.docx`
 > - Cuando el ítem se instancia por elemento: `[Acrónimo Proyecto]-[Acrónimo Ítem][NN]` → ej. `CACIF-CU01.docx`
+
+---
+
+## 📋 Índice de Documentos
+
+<!-- DOCS-INDEX-START -->
+
+> 🤖 *Esta sección se actualiza automáticamente vía GitHub Actions cada vez que se suben archivos `.docx` o `.xlsx`.*
+
+<!-- DOCS-INDEX-END -->
 
 ---
 
