@@ -1,0 +1,84 @@
+name: "📄 Validar archivos DOCX"
+
+on:
+  push:
+    paths:
+      - '**/*.docx'
+
+jobs:
+  validate-docx:
+    name: "🔍 Validar integridad de .docx"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: 📦 Instalar python-docx
+        run: pip install python-docx
+
+      - name: 🔎 Detectar y validar archivos .docx de este commit
+        shell: bash
+        run: |
+          echo "========================================="
+          echo "  🔍 Validando archivos .docx del commit"
+          echo "========================================="
+          echo ""
+
+          FILES=$(git diff --name-only --diff-filter=ACM HEAD~1 HEAD -- '*.docx' 2>/dev/null || echo "")
+
+          if [ -z "$FILES" ]; then
+            echo "ℹ️  Este commit no contiene archivos .docx nuevos o modificados."
+            echo "¡Todo bien!"
+            exit 0
+          fi
+
+          echo "Archivos .docx detectados:"
+          echo "$FILES"
+          echo ""
+
+          ERRORS=0
+          SUCCESS=0
+          TOTAL=0
+
+          echo "$FILES" > /tmp/docx_files.txt
+
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            TOTAL=$((TOTAL + 1))
+
+            if [ ! -f "$file" ]; then
+              echo "⚠️  OMITIDO: $file (archivo eliminado)"
+              continue
+            fi
+
+            if python3 -c "from docx import Document; d=Document('${file}'); print(f'  📊 Párrafos: {len(d.paragraphs)} | Tablas: {len(d.tables)}')"; then
+              echo "✅ OK: $file"
+              SUCCESS=$((SUCCESS + 1))
+            else
+              echo "❌ CORRUPTO: $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+            echo ""
+          done < /tmp/docx_files.txt
+
+          echo "========================================="
+          echo "  📋 Resumen de validación"
+          echo "========================================="
+          echo "  Total:     $TOTAL"
+          echo "  Válidos:   $SUCCESS ✅"
+          echo "  Corruptos: $ERRORS ❌"
+          echo "========================================="
+
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "::error::Se encontraron $ERRORS archivo(s) .docx corruptos. Revísalos antes de continuar."
+            exit 1
+          fi

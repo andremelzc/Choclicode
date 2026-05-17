@@ -1,0 +1,332 @@
+name: "📂 Actualizar README — Estructura e Índice"
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-readme:
+    name: "🗂️ Generar estructura, índice y comentar PR"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔎 Generar árbol de estructura del repositorio
+        shell: bash
+        run: |
+          echo "Generando estructura del repositorio..."
+
+          generate_tree() {
+            local dir="$1"
+            local prefix="$2"
+            local entries=()
+
+            while IFS= read -r -d '' file; do
+              local bname
+              bname=$(basename "$file")
+              if [[ "$bname" != ".gitkeep" ]]; then
+                entries+=("FILE:$bname")
+              fi
+            done < <(find "$dir" -maxdepth 1 -type f -not -name ".gitkeep" -print0 2>/dev/null | sort -z)
+
+            while IFS= read -r -d '' subdir; do
+              local dname
+              dname=$(basename "$subdir")
+              [[ "$dname" == ".git" || "$dname" == ".github" ]] && continue
+              local real_files
+              real_files=$(find "$subdir" -type f -not -name ".gitkeep" 2>/dev/null | head -1)
+              if [[ -n "$real_files" ]]; then
+                entries+=("DIR:$dname")
+              fi
+            done < <(find "$dir" -maxdepth 1 -type d -not -path "$dir" -print0 2>/dev/null | sort -z)
+
+            local total=${#entries[@]}
+            local count=0
+
+            for entry in "${entries[@]}"; do
+              count=$((count + 1))
+              local type="${entry%%:*}"
+              local name="${entry#*:}"
+              local connector="├──"
+              local new_prefix="${prefix}│   "
+
+              if [[ $count -eq $total ]]; then
+                connector="└──"
+                new_prefix="${prefix}    "
+              fi
+
+              if [[ "$type" == "FILE" ]]; then
+                echo "${prefix}${connector} 📄 ${name}"
+              else
+                echo "${prefix}${connector} 📁 ${name}/"
+                generate_tree "${dir}/${name}" "$new_prefix"
+              fi
+            done
+          }
+
+          {
+            echo '```'
+            echo "📁 Choclicode/"
+            generate_tree "." ""
+            echo '```'
+          } > /tmp/tree_output.txt
+
+          echo "Estructura generada:"
+          cat /tmp/tree_output.txt
+
+      - name: 📋 Generar índice de documentos
+        shell: bash
+        run: |
+          ALL_DOCX=$(find . -type f \( -name "*.docx" -o -name "*.xlsx" \) -not -path './.git/*' | sed 's|^\./||' | sort)
+
+          TOTAL_DOCX=$(find . -type f -name "*.docx" -not -path './.git/*' | wc -l)
+          TOTAL_XLSX=$(find . -type f -name "*.xlsx" -not -path './.git/*' | wc -l)
+          TOTAL=$((TOTAL_DOCX + TOTAL_XLSX))
+
+          {
+            echo "| Tipo | Cantidad |"
+            echo "|---|---|"
+            echo "| 📝 Documentos Word (.docx) | **${TOTAL_DOCX}** |"
+            echo "| 📊 Hojas de cálculo (.xlsx) | **${TOTAL_XLSX}** |"
+            echo "| 📄 **Total** | **${TOTAL}** |"
+            echo ""
+
+            CURRENT_FOLDER=""
+            while IFS= read -r file; do
+              [ -z "$file" ] && continue
+              DIRNAME=$(dirname "$file")
+              FILENAME=$(basename "$file")
+              EXT="${FILENAME##*.}"
+
+              LAST_DATE=$(git log -1 --format="%ai" -- "$file" 2>/dev/null | cut -d' ' -f1 || echo "—")
+              LAST_AUTHOR=$(git log -1 --format="%an" -- "$file" 2>/dev/null || echo "—")
+
+              if [ "$EXT" = "docx" ]; then
+                ICON="📝"
+              else
+                ICON="📊"
+              fi
+
+              if [ "$DIRNAME" != "$CURRENT_FOLDER" ]; then
+                CURRENT_FOLDER="$DIRNAME"
+                echo ""
+                echo "#### 📁 \`${DIRNAME}/\`"
+                echo ""
+                echo "| | Documento | Última modificación | Autor |"
+                echo "|---|---|---|---|"
+              fi
+
+              echo "| ${ICON} | \`${FILENAME}\` | ${LAST_DATE} | ${LAST_AUTHOR} |"
+            done <<< "$ALL_DOCX"
+          } > /tmp/docs_index.txt
+
+          echo "Índice generado:"
+          cat /tmp/docs_index.txt
+
+      - name: 📝 Actualizar README.md
+        shell: bash
+        run: |
+          if ! grep -q "<!-- REPO-STRUCTURE-START -->" README.md; then
+            echo "No se encontraron marcadores de estructura en README.md."
+            exit 0
+          fi
+
+          cat > /tmp/update_readme.py << 'PYSCRIPT'
+          import re
+
+          with open('README.md', 'r', encoding='utf-8') as f:
+              readme = f.read()
+
+          with open('/tmp/tree_output.txt', 'r', encoding='utf-8') as f:
+              tree = f.read().strip()
+
+          with open('/tmp/docs_index.txt', 'r', encoding='utf-8') as f:
+              index = f.read().strip()
+
+          # Actualizar estructura
+          pattern1 = r'(<!-- REPO-STRUCTURE-START -->).*?(<!-- REPO-STRUCTURE-END -->)'
+          rep1 = (
+              '<!-- REPO-STRUCTURE-START -->\n\n'
+              + tree + '\n\n'
+              + '> 🤖 *Estructura generada automáticamente vía GitHub Actions.*\n\n'
+              + '<!-- REPO-STRUCTURE-END -->'
+          )
+          readme = re.sub(pattern1, rep1, readme, flags=re.DOTALL)
+
+          # Actualizar índice de documentos
+          pattern2 = r'(<!-- DOCS-INDEX-START -->).*?(<!-- DOCS-INDEX-END -->)'
+          rep2 = (
+              '<!-- DOCS-INDEX-START -->\n\n'
+              + index + '\n\n'
+              + '> 🤖 *Índice generado automáticamente vía GitHub Actions.*\n\n'
+              + '<!-- DOCS-INDEX-END -->'
+          )
+          readme = re.sub(pattern2, rep2, readme, flags=re.DOTALL)
+
+          with open('README.md', 'w', encoding='utf-8') as f:
+              f.write(readme)
+
+          print("README.md actualizado correctamente.")
+          PYSCRIPT
+
+          python3 /tmp/update_readme.py
+
+      - name: 📊 Preparar resumen para el comentario del PR
+        id: summary
+        shell: bash
+        run: |
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACM origin/main...HEAD 2>/dev/null || echo "")
+          DOCX_FILES=$(echo "$CHANGED_FILES" | grep -E '\.(docx|xlsx)$' || echo "")
+          ALL_DOCX=$(find . -type f \( -name "*.docx" -o -name "*.xlsx" \) -not -path './.git/*' | sed 's|^\./||' | sort)
+
+          TOTAL_DOCS=$(echo "$ALL_DOCX" | grep -c '.' || echo "0")
+          NEW_DOCS=$(echo "$DOCX_FILES" | grep -c '.' || echo "0")
+
+          if [ -n "$DOCX_FILES" ] && [ "$DOCX_FILES" != "" ]; then
+            NEW_TABLE="| Estado | Archivo | Ubicación |\n|---|---|---|\n"
+            while IFS= read -r file; do
+              [ -z "$file" ] && continue
+              FILENAME=$(basename "$file")
+              DIRNAME=$(dirname "$file")
+              if git diff --name-only --diff-filter=A origin/main...HEAD -- "$file" | grep -q .; then
+                STATUS="🆕 Nuevo"
+              else
+                STATUS="✏️ Modificado"
+              fi
+              NEW_TABLE="${NEW_TABLE}| ${STATUS} | \`${FILENAME}\` | \`${DIRNAME}/\` |\n"
+            done <<< "$DOCX_FILES"
+          else
+            NEW_TABLE="| | |\n|---|---|\n| ℹ️ | No se detectaron documentos nuevos o modificados en este PR |\n"
+          fi
+
+          FULL_TABLE=""
+          CURRENT_FOLDER=""
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            DIRNAME=$(dirname "$file")
+            FILENAME=$(basename "$file")
+            if [ "$DIRNAME" != "$CURRENT_FOLDER" ]; then
+              CURRENT_FOLDER="$DIRNAME"
+              FULL_TABLE="${FULL_TABLE}\n**📁 \`${DIRNAME}/\`**\n\n| Documento | Tipo |\n|---|---|\n"
+            fi
+            EXT="${FILENAME##*.}"
+            if [ "$EXT" = "docx" ]; then
+              ICON="📝"
+            else
+              ICON="📊"
+            fi
+            FULL_TABLE="${FULL_TABLE}| ${ICON} \`${FILENAME}\` | .${EXT} |\n"
+          done <<< "$ALL_DOCX"
+
+          echo -e "$NEW_TABLE" > /tmp/new_table.txt
+          echo -e "$FULL_TABLE" > /tmp/full_table.txt
+          echo "total_docs=$TOTAL_DOCS" >> "$GITHUB_OUTPUT"
+          echo "new_docs=$NEW_DOCS" >> "$GITHUB_OUTPUT"
+
+      - name: 💬 Comentar en el PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const newTable = fs.readFileSync('/tmp/new_table.txt', 'utf8');
+            const fullTable = fs.readFileSync('/tmp/full_table.txt', 'utf8');
+            const totalDocs = '${{ steps.summary.outputs.total_docs }}';
+            const newDocs = '${{ steps.summary.outputs.new_docs }}';
+
+            const date = new Date().toLocaleDateString('es-PE', {
+              year: 'numeric', month: 'long', day: 'numeric',
+              hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima'
+            });
+
+            const body = [
+              '## 🤖 Reporte Automático — Estructura del Repositorio',
+              '',
+              `> 📅 Generado automáticamente por GitHub Actions · ${date}`,
+              '',
+              '---',
+              '',
+              '### 📊 Resumen General',
+              '',
+              '| Métrica | Valor |',
+              '|---|---|',
+              `| 📄 Total de documentos en el repositorio | **${totalDocs}** |`,
+              `| 🆕 Documentos nuevos/modificados en este PR | **${newDocs}** |`,
+              '| ✅ README.md actualizado | **Sí** |',
+              '',
+              '---',
+              '',
+              '### 🔄 Documentos tocados en este PR',
+              '',
+              newTable,
+              '',
+              '---',
+              '',
+              '<details>',
+              '<summary>📚 <strong>Ver inventario completo de documentos del repositorio</strong></summary>',
+              '',
+              fullTable,
+              '',
+              '</details>',
+              '',
+              '---',
+              '',
+              '> ✅ **Confirmado:** La estructura del `README.md` y el índice de documentos han sido actualizados automáticamente.',
+              '> Las carpetas vacías fueron omitidas. Solo se muestran carpetas con archivos reales.',
+              '',
+              '---',
+              '<sub>🤖 Bot de Choclicode · Workflow: Actualizar README</sub>'
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.body.includes('🤖 Reporte Automático — Estructura del Repositorio')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body,
+              });
+              console.log('Comentario actualizado.');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+              console.log('Comentario creado.');
+            }
+
+      - name: 📤 Commit y push de cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet README.md; then
+            echo "ℹ️ No hay cambios en README.md."
+          else
+            git add README.md
+            git commit -m "🤖 docs: actualizar estructura e índice en README.md"
+            git push
+            echo "✅ README.md actualizado y pusheado."
+          fi
