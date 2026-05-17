@@ -191,8 +191,8 @@ jobs:
           DOCX_FILES=$(echo "$CHANGED_FILES" | grep -E '\.(docx|xlsx)$' || true)
           ALL_DOCX=$(find . -type f \( -name "*.docx" -o -name "*.xlsx" \) -not -path './.git/*' | sed 's|^\./||' | sort)
 
-          TOTAL_DOCS=$(echo "$ALL_DOCX" | grep -v '^$' | wc -l | tr -d ' ')
-          NEW_DOCS=$(echo "$DOCX_FILES" | grep -v '^$' | wc -l | tr -d ' ')
+          TOTAL_DOCS=$(echo "$ALL_DOCX" | grep -c -v '^$') || TOTAL_DOCS=0
+          NEW_DOCS=$(echo "$DOCX_FILES" | grep -c -v '^$') || NEW_DOCS=0
 
           if [ "$NEW_DOCS" -gt 0 ] 2>/dev/null && [ -n "$DOCX_FILES" ]; then
             NEW_TABLE="| Estado | Archivo | Ubicación |\n|---|---|---|\n"
