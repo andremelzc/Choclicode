@@ -254,8 +254,46 @@ Usuario escribe consulta
 
 <!-- REPO-STRUCTURE-START -->
 
-> 🤖 *Esta sección se actualiza automáticamente vía GitHub Actions cada vez que se abre un PR hacia `main`.*
-> *Las carpetas vacías (sin archivos reales) son omitidas.*
+```
+📁 Choclicode/
+├── 📄 README.md
+├── 📁 Desarrollo/
+│   └── 📁 CACIF/
+│       ├── 📁 Analisis/
+│       │   ├── 📄 CACIF-CU01.docx
+│       │   ├── 📄 CACIF-CU02.docx
+│       │   ├── 📄 CACIF-CU03.docx
+│       │   ├── 📄 CACIF-CU04.docx
+│       │   ├── 📄 CACIF-DN.docx
+│       │   ├── 📄 CACIF-MR.xlsx
+│       │   └── 📄 CACIF-RNF.xlsx
+│       ├── 📁 Cronograma/
+│       │   └── 📄 CACIF-CP.xlsx
+│       ├── 📁 Diseño/
+│       │   ├── 📄 CACIF-CPRAG.docx
+│       │   ├── 📄 CACIF-DA.docx
+│       │   ├── 📄 CACIF-EBC.docx
+│       │   ├── 📄 CACIF-ELT.docx
+│       │   └── 📄 CACIF-MD.docx
+│       └── 📁 Gestión/
+│           └── 📄 CACIF-PC.docx
+├── 📁 Documentos/
+│   └── 📁 Planes/
+│       └── 📄 CACIF-PGC.docx
+└── 📁 Linea Base/
+    └── 📁 CACIF/
+        └── 📁 Linea Base 01/
+            ├── 📄 CACIF-CU01.docx
+            ├── 📄 CACIF-CU02.docx
+            ├── 📄 CACIF-CU03.docx
+            ├── 📄 CACIF-CU04.docx
+            ├── 📄 CACIF-DN.docx
+            ├── 📄 CACIF-MR.xlsx
+            ├── 📄 CACIF-PC.docx
+            └── 📄 CACIF-RNF.xlsx
+```
+
+> 🤖 *Estructura generada automáticamente vía GitHub Actions.*
 
 <!-- REPO-STRUCTURE-END -->
 
@@ -269,7 +307,67 @@ Usuario escribe consulta
 
 <!-- DOCS-INDEX-START -->
 
-> 🤖 *Esta sección se actualiza automáticamente vía GitHub Actions cada vez que se suben archivos `.docx` o `.xlsx`.*
+| Tipo | Cantidad |
+|---|---|
+| 📝 Documentos Word (.docx) | **18** |
+| 📊 Hojas de cálculo (.xlsx) | **5** |
+| 📄 **Total** | **23** |
+
+
+#### 📁 `Desarrollo/CACIF/Analisis/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-CU01.docx` | 2026-05-10 | Miguel Solis |
+| 📝 | `CACIF-CU02.docx` | 2026-05-10 | Mantari Flores Fabrizio Armando |
+| 📝 | `CACIF-CU03.docx` | 2026-05-07 | andremelzc |
+| 📝 | `CACIF-CU04.docx` | 2026-05-10 | Mihael Cristobal |
+| 📝 | `CACIF-DN.docx` | 2026-05-14 | andremelzc |
+| 📊 | `CACIF-MR.xlsx` | 2026-05-03 | Miguel Solis |
+| 📊 | `CACIF-RNF.xlsx` | 2026-05-09 | Mantari Flores Fabrizio Armando |
+
+#### 📁 `Desarrollo/CACIF/Cronograma/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📊 | `CACIF-CP.xlsx` | 2026-05-14 | andremelzc |
+
+#### 📁 `Desarrollo/CACIF/Diseño/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-CPRAG.docx` | 2026-05-14 | Miguel Solis |
+| 📝 | `CACIF-DA.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-EBC.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-ELT.docx` | 2026-05-13 | Mantari Flores Fabrizio Armando |
+| 📝 | `CACIF-MD.docx` | 2026-05-14 | andremelzc |
+
+#### 📁 `Desarrollo/CACIF/Gestión/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
+
+#### 📁 `Documentos/Planes/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-PGC.docx` | 2026-05-16 | Mihael Cristobal |
+
+#### 📁 `Linea Base/CACIF/Linea Base 01/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-CU01.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-CU02.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-CU03.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-CU04.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-DN.docx` | 2026-05-14 | andremelzc |
+| 📊 | `CACIF-MR.xlsx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
+| 📊 | `CACIF-RNF.xlsx` | 2026-05-14 | andremelzc |
+
+> 🤖 *Índice generado automáticamente vía GitHub Actions.*
 
 <!-- DOCS-INDEX-END -->
 
