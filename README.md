@@ -343,6 +343,7 @@ Usuario escribe consulta
 | 📝 | `CACIF-EBC.docx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-ELT.docx` | 2026-05-13 | Mantari Flores Fabrizio Armando |
 | 📝 | `CACIF-MD.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-PP.docx` | 2026-05-18 | Miguel Solis |
 
 #### 📁 `Desarrollo/CACIF/Gestión/`
 
