@@ -275,7 +275,9 @@ Usuario escribe consulta
 │       │   ├── 📄 CACIF-DI.docx
 │       │   ├── 📄 CACIF-EBC.docx
 │       │   ├── 📄 CACIF-ELT.docx
-│       │   └── 📄 CACIF-MD.docx
+│       │   ├── 📄 CACIF-MD.docx
+│       │   ├── 📄 CACIF-PC.docx
+│       │   └── 📄 CACIF-PP.docx
 │       └── 📁 Gestión/
 │           └── 📄 CACIF-PC.docx
 ├── 📁 Documentos/
@@ -283,15 +285,23 @@ Usuario escribe consulta
 │       └── 📄 CACIF-PGC.docx
 └── 📁 Linea Base/
     └── 📁 CACIF/
-        └── 📁 Linea Base 01/
-            ├── 📄 CACIF-CU01.docx
-            ├── 📄 CACIF-CU02.docx
-            ├── 📄 CACIF-CU03.docx
-            ├── 📄 CACIF-CU04.docx
-            ├── 📄 CACIF-DN.docx
-            ├── 📄 CACIF-MR.xlsx
-            ├── 📄 CACIF-PC.docx
-            └── 📄 CACIF-RNF.xlsx
+        ├── 📁 Linea Base 01/
+        │   ├── 📄 CACIF-CU01.docx
+        │   ├── 📄 CACIF-CU02.docx
+        │   ├── 📄 CACIF-CU03.docx
+        │   ├── 📄 CACIF-CU04.docx
+        │   ├── 📄 CACIF-DN.docx
+        │   ├── 📄 CACIF-MR.xlsx
+        │   ├── 📄 CACIF-PC.docx
+        │   └── 📄 CACIF-RNF.xlsx
+        └── 📁 Linea Base 02/
+            ├── 📄 CACIF-CPRAG.docx
+            ├── 📄 CACIF-DA.docx
+            ├── 📄 CACIF-DI.docx
+            ├── 📄 CACIF-EBC.docx
+            ├── 📄 CACIF-ELT.docx
+            ├── 📄 CACIF-MD.docx
+            └── 📄 CACIF-PP.docx
 ```
 
 > 🤖 *Estructura generada automáticamente vía GitHub Actions.*
