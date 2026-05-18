@@ -310,9 +310,9 @@ Usuario escribe consulta
 
 | Tipo | Cantidad |
 |---|---|
-| 📝 Documentos Word (.docx) | **20** |
+| 📝 Documentos Word (.docx) | **28** |
 | 📊 Hojas de cálculo (.xlsx) | **5** |
-| 📄 **Total** | **25** |
+| 📄 **Total** | **33** |
 
 
 #### 📁 `Desarrollo/CACIF/Analisis/`
@@ -343,6 +343,7 @@ Usuario escribe consulta
 | 📝 | `CACIF-EBC.docx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-ELT.docx` | 2026-05-13 | Mantari Flores Fabrizio Armando |
 | 📝 | `CACIF-MD.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-PC.docx` | 2026-05-18 | andremelzc |
 | 📝 | `CACIF-PP.docx` | 2026-05-18 | Miguel Solis |
 
 #### 📁 `Desarrollo/CACIF/Gestión/`
@@ -369,6 +370,18 @@ Usuario escribe consulta
 | 📊 | `CACIF-MR.xlsx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-14 | andremelzc |
+
+#### 📁 `Linea Base/CACIF/Linea Base 02/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-CPRAG.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-DA.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-DI.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-EBC.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-ELT.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-MD.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-PP.docx` | 2026-05-18 | andremelzc |
 
 > 🤖 *Índice generado automáticamente vía GitHub Actions.*
 
