@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/geist";
+@import "@fontsource/inter";
+
+@theme {
+  /* =========================
+     BACKGROUNDS
+  ========================= */
+
+  --color-background: #0b0e14;
+  --color-sidebar: #1a1f2e;
+  --color-surface: #2d3748;
+  --color-chatbot: #2d3f5f;
+
+  /* =========================
+     TEXT
+  ========================= */
+
+  --color-foreground: #ffffff;
+  --color-muted-foreground: #8b949e;
+
+  /* =========================
+     BORDERS
+  ========================= */
+
+  --color-border: #30363d;
+
+  /* =========================
+     PRIMARY SCALE
+  ========================= */
+
+  --color-primary-50: #eef0ff;
+  --color-primary-100: #dfe3ff;
+  --color-primary-200: #c7ceff;
+  --color-primary-300: #a5afff;
+  --color-primary-400: #7d88ff;
+  --color-primary-500: #5865f2;
+  --color-primary-600: #4b56d6;
+  --color-primary-700: #3d448d;
+  --color-primary-800: #31366f;
+  --color-primary-900: #252950;
+
+  /* Semantic alias */
+  --color-primary: var(--color-primary-500);
+
+  /* =========================
+     SUCCESS SCALE
+  ========================= */
+
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+
+  --color-success: var(--color-success-500);
+
+  /* =========================
+     WARNING SCALE
+  ========================= */
+
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  --color-warning: var(--color-warning-500);
+
+  /* =========================
+     DESTRUCTIVE SCALE
+  ========================= */
+
+  --color-destructive-500: #dc2626;
+  --color-destructive-600: #b91c1c;
+  --color-destructive-700: #991b1b;
+
+  --color-destructive: var(--color-destructive-500);
+
+  /* =========================
+     IA / GLOW
+  ========================= */
+
+  --color-glow: #22d3ee;
+
+  /* =========================
+     FONTS
+  ========================= */
+
+  --font-sans: "Inter", sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
