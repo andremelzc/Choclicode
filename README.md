@@ -267,6 +267,46 @@ Usuario escribe consulta
 │       │   ├── 📄 CACIF-DN.docx
 │       │   ├── 📄 CACIF-MR.xlsx
 │       │   └── 📄 CACIF-RNF.xlsx
+│       ├── 📁 Codigo Fuente/
+│       │   ├── 📄 docker-compose.yml
+│       │   ├── 📁 Backend/
+│       │   │   ├── 📄 .dockerignore
+│       │   │   ├── 📄 .gitignore
+│       │   │   ├── 📄 Dockerfile
+│       │   │   ├── 📄 requirements.txt
+│       │   │   └── 📁 app/
+│       │   │       ├── 📄 __init__.py
+│       │   │       └── 📄 main.py
+│       │   └── 📁 Frontend/
+│       │       ├── 📄 .dockerignore
+│       │       ├── 📄 .gitignore
+│       │       ├── 📄 Dockerfile
+│       │       ├── 📄 README.md
+│       │       ├── 📄 components.json
+│       │       ├── 📄 eslint.config.js
+│       │       ├── 📄 index.html
+│       │       ├── 📄 package-lock.json
+│       │       ├── 📄 package.json
+│       │       ├── 📄 tsconfig.app.json
+│       │       ├── 📄 tsconfig.json
+│       │       ├── 📄 tsconfig.node.json
+│       │       ├── 📄 vite.config.ts
+│       │       ├── 📁 public/
+│       │       │   ├── 📄 favicon.svg
+│       │       │   └── 📄 icons.svg
+│       │       └── 📁 src/
+│       │           ├── 📄 App.tsx
+│       │           ├── 📄 index.css
+│       │           ├── 📄 main.tsx
+│       │           ├── 📁 assets/
+│       │           │   ├── 📄 hero.png
+│       │           │   ├── 📄 react.svg
+│       │           │   └── 📄 vite.svg
+│       │           ├── 📁 components/
+│       │           │   └── 📁 ui/
+│       │           │       └── 📄 button.tsx
+│       │           └── 📁 lib/
+│       │               └── 📄 utils.ts
 │       ├── 📁 Cronograma/
 │       │   └── 📄 CACIF-CP.xlsx
 │       ├── 📁 Diseño/
