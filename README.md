@@ -377,12 +377,6 @@ Usuario escribe consulta
 | 📊 | `CACIF-MR.xlsx` | 2026-05-03 | Miguel Solis |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-09 | Mantari Flores Fabrizio Armando |
 
-#### 📁 `Desarrollo/CACIF/Cronograma/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📊 | `CACIF-CP.xlsx` | 2026-05-14 | andremelzc |
-
 #### 📁 `Desarrollo/CACIF/Diseño/`
 
 | | Documento | Última modificación | Autor |
@@ -400,13 +394,14 @@ Usuario escribe consulta
 
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
+| 📊 | `CACIF-CP.xlsx` | 2026-05-21 | andremelzc |
 | 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
 
 #### 📁 `Documentos/Planes/`
 
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
-| 📝 | `CACIF-PGC.docx` | 2026-05-16 | Mihael Cristobal |
+| 📝 | `PGC.docx` | 2026-05-21 | andremelzc |
 
 #### 📁 `Linea Base/CACIF/Linea Base 01/`
 
