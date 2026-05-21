@@ -267,6 +267,46 @@ Usuario escribe consulta
 │       │   ├── 📄 CACIF-DN.docx
 │       │   ├── 📄 CACIF-MR.xlsx
 │       │   └── 📄 CACIF-RNF.xlsx
+│       ├── 📁 Codigo Fuente/
+│       │   ├── 📄 docker-compose.yml
+│       │   ├── 📁 Backend/
+│       │   │   ├── 📄 .dockerignore
+│       │   │   ├── 📄 .gitignore
+│       │   │   ├── 📄 Dockerfile
+│       │   │   ├── 📄 requirements.txt
+│       │   │   └── 📁 app/
+│       │   │       ├── 📄 __init__.py
+│       │   │       └── 📄 main.py
+│       │   └── 📁 Frontend/
+│       │       ├── 📄 .dockerignore
+│       │       ├── 📄 .gitignore
+│       │       ├── 📄 Dockerfile
+│       │       ├── 📄 README.md
+│       │       ├── 📄 components.json
+│       │       ├── 📄 eslint.config.js
+│       │       ├── 📄 index.html
+│       │       ├── 📄 package-lock.json
+│       │       ├── 📄 package.json
+│       │       ├── 📄 tsconfig.app.json
+│       │       ├── 📄 tsconfig.json
+│       │       ├── 📄 tsconfig.node.json
+│       │       ├── 📄 vite.config.ts
+│       │       ├── 📁 public/
+│       │       │   ├── 📄 favicon.svg
+│       │       │   └── 📄 icons.svg
+│       │       └── 📁 src/
+│       │           ├── 📄 App.tsx
+│       │           ├── 📄 index.css
+│       │           ├── 📄 main.tsx
+│       │           ├── 📁 assets/
+│       │           │   ├── 📄 hero.png
+│       │           │   ├── 📄 react.svg
+│       │           │   └── 📄 vite.svg
+│       │           ├── 📁 components/
+│       │           │   └── 📁 ui/
+│       │           │       └── 📄 button.tsx
+│       │           └── 📁 lib/
+│       │               └── 📄 utils.ts
 │       ├── 📁 Cronograma/
 │       │   └── 📄 CACIF-CP.xlsx
 │       ├── 📁 Diseño/
@@ -337,12 +377,6 @@ Usuario escribe consulta
 | 📊 | `CACIF-MR.xlsx` | 2026-05-03 | Miguel Solis |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-09 | Mantari Flores Fabrizio Armando |
 
-#### 📁 `Desarrollo/CACIF/Cronograma/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📊 | `CACIF-CP.xlsx` | 2026-05-14 | andremelzc |
-
 #### 📁 `Desarrollo/CACIF/Diseño/`
 
 | | Documento | Última modificación | Autor |
@@ -360,13 +394,14 @@ Usuario escribe consulta
 
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
+| 📊 | `CACIF-CP.xlsx` | 2026-05-21 | andremelzc |
 | 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
 
 #### 📁 `Documentos/Planes/`
 
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
-| 📝 | `CACIF-PGC.docx` | 2026-05-16 | Mihael Cristobal |
+| 📝 | `PGC.docx` | 2026-05-21 | andremelzc |
 
 #### 📁 `Linea Base/CACIF/Linea Base 01/`
 
