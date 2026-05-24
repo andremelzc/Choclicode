@@ -1,7 +1,19 @@
-import * as React from "react"
 import { Avatar } from "../ui/Avatar"
+import { useAuth } from "../../features/auth/context/AuthContext"
+import { LogOut } from "lucide-react"
 
 export const TopHeader = () => {
+  const { user, logout } = useAuth();
+  
+  const getInitials = (name: string) => {
+    if (!name) return "UI";
+    const parts = name.split(" ");
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
   return (
     <header className="h-[72px] border-b border-border bg-background flex items-center justify-between px-6 shrink-0 w-full z-10 relative shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
       <div className="flex items-center gap-4">
@@ -25,13 +37,23 @@ export const TopHeader = () => {
           Sistema operativo
         </div>
 
-        {/* User Profile */}
-        <button className="flex items-center gap-3 rounded-full border border-border bg-surface/30 pl-1.5 pr-5 py-1.5 hover:bg-surface hover:shadow-[0_0_15px_rgba(255,255,255,0.03)] transition-all">
-          <Avatar size="sm" fallback="AM" className="bg-primary/20 text-primary border border-primary/30 h-7 w-7 text-xs font-bold shadow-[0_0_10px_rgba(88,101,242,0.2)]" />
-          <span className="text-[13px] font-medium text-muted-foreground">
-            Andre Melendez Cava · 23200107
-          </span>
-        </button>
+        {/* User Profile and Logout */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 rounded-full border border-border bg-surface/30 pl-1.5 pr-5 py-1.5">
+            <Avatar size="sm" fallback={getInitials(user?.nombre || "")} className="bg-primary/20 text-primary border border-primary/30 h-7 w-7 text-xs font-bold shadow-[0_0_10px_rgba(88,101,242,0.2)]" />
+            <span className="text-[13px] font-medium text-muted-foreground">
+              {user?.nombre || "Usuario"} · {user?.codigo || "Invitado"}
+            </span>
+          </div>
+
+          <button 
+            onClick={logout}
+            className="flex items-center justify-center w-[38px] h-[38px] rounded-full border border-border bg-surface/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all text-muted-foreground shadow-sm"
+            title="Cerrar sesión"
+          >
+            <LogOut className="w-[16px] h-[16px] ml-0.5" />
+          </button>
+        </div>
       </div>
     </header>
   )

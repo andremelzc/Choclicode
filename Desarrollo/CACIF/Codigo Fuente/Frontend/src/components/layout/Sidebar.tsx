@@ -1,10 +1,10 @@
-import * as React from "react"
+
 import { Plus } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 export const Sidebar = () => {
   const conversations = [
-    { title: "Plan de tesis MIABOGUITO", time: "Hoy · 10:42 am", active: true },
+    { title: "Plan de tesis MIABOGUITO", time: "Hoy · 10:42 am", active: false },
     { title: "Convalidación de PPP", time: "30 abr · 03:15 pm", active: false },
     { title: "Grupos con línea IA", time: "28 abr · 11:00 am", active: false },
     { title: "Vacantes en GIDIS-Web", time: "25 abr · 09:30 am", active: false },

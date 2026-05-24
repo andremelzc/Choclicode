@@ -9,9 +9,9 @@
 - [x] Configurar esqueleto de servicios globales en `src/services/api.ts`.
 
 ## 2. Feature: Autenticación (Login)
-- [ ] Maquetar vista `app/login/page.tsx`.
-- [ ] Construir `src/features/auth/components/LoginForm.tsx` y `LoginLogo.tsx`.
-- [ ] Dejar preparado `src/features/auth/services/auth.service.ts` (solo firmas de funciones/mocks).
+- [x] Maquetar vista `app/login/page.tsx`.
+- [x] Construir `src/features/auth/components/LoginForm.tsx` y `LoginLogo.tsx`.
+- [x] Dejar preparado `src/features/auth/services/auth.service.ts` (solo firmas de funciones/mocks).
 
 ## 3. Feature: Chatbot - Caso de Uso 1 (Orientación y Matchmaking)
 - [ ] Construir base visual en `src/features/chat/components/`: `MessageList.tsx`, `MessageBubble.tsx`, `ChatInput.tsx`.
