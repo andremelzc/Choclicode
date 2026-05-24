@@ -40,9 +40,9 @@ export const TopHeader = () => {
         {/* User Profile and Logout */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3 rounded-full border border-border bg-surface/30 pl-1.5 pr-5 py-1.5">
-            <Avatar size="sm" fallback={getInitials(user?.nombre || "")} className="bg-primary/20 text-primary border border-primary/30 h-7 w-7 text-xs font-bold shadow-[0_0_10px_rgba(88,101,242,0.2)]" />
+            <Avatar size="sm" fallback={getInitials(user?.full_name || "")} className="bg-primary/20 text-primary border border-primary/30 h-7 w-7 text-xs font-bold shadow-[0_0_10px_rgba(88,101,242,0.2)]" />
             <span className="text-[13px] font-medium text-muted-foreground">
-              {user?.nombre || "Usuario"} · {user?.codigo || "Invitado"}
+              {user?.full_name || "Usuario"} · {user?.university_code || "Invitado"}
             </span>
           </div>
 

@@ -11,7 +11,7 @@ import { useAuth } from "../context/AuthContext"
 export const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [codigo, setCodigo] = useState("");
+  const [university_code, setUniversityCode] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
@@ -23,7 +23,7 @@ export const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.login(codigo, password);
+      const response = await authService.login(university_code, password);
       login(response.user, response.token);
       navigate("/chat");
     } catch (err: any) {
@@ -64,8 +64,8 @@ export const LoginForm = () => {
               type="text"
               placeholder="Ej: 23200107"
               iconLeft={<User className="w-[18px] h-[18px]" />}
-              value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
+              value={university_code}
+              onChange={(e) => setUniversityCode(e.target.value)}
               required
             />
           </div>
