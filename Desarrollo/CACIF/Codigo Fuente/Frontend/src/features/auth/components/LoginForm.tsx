@@ -7,6 +7,7 @@ import { Button } from "../../../components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../../../components/ui/Card"
 import { authService } from "../services/auth.service"
 import { useAuth } from "../context/AuthContext"
+import { motion } from "framer-motion"
 
 export const LoginForm = () => {
   const { login } = useAuth();
@@ -48,7 +49,13 @@ export const LoginForm = () => {
   }
 
   return (
-    <Card className="w-full max-w-[420px] bg-surface border-border shadow-2xl relative z-10">
+    <motion.div
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 20 }}
+      className="w-full max-w-[420px] relative z-10"
+    >
+      <Card className="w-full bg-surface border-border shadow-2xl">
       <CardHeader className="pb-8 text-left">
         <CardTitle className="text-xl">Iniciar Sesión</CardTitle>
         <CardDescription className="text-muted-foreground text-[13px] mt-1">
@@ -125,5 +132,6 @@ export const LoginForm = () => {
         </Button>
       </CardFooter>
     </Card>
+    </motion.div>
   )
 }

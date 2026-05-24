@@ -1,13 +1,16 @@
 import * as React from "react"
 import { useState } from "react"
-import { Send, Loader2 } from "lucide-react"
+import { Send, Loader2, Sparkles } from "lucide-react"
+import { Badge } from "../../../components/ui/Badge"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface ChatInputProps {
-  onSend: (text: string) => void;
-  isLoading: boolean;
+  onSend: (message: string) => void;
+  isLoading?: boolean;
+  hasMessages?: boolean;
 }
 
-export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
+export const ChatInput = ({ onSend, isLoading, hasMessages }: ChatInputProps) => {
   const [text, setText] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -18,9 +21,47 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
     }
   };
 
+  const SUGGESTIONS = [
+    "🤖 Inteligencia Artificial",
+    "🛡️ Ciberseguridad",
+    "🎓 Trámite de Tesis",
+    "📢 Ver Convocatorias"
+  ];
+
+  const handleSuggestionClick = (suggestion: string) => {
+    if (!isLoading) {
+      // Remove the emoji prefix for the actual query
+      const query = suggestion.replace(/^[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]\s*/g, '').trim();
+      onSend(`Quiero buscar grupos de investigación sobre ${query}`);
+    }
+  };
+
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent pt-12 pb-6 px-8 z-20">
-      <div className="max-w-[850px] mx-auto">
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent pt-12 pb-6 px-8 z-20 pointer-events-none">
+      <div className="max-w-[850px] mx-auto pointer-events-auto">
+        <AnimatePresence>
+          {!hasMessages && !isLoading && text.length === 0 && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="flex flex-wrap items-center gap-2 mb-4 px-2"
+            >
+              <Sparkles className="w-4 h-4 text-primary/70 mr-1" />
+              <span className="text-[12px] font-semibold text-muted-foreground mr-1">Sugerencias:</span>
+              {SUGGESTIONS.map((suggestion) => (
+                <Badge 
+                  key={suggestion}
+                  variant="secondary"
+                  className="cursor-pointer hover:bg-primary/20 hover:text-primary hover:border-primary/30 transition-all text-[11px] py-1 border border-border/50"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion}
+                </Badge>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
         <form onSubmit={handleSubmit} className="relative flex items-center rounded-2xl group">
           <input 
             type="text" 

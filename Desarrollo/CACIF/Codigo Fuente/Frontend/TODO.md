@@ -14,15 +14,15 @@
 - [x] Dejar preparado `src/features/auth/services/auth.service.ts` (solo firmas de funciones/mocks).
 
 ## 3. Feature: Chatbot - Caso de Uso 1 (Orientación y Matchmaking)
-- [ ] Construir base visual en `src/features/chat/components/`: `MessageList.tsx`, `MessageBubble.tsx`, `ChatInput.tsx`.
-- [ ] Implementar UI para búsqueda por palabras clave o términos técnicos.
-- [ ] Crear `components/ui/Badge.tsx` interactivos para filtrar por líneas de investigación oficiales de la FISI.
-- [ ] Maquetar flujo conversacional para evaluar áreas de interés del alumno y mostrar tarjetas comparativas con la ficha técnica del grupo.
+- [x] Construir base visual en `src/features/chat/components/`: `MessageList.tsx`, `MessageBubble.tsx`, `ChatInput.tsx`.
+- [x] Implementar UI para búsqueda por palabras clave o términos técnicos.
+- [x] Crear `components/ui/Badge.tsx` interactivos para filtrar por líneas de investigación oficiales de la FISI.
+- [x] Maquetar flujo conversacional para evaluar áreas de interés del alumno y mostrar tarjetas comparativas con la ficha técnica del grupo.
 
 ## 4. Feature: Chatbot - Caso de Uso 2 (Gestión de Convocatorias)
-- [ ] Diseñar UI (ej. carrusel o lista de tarjetas) para mostrar plazas disponibles y perfiles requeridos.
-- [ ] Maquetar alertas o timelines visuales para fechas límite de postulación y eventos.
-- [ ] Implementar botones de acción para redirección al enlace de inscripción oficial.
+- [x] Diseñar UI (ej. carrusel o lista de tarjetas) para mostrar plazas disponibles y perfiles requeridos.
+- [x] Maquetar alertas o timelines visuales para fechas límite de postulación y eventos.
+- [x] Implementar botones de acción para redirección al enlace de inscripción oficial.
 
 ## 5. Feature: Chatbot - Caso de Uso 3 (Asesoría de Grados)
 - [ ] Diseñar tarjetas o flujos paso a paso para explicar el procedimiento administrativo de vinculación de plan de tesis.
