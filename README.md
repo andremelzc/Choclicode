@@ -307,8 +307,6 @@ Usuario escribe consulta
 │       │           │       └── 📄 button.tsx
 │       │           └── 📁 lib/
 │       │               └── 📄 utils.ts
-│       ├── 📁 Cronograma/
-│       │   └── 📄 CACIF-CP.xlsx
 │       ├── 📁 Diseño/
 │       │   ├── 📄 CACIF-CPRAG.docx
 │       │   ├── 📄 CACIF-DA.docx
@@ -319,10 +317,11 @@ Usuario escribe consulta
 │       │   ├── 📄 CACIF-PC.docx
 │       │   └── 📄 CACIF-PP.docx
 │       └── 📁 Gestión/
+│           ├── 📄 CACIF-CP.xlsx
 │           └── 📄 CACIF-PC.docx
 ├── 📁 Documentos/
 │   └── 📁 Planes/
-│       └── 📄 CACIF-PGC.docx
+│       └── 📄 PGC.docx
 └── 📁 Linea Base/
     └── 📁 CACIF/
         ├── 📁 Linea Base 01/
