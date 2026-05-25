@@ -6,6 +6,8 @@ Crea la app FastAPI, configura CORS y registra los routers.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.routes.auth import router as auth_router
+
 app = FastAPI(
     title="CACIF Backend API",
     description="Chatbot para la Atención de Consultas de Investigaciones de la FISI",
@@ -20,6 +22,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Routers ─────────────────────────────────────────────────────────
+app.include_router(auth_router, prefix="/api")
 
 
 # ── Health check ────────────────────────────────────────────────────
