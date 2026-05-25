@@ -1,24 +1,36 @@
-"""Módulo de generación de embeddings.
+"""Modulo de generacion de embeddings con Google Gemini.
 
-Contiene la clase `Embedder` con las firmas necesarias para generar
-embeddings (individual y por lotes). No implementa la lógica.
+Utiliza la API de Google Generative AI para generar embeddings
+vectoriales de texto (1536 dimensiones).
 """
-from typing import List, Optional
+
+from typing import List
+
+import google.generativeai as genai
+
+from app.config import get_settings
+
+settings = get_settings()
+
 
 class Embedder:
-    """Generador de embeddings.
+    """Generador de embeddings usando Google Gemini.
 
-    En esta clase se debe integrar la librería de embeddings elegida
-    (p. ej. LangChain adapters o cliente directo de Google).
+    Inicializa la conexion con la API de Gemini y expone metodos
+    para generar embeddings individuales y por lotes.
     """
 
-    def __init__(self, model_name: str = "google-embedding-model") -> None:
-        """Inicializa el embedder con la configuración del modelo.
+    def __init__(self, model_name: str = "") -> None:
+        """Inicializa el embedder configurando la API key de Gemini.
 
         Args:
-            model_name: Identificador del modelo de embeddings a usar.
+            model_name: Modelo de embeddings a usar. Si no se provee,
+                        usa el configurado en settings.
         """
-        self.model_name = model_name
+        self.model_name = model_name or settings.GEMINI_EMBEDDING_MODEL
+
+        if settings.GEMINI_API_KEY:
+            genai.configure(api_key=settings.GEMINI_API_KEY)
 
     def embed(self, text: str) -> List[float]:
         """Genera un embedding para un texto dado.
@@ -27,9 +39,23 @@ class Embedder:
             text: Texto de entrada.
 
         Returns:
-            Vector de embedding (lista de floats).
+            Vector de embedding (lista de floats, 1536 dims).
+
+        Raises:
+            RuntimeError: Si la API key no esta configurada.
         """
-        raise NotImplementedError("Implementar generación de embedding")
+        if not settings.GEMINI_API_KEY:
+            raise RuntimeError(
+                "GEMINI_API_KEY no configurada. "
+                "Agrega la variable al archivo .env"
+            )
+
+        result = genai.embed_content(
+            model=self.model_name,
+            content=text,
+            task_type="retrieval_query",
+        )
+        return result["embedding"]
 
     def embed_batch(self, texts: List[str]) -> List[List[float]]:
         """Genera embeddings para una lista de textos.
@@ -40,4 +66,18 @@ class Embedder:
         Returns:
             Lista de embeddings correspondiendo a cada texto.
         """
-        raise NotImplementedError("Implementar generación de embeddings por lotes")
+        if not settings.GEMINI_API_KEY:
+            raise RuntimeError(
+                "GEMINI_API_KEY no configurada. "
+                "Agrega la variable al archivo .env"
+            )
+
+        results = []
+        for text in texts:
+            result = genai.embed_content(
+                model=self.model_name,
+                content=text,
+                task_type="retrieval_document",
+            )
+            results.append(result["embedding"])
+        return results
