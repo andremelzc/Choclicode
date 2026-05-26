@@ -8,10 +8,10 @@
      BACKGROUNDS
   ========================= */
 
-  --color-background: #0b0e14;
-  --color-sidebar: #1a1f2e;
-  --color-surface: #2d3748;
-  --color-chatbot: #2d3f5f;
+  --color-background: #0d121e; /* Tweaked to a deep navy blue instead of near-black */
+  --color-sidebar: #131929; /* Slightly lighter navy for sidebar/header if needed */
+  --color-surface: #1e2638; /* Matches the active state in sidebar */
+  --color-chatbot: #212c44;
 
   /* =========================
      TEXT
