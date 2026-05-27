@@ -253,9 +253,10 @@ async def send_message(
         "¿Podrías darme más detalles sobre lo que necesitas?"
     )
 
-    # Deteccion basica de intent para ui_type
+    # Deteccion basica de intent para ui_type e intent_type
     if any(kw in lower_content for kw in ["convocatoria", "concurso", "vacante", "postular"]):
         ui_type = "convocatoria_cards"
+        detected_intent = "CU02"
         response_content = (
             "He encontrado las siguientes convocatorias vigentes para "
             "grupos de investigación:"
@@ -281,6 +282,7 @@ async def send_message(
         ]
     elif any(kw in lower_content for kw in ["grupo", "investigación", "matchmaking", "ia", "software"]):
         ui_type = "matchmaking_cards"
+        detected_intent = "CU01"
         response_content = (
             "He analizado tus intereses y encontré los siguientes grupos "
             "de investigación que podrían interesarte:"
@@ -305,17 +307,24 @@ async def send_message(
             }
         ]
     elif any(kw in lower_content for kw in ["tesis", "convalidar", "ppp", "título"]):
+        ui_type = "text"
+        detected_intent = "CU03"
         response_content = (
             "Para los trámites relacionados con tu tesis o convalidación "
             "de PPP, te puedo orientar con los requisitos y procedimientos "
             "establecidos en el reglamento de la FISI."
         )
         rag_confidence = 0.88
-
-    # ── 6. Guardar respuesta del asistente ──────────────────────────
+    else:
+        detected_intent = "CU00"
+        
     assistant_msg_id = str(uuid.uuid4())
 
     if not is_guest:
+        # Actualizar intent_type de la conversacion si era CU00
+        if conv.intent_type == "CU00" and detected_intent != "CU00":
+            conv.intent_type = detected_intent
+            
         # Preparar ui_data
         ui_data_dict = {}
         if cards_data_mock:

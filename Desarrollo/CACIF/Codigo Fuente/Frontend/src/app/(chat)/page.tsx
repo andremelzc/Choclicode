@@ -18,6 +18,33 @@ export default function ChatPage() {
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  // Derive active conversation details
+  const activeConversation = conversations.find(c => c.id === activeConversationId);
+  
+  let headerTitle = "Nueva conversación";
+  let headerDesc = "Asistente inteligente listo para ayudarte con tus consultas";
+  
+  if (activeConversationId) {
+    headerTitle = "Consulta General";
+    headerDesc = "Resolviendo dudas generales sobre la FISI";
+    
+    if (activeConversation) {
+      if (activeConversation.intent_type === "CU01") {
+        headerTitle = "Búsqueda de Grupos";
+        headerDesc = "Orientación y matchmaking con grupos de investigación";
+      } else if (activeConversation.intent_type === "CU02") {
+        headerTitle = "Convocatorias";
+        headerDesc = "Gestión de concursos y financiamiento activos";
+      } else if (activeConversation.intent_type === "CU03") {
+        headerTitle = "Trámites y Grados";
+        headerDesc = "Asesoría para planes de tesis y vinculación";
+      } else if (activeConversation.intent_type === "CU04") {
+        headerTitle = "Normativa FISI";
+        headerDesc = "Consultas sobre el reglamento general";
+      }
+    }
+  }
+
   useEffect(() => {
     if (user) {
       chatService.getConversations(user.id).then(data => {
@@ -79,6 +106,11 @@ export default function ChatPage() {
     try {
       const response = await chatService.sendMessage(text, currentConvId);
       setMessages(prev => [...prev, response]);
+      
+      // Refresh conversations to get updated intent_type (titles)
+      if (user) {
+        chatService.getConversations(user.id).then(data => setConversations(data));
+      }
     } catch (error) {
       console.error("Error sending message:", error);
     } finally {
@@ -140,12 +172,10 @@ export default function ChatPage() {
               </button>
               <div className="flex flex-col">
               <h2 className="text-[16px] font-bold text-foreground">
-                {activeConversationId 
-                  ? "Conversación activa"
-                  : "Nueva conversación"}
+                {headerTitle}
               </h2>
               <p className="text-[13px] text-muted-foreground mt-0.5 font-medium">
-                {activeConversationId ? "Recuperando contexto..." : "Asistente inteligente listo para ayudarte con tus consultas"}
+                {headerDesc}
               </p>
             </div>
             </div>
@@ -154,7 +184,7 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <MessageList messages={messages} isLoading={isLoadingMessages} />
+          <MessageList messages={messages} isLoading={isLoadingMessages} onQuickAction={handleSend} />
           <ChatInput onSend={handleSend} isLoading={isLoadingMessages} hasMessages={messages.length > 0} />
         </main>
       </div>
