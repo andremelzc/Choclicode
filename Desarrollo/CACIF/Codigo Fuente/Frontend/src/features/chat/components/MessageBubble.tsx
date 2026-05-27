@@ -1,5 +1,5 @@
 import type { Message } from "../../../types/chat"
-import { Search, Info, Link as LinkIcon, User, Users, CalendarClock, ExternalLink, FileText, CheckCircle2, CircleDashed } from "lucide-react"
+import { Search, Link as LinkIcon, ExternalLink, FileText } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface MessageBubbleProps {
