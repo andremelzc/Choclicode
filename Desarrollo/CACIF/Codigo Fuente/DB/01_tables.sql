@@ -72,39 +72,3 @@ CREATE TABLE public.cited_sources (
     similarity_score FLOAT NOT NULL
 );
 
--- 7. Research Groups Table (CU01)
-CREATE TABLE public.research_groups (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(300) NOT NULL,
-    coordinator VARCHAR(200) NOT NULL,
-    description TEXT,
-    lines TEXT[] NOT NULL, -- Array de líneas de investigación
-    technical_areas TEXT[] NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE NOT NULL
-);
-
--- 8. Contests / Convocatorias Table (CU02)
-CREATE TABLE public.contests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title VARCHAR(300) NOT NULL,
-    contest_type VARCHAR(100) NOT NULL, -- e.g., 'Proyectos de investigación'
-    status_label VARCHAR(50) NOT NULL, -- e.g., 'Abierta', 'Cerrada'
-    status_badge VARCHAR(50) NOT NULL, -- e.g., 'success', 'error'
-    requirements TEXT[] NOT NULL,
-    prize TEXT,
-    required_documents TEXT,
-    apply_url TEXT,
-    start_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    end_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- 9. Contest Timeline Table (CU02 Detail)
-CREATE TABLE public.contest_timeline (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    contest_id UUID NOT NULL REFERENCES public.contests(id) ON DELETE CASCADE,
-    title VARCHAR(200) NOT NULL,
-    event_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    status VARCHAR(50) NOT NULL -- 'completed', 'current', 'upcoming'
-);

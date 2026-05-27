@@ -53,7 +53,6 @@ export interface Conversation {
   id: string;
   student_id: string;
   intent_type: string; // 'CU01' | 'CU02' | 'CU03' | 'CU04'
-  title: string;       // Not in DB directly, but useful for sidebar UI derived from intent/first message
   started_at: string;
   closed_at?: string;
   total_messages: number;

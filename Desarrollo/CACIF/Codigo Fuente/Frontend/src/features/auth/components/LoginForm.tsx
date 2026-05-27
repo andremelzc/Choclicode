@@ -12,7 +12,7 @@ import { motion } from "framer-motion"
 export const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [university_code, setUniversityCode] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
@@ -24,7 +24,7 @@ export const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.login(university_code, password);
+      const response = await authService.login(email, password);
       login(response.user, response.token);
       navigate("/chat");
     } catch (err: any) {
@@ -66,13 +66,13 @@ export const LoginForm = () => {
       <CardContent>
         <form onSubmit={handleLogin} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-bold tracking-wide uppercase text-muted-foreground/80 pl-1">Código de Estudiante</label>
+            <label className="text-[11px] font-bold tracking-wide uppercase text-muted-foreground/80 pl-1">Correo Electrónico</label>
             <Input
-              type="text"
-              placeholder="Ej: 23200107"
+              type="email"
+              placeholder="Ej: ejemplo@unmsm.edu.pe"
               iconLeft={<User className="w-[18px] h-[18px]" />}
-              value={university_code}
-              onChange={(e) => setUniversityCode(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>

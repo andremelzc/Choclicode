@@ -51,7 +51,6 @@ export default function ChatPage() {
         id: currentConvId,
         student_id: user?.id || "unknown",
         intent_type: "CU00",
-        title: text.length > 25 ? text.substring(0, 25) + "..." : text,
         started_at: new Date().toISOString(),
         total_messages: 2
       };
@@ -97,7 +96,7 @@ export default function ChatPage() {
             <div className="flex flex-col">
               <h2 className="text-[16px] font-bold text-foreground">
                 {activeConversationId 
-                  ? conversations.find(c => c.id === activeConversationId)?.title || "Conversación activa"
+                  ? "Conversación activa"
                   : "Nueva conversación"}
               </h2>
               <p className="text-[13px] text-muted-foreground mt-0.5 font-medium">

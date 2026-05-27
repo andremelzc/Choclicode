@@ -90,7 +90,7 @@ export const Sidebar = ({
                       )}
                     >
                       <span className={cn("text-[14px] font-semibold truncate w-full", isActive ? "text-foreground" : "text-foreground/70")}>
-                        {conv.title}
+                        Consulta General
                       </span>
                       <span className="text-[11px] text-muted-foreground font-medium">
                         {formatDate(conv.started_at)}
