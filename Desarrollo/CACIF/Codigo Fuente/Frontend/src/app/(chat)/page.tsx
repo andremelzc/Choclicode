@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { Menu, X } from "lucide-react"
 import { Sidebar } from "../../components/layout/Sidebar"
 import { TopHeader } from "../../components/layout/TopHeader"
 import { MessageList } from "../../features/chat/components/MessageList"
@@ -15,6 +16,7 @@ export default function ChatPage() {
   
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -29,6 +31,7 @@ export default function ChatPage() {
     setActiveConversationId(id);
     setMessages([]);
     setIsLoadingMessages(true);
+    setIsMobileSidebarOpen(false);
     chatService.getMessages(id).then(data => {
       setMessages(data);
       setIsLoadingMessages(false);
@@ -38,6 +41,7 @@ export default function ChatPage() {
   const handleNewConversation = () => {
     setActiveConversationId(null);
     setMessages([]);
+    setIsMobileSidebarOpen(false);
   };
 
   const handleSend = async (text: string) => {
@@ -83,17 +87,54 @@ export default function ChatPage() {
       <TopHeader />
       
       <div className="flex flex-1 overflow-hidden relative">
-        <Sidebar 
-          activeConversationId={activeConversationId}
-          onSelectConversation={handleSelectConversation}
-          onNewConversation={handleNewConversation}
-          conversations={conversations}
-          isLoadingConversations={isLoadingConversations}
-        />
+        {/* Desktop Sidebar */}
+        <div className="hidden md:flex h-full">
+          <Sidebar 
+            activeConversationId={activeConversationId}
+            onSelectConversation={handleSelectConversation}
+            onNewConversation={handleNewConversation}
+            conversations={conversations}
+            isLoadingConversations={isLoadingConversations}
+          />
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isMobileSidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-50 flex">
+            {/* Backdrop */}
+            <div 
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+              onClick={() => setIsMobileSidebarOpen(false)}
+            />
+            {/* Sidebar Content */}
+            <div className="relative z-50 h-full flex shadow-2xl animate-in slide-in-from-left duration-300">
+              <Sidebar 
+                activeConversationId={activeConversationId}
+                onSelectConversation={handleSelectConversation}
+                onNewConversation={handleNewConversation}
+                conversations={conversations}
+                isLoadingConversations={isLoadingConversations}
+              />
+              <button 
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="absolute -right-10 top-4 p-1.5 bg-surface text-foreground rounded-full border border-border shadow-md"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
         
         <main className="flex-1 flex flex-col relative h-full bg-background">
-          <div className="flex items-center justify-between px-8 py-5 border-b border-border shrink-0 bg-background/95 backdrop-blur-sm z-10 shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
-            <div className="flex flex-col">
+          <div className="flex items-center justify-between px-4 md:px-8 py-4 md:py-5 border-b border-border shrink-0 bg-background/95 backdrop-blur-sm z-10 shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
+            <div className="flex items-center gap-3">
+              <button 
+                className="md:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setIsMobileSidebarOpen(true)}
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <div className="flex flex-col">
               <h2 className="text-[16px] font-bold text-foreground">
                 {activeConversationId 
                   ? "Conversación activa"
@@ -103,7 +144,8 @@ export default function ChatPage() {
                 {activeConversationId ? "Recuperando contexto..." : "Asistente inteligente listo para ayudarte con tus consultas"}
               </p>
             </div>
-            <div className="rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary tracking-widest uppercase shadow-[0_0_10px_rgba(88,101,242,0.2)]">
+            </div>
+            <div className="hidden sm:block rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary tracking-widest uppercase shadow-[0_0_10px_rgba(88,101,242,0.2)]">
               CACIF · Asistente FISI
             </div>
           </div>

@@ -53,7 +53,7 @@ export const LoginForm = () => {
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 20 }}
-      className="w-full max-w-[420px] relative z-10"
+      className="w-[calc(100%-2rem)] md:w-full max-w-[420px] relative z-10 mx-auto"
     >
       <Card className="w-full bg-surface border-border shadow-2xl">
       <CardHeader className="pb-8 text-left">
