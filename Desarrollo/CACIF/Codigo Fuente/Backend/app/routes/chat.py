@@ -52,6 +52,9 @@ def _msg_to_response(msg: Mensaje) -> MessageResponse:
         content=msg.content,
         tokens_used=msg.tokens_used,
         rag_confidence=msg.rag_confidence,
+        ui_type=msg.ui_type,
+        cards_data=msg.ui_data.get("cards_data") if msg.ui_data else None,
+        contest_data=msg.ui_data.get("contest_data") if msg.ui_data else None,
         sent_at=msg.sent_at.isoformat(),
         cited_sources=[
             CitedSourceResponse(
@@ -240,6 +243,9 @@ async def send_message(
     lower_content = payload.content.lower()
     ui_type = "text"
     rag_confidence = 0.85
+    cards_data_mock = None
+    contest_data_mock = None
+    
     response_content = (
         "Entiendo tu consulta. Como Asistente CACIF, puedo ayudarte con "
         "orientación sobre grupos de investigación, convocatorias, "
@@ -248,20 +254,56 @@ async def send_message(
     )
 
     # Deteccion basica de intent para ui_type
-    if any(kw in lower_content for kw in ["grupo", "investigación", "matchmaking", "ia", "software"]):
-        ui_type = "matchmaking_cards"
-        response_content = (
-            "He analizado tus intereses y encontré los siguientes grupos "
-            "de investigación que podrían interesarte:"
-        )
-        rag_confidence = 0.92
-    elif any(kw in lower_content for kw in ["convocatoria", "concurso", "vacante", "postular"]):
+    if any(kw in lower_content for kw in ["convocatoria", "concurso", "vacante", "postular"]):
         ui_type = "convocatoria_cards"
         response_content = (
             "He encontrado las siguientes convocatorias vigentes para "
             "grupos de investigación:"
         )
         rag_confidence = 0.90
+        contest_data_mock = [
+            {
+                "id": "picv-2026",
+                "title": "PICV-UNMSM 2026",
+                "contest_type": "Inducción Científica",
+                "status_badge": "Activo",
+                "status_label": "Abierto",
+                "requirements": ["Ser alumno regular FISI", "Tercio superior"],
+                "prize": "S/ 1,500 + Certificado",
+                "required_documents": "CV, Récord Académico",
+                "apply_url": "https://vrip.unmsm.edu.pe",
+                "timeline_events": [
+                    {"title": "Lanzamiento", "date": "1 Ene", "status": "completed"},
+                    {"title": "Cierre", "date": "15 Feb", "status": "current"},
+                    {"title": "Resultados", "date": "1 Mar", "status": "upcoming"}
+                ]
+            }
+        ]
+    elif any(kw in lower_content for kw in ["grupo", "investigación", "matchmaking", "ia", "software"]):
+        ui_type = "matchmaking_cards"
+        response_content = (
+            "He analizado tus intereses y encontré los siguientes grupos "
+            "de investigación que podrían interesarte:"
+        )
+        rag_confidence = 0.92
+        cards_data_mock = [
+            {
+                "id": "g1",
+                "name": "Laboratorio de Inteligencia Artificial (LIA)",
+                "coordinator": "Dr. Juan Pérez",
+                "lines": ["Machine Learning", "NLP"],
+                "technical_areas": ["IA", "Data Science"],
+                "description": "Grupo enfocado en la investigación y aplicación de IA."
+            },
+            {
+                "id": "g2",
+                "name": "Grupo de Ingeniería de Software (GIS)",
+                "coordinator": "Dra. María González",
+                "lines": ["Arquitecturas Ágiles", "DevOps"],
+                "technical_areas": ["Ing. Software", "Sistemas Distribuidos"],
+                "description": "Metodologías modernas de desarrollo."
+            }
+        ]
     elif any(kw in lower_content for kw in ["tesis", "convalidar", "ppp", "título"]):
         response_content = (
             "Para los trámites relacionados con tu tesis o convalidación "
@@ -274,12 +316,21 @@ async def send_message(
     assistant_msg_id = str(uuid.uuid4())
 
     if not is_guest:
+        # Preparar ui_data
+        ui_data_dict = {}
+        if cards_data_mock:
+            ui_data_dict["cards_data"] = cards_data_mock
+        if contest_data_mock:
+            ui_data_dict["contest_data"] = contest_data_mock
+            
         assistant_msg = Mensaje(
             id=uuid.UUID(assistant_msg_id),
             conversation_id=conv_id,
             role="assistant",
             content=response_content,
             rag_confidence=rag_confidence,
+            ui_type=ui_type,
+            ui_data=ui_data_dict if ui_data_dict else None,
         )
         db.add(assistant_msg)
         conv.total_messages += 1
@@ -293,4 +344,6 @@ async def send_message(
         rag_confidence=rag_confidence,
         sent_at=datetime.now(timezone.utc).isoformat(),
         ui_type=ui_type,
+        cards_data=cards_data_mock,
+        contest_data=contest_data_mock,
     )

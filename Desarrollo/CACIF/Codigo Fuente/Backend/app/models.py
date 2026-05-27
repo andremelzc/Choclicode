@@ -23,6 +23,7 @@ from sqlalchemy import (
     ForeignKey,
     Enum as SAEnum,
     ARRAY,
+    JSON,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -100,6 +101,8 @@ class Mensaje(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     tokens_used: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     rag_confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    ui_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    ui_data: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     sent_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )

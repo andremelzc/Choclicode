@@ -7,10 +7,10 @@ Este documento sirve como un mapa de ruta exacto para el equipo de backend.
 ## 1. Módulo de Autenticación (`/api/auth`)
 
 - [x] `POST /api/auth/login`
-  - **Body:** `{ "university_code": "23200107", "password": "..." }`
+  - **Body:** `{ "email": "usuario@unmsm.edu.pe", "password": "..." }`
   - **Lógica:** 
-    - *Aclaración MVP:* Dado que la tabla `Estudiante` no posee un campo estricto de contraseña por ahora, **el password enviado deberá coincidir obligatoriamente con el `university_code`** como medida de seguridad básica para el MVP.
-    - Buscar al estudiante por su código. Si no existe o no coincide el password temporal, rechazar.
+    - Se autentica directamente comparando el password hasheado (Bcrypt) contra la tabla `auth.users` de Supabase.
+    - Se usa el enfoque BFF (Backend-for-Frontend) para no exponer las llaves de Supabase en el cliente.
   - **Response:** `{ "token": "jwt_string", "user": { "id": "uuid", "university_code": "23200107", "full_name": "...", "role": "estudiante" } }`
 
 - [x] `POST /api/auth/guest`
@@ -47,9 +47,11 @@ Este documento sirve como un mapa de ruta exacto para el equipo de backend.
     3. **Búsqueda Vectorial:** Consultar el índice de **Azure AI Search**. Buscar similitud vectorial contra el campo `pregunta` de las FAQs indexadas.
     4. **Síntesis con LLM:** Tomar el "Top-k" de FAQs recuperadas y pasarlas como contexto al prompt de Gemini para que genere una respuesta.
     5. **Detección de Interfaz (UI):** 
-       - Si Gemini detecta el intent **CU01 (Búsqueda de GI)**, el backend debe adjuntar al JSON el campo `ui_type: 'matchmaking_cards'` y el array `cards_data` extrayendo los datos de la base de datos de Grupos.
-       - Si Gemini detecta el intent **CU02 (Concursos/Convocatorias)**, el backend debe adjuntar al JSON el campo `ui_type: 'convocatoria_cards'` y el array `contest_data` consultando los concursos y financiamientos activos.
-    6. **Guardado Final:** *Solo si el usuario NO es invitado*, registrar la respuesta generada por el asistente en la tabla `Mensaje` (incluyendo `rag_confidence` y referencias).
+       - Si Gemini detecta el intent **CU01 (Búsqueda de GI)**, el backend adjunta al JSON `ui_type: 'matchmaking_cards'` y empaqueta `cards_data`.
+       - Si Gemini detecta el intent **CU02 (Concursos/Convocatorias)**, el backend adjunta `ui_type: 'convocatoria_cards'` y empaqueta `contest_data`.
+       - Si Gemini detecta el intent **CU03 (Trámites/Grados)**, el backend adjunta `ui_type: 'stepper_cards'` (o `requirement_cards`) y empaqueta un JSON con el flujo paso a paso o la lista de requisitos formales para mantener la UX estructurada.
+       - Si Gemini detecta el intent **CU04 (Normativa)**, el backend adjunta `ui_type: 'citation_cards'` y empaqueta un JSON con el artículo normativo destacado, incluyendo un enlace directo al PDF oficial y la página, en lugar de mezclarlo como texto plano.
+    6. **Guardado Final y Persistencia de UI:** *Solo si el usuario NO es invitado*, registrar la respuesta en la tabla `Mensaje`. Se deben guardar obligatoriamente las columnas `ui_type` (VARCHAR) y `ui_data` (JSONB) para que el Frontend pueda reconstruir las tarjetas enriquecidas al cargar el historial.
   - **Response:** Objeto `Message` del asistente (incluyendo `ui_type`, `cards_data`, `contest_data` y `cited_sources`).
 
 ---
@@ -81,4 +83,10 @@ El sistema no hace chunking crudo de PDFs en tiempo de ejecución, sino que util
 
 2. **Lógica RAG-QA:**
    - [ ] Implementar script de **ingesta masiva**: Leer JSON con FAQs, generar embeddings y subir a Azure AI Search en batch. *(Pendiente de ejecución)*
-   - [ ] Implementar el orquestador del Chat (`POST /api/chat/message`). *(Esqueleto listo, falta conectar RAG)*
+   - [ ] Implementar el orquestador del Chat (`POST /api/chat/message`). *(Actualizado con Mock JSONB persistente, falta conectar RAG real de AWS y Gemini)*
+   - [ ] Afinar el Prompt del LLM (System Instruction) para obligarlo a usar Structured Outputs (JSON) y detectar automáticamente el `intent_type` de la conversación en lugar de depender de palabras clave.
+
+3. **Modificaciones a Futuro (Siguientes Pasos):**
+   - [ ] Habilitar Streaming (Server-Sent Events) para que el bot escriba en tiempo real (requerirá rediseñar cómo se devuelven los JSONs de `cards_data`).
+   - [ ] Agregar validación estricta de dominios permitidos (CORS) para entornos de producción.
+   - [ ] Implementar manejo de caché en Redis para las preguntas más frecuentes y acelerar el response time.
