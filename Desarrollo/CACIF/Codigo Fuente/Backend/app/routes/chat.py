@@ -12,11 +12,12 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Conversacion, Mensaje, Estudiante
+from app.models import Conversacion, Mensaje, Estudiante, FuenteCitada
 from app.schemas import (
     ConversationCreate,
     ConversationResponse,
@@ -36,7 +37,6 @@ def _conv_to_response(conv: Conversacion) -> ConversationResponse:
         id=str(conv.id),
         student_id=str(conv.student_id),
         intent_type=conv.intent_type,
-        title=conv.title,
         started_at=conv.started_at.isoformat(),
         closed_at=conv.closed_at.isoformat() if conv.closed_at else None,
         total_messages=conv.total_messages,
@@ -112,7 +112,6 @@ async def create_conversation(
             id=str(uuid.uuid4()),
             student_id=current_user["sub"],
             intent_type=payload.intent_type,
-            title=payload.title,
             started_at=datetime.now(timezone.utc).isoformat(),
             total_messages=0,
         )
@@ -123,7 +122,6 @@ async def create_conversation(
     nueva = Conversacion(
         student_id=student_id,
         intent_type=payload.intent_type,
-        title=payload.title,
     )
     db.add(nueva)
     await db.commit()
@@ -171,6 +169,7 @@ async def list_messages(
     # Obtener mensajes
     msg_result = await db.execute(
         select(Mensaje)
+        .options(selectinload(Mensaje.fuentes_citadas).selectinload(FuenteCitada.chunk))
         .where(Mensaje.conversation_id == conv_uuid)
         .order_by(Mensaje.sent_at.asc())
     )

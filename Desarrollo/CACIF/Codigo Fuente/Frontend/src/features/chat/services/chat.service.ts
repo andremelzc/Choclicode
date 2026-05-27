@@ -12,6 +12,16 @@ export const chatService = {
     }
   },
 
+  createConversation: async (intentType: string = "CU00"): Promise<Conversation> => {
+    try {
+      const response = await api.post('/chat/conversations', { intent_type: intentType });
+      return response.data;
+    } catch (error) {
+      console.error("Error al crear conversación:", error);
+      throw error;
+    }
+  },
+
   getMessages: async (conversationId: string): Promise<Message[]> => {
     try {
       const response = await api.get(`/chat/conversations/${conversationId}/messages`);

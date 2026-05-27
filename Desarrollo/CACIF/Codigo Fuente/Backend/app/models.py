@@ -63,7 +63,11 @@ class Conversacion(Base):
     student_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("students.id"), nullable=False
     )
-    intent_type: Mapped[str] = mapped_column(String(10), default="CU00")
+    intent_type: Mapped[str] = mapped_column(
+        SAEnum("CU00", "CU01", "CU02", "CU03", "CU04", name="intent_type"),
+        nullable=False,
+        default="CU00"
+    )
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )

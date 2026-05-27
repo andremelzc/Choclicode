@@ -46,24 +46,11 @@ export default function ChatPage() {
 
   const handleSend = async (text: string) => {
     let currentConvId = activeConversationId;
-    
-    if (!currentConvId) {
-      currentConvId = crypto.randomUUID();
-      setActiveConversationId(currentConvId);
-      
-      const newConv: Conversation = {
-        id: currentConvId,
-        student_id: user?.id || "unknown",
-        intent_type: "CU00",
-        started_at: new Date().toISOString(),
-        total_messages: 2
-      };
-      setConversations(prev => [newConv, ...prev]);
-    }
 
+    // Optimistic UI update
     const userMsg: Message = {
       id: crypto.randomUUID(),
-      conversation_id: currentConvId,
+      conversation_id: currentConvId || "temp-conv",
       role: 'user',
       content: text,
       sent_at: new Date().toISOString()
@@ -71,6 +58,23 @@ export default function ChatPage() {
     
     setMessages(prev => [...prev, userMsg]);
     setIsLoadingMessages(true);
+    
+    // Forzamos a React a renderizar el mensaje en el DOM inmediatamente
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
+    if (!currentConvId) {
+      try {
+        const newConv = await chatService.createConversation("CU00");
+        currentConvId = newConv.id;
+        setActiveConversationId(currentConvId);
+        setConversations(prev => [newConv, ...prev]);
+      } catch (error) {
+        console.error("No se pudo crear la conversación en el backend", error);
+        setMessages(prev => prev.filter(m => m.id !== userMsg.id));
+        setIsLoadingMessages(false);
+        return;
+      }
+    }
 
     try {
       const response = await chatService.sendMessage(text, currentConvId);
