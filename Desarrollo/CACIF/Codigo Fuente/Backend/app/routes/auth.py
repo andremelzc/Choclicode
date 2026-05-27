@@ -21,14 +21,30 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/login", response_model=AuthResponse)
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
-    """Autenticacion con codigo universitario.
-
-    MVP: el password debe coincidir con el university_code.
-    Busca al estudiante en la tabla Estudiante por su codigo.
-    Si no existe o la contraseña no coincide, rechaza con 401.
+    """Autenticacion con Supabase Auth (DB Direct).
+    
+    Verifica el password contra la tabla auth.users usando bcrypt.
+    Luego busca el Estudiante asociado a ese ID.
     """
-    # Validar password == university_code (regla MVP del BACKEND_TODO)
-    if payload.password != payload.university_code:
+    from sqlalchemy import text
+    import bcrypt
+
+    # Consultar auth.users
+    query = text("SELECT id, encrypted_password FROM auth.users WHERE email = :email")
+    result = await db.execute(query, {"email": payload.email})
+    auth_user = result.fetchone()
+
+    if not auth_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+        )
+
+    # Verificar password con bcrypt directamente para evitar bugs de passlib
+    password_bytes = payload.password.encode('utf-8')
+    hash_bytes = auth_user.encrypted_password.encode('utf-8')
+    
+    if not bcrypt.checkpw(password_bytes, hash_bytes):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales inválidas",
@@ -37,7 +53,7 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     # Buscar estudiante en la BD
     result = await db.execute(
         select(Estudiante).where(
-            Estudiante.university_code == payload.university_code,
+            Estudiante.id == auth_user.id,
             Estudiante.is_active == True,
         )
     )

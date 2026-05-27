@@ -74,6 +74,13 @@ export const Sidebar = ({
               >
                 {conversations.map((conv) => {
                   const isActive = conv.id === activeConversationId;
+                  
+                  let displayTitle = "Consulta General";
+                  if (conv.intent_type === "CU01") displayTitle = "Búsqueda de Grupos";
+                  if (conv.intent_type === "CU02") displayTitle = "Convocatorias";
+                  if (conv.intent_type === "CU03") displayTitle = "Trámites y Grados";
+                  if (conv.intent_type === "CU04") displayTitle = "Normativa FISI";
+
                   return (
                     <motion.button
                       key={conv.id}
@@ -90,7 +97,7 @@ export const Sidebar = ({
                       )}
                     >
                       <span className={cn("text-[14px] font-semibold truncate w-full", isActive ? "text-foreground" : "text-foreground/70")}>
-                        {conv.title}
+                        {displayTitle}
                       </span>
                       <span className="text-[11px] text-muted-foreground font-medium">
                         {formatDate(conv.started_at)}

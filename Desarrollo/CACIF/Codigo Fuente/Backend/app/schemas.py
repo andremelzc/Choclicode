@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 # ═══════════════════════════════════════════════════════════════════
 
 class LoginRequest(BaseModel):
-    university_code: str
+    email: str
     password: str
 
 
@@ -38,7 +38,6 @@ class AuthResponse(BaseModel):
 # ═══════════════════════════════════════════════════════════════════
 
 class ConversationCreate(BaseModel):
-    title: str = "Nueva conversación"
     intent_type: str = "CU00"
 
 
@@ -46,7 +45,6 @@ class ConversationResponse(BaseModel):
     id: str
     student_id: str
     intent_type: str
-    title: str
     started_at: str
     closed_at: Optional[str] = None
     total_messages: int

@@ -4,9 +4,10 @@ import { motion } from "framer-motion"
 
 interface MessageBubbleProps {
   message: Message;
+  onQuickAction?: (text: string) => void;
 }
 
-export const MessageBubble = ({ message }: MessageBubbleProps) => {
+export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) => {
   const isUser = message.role === 'user';
   
   const formattedTime = new Date(message.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -102,7 +103,10 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
                     </div>
                   )}
                   
-                  <button className="w-full bg-primary/90 text-white font-medium text-[13px] py-2.5 rounded-lg hover:bg-primary transition-colors">
+                  <button 
+                    onClick={() => onQuickAction?.(`Dame más información sobre el ${card.name}`)}
+                    className="w-full bg-primary/90 text-white font-medium text-[13px] py-2.5 rounded-lg hover:bg-primary transition-colors"
+                  >
                     Ver información completa
                   </button>
                 </motion.div>
@@ -165,6 +169,8 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
 
                     <a 
                       href={contest.apply_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full bg-warning text-warning-foreground py-3 rounded-xl text-[14px] font-bold hover:bg-warning/90 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                     >
                       Inscribir proyecto del grupo <ExternalLink className="w-4 h-4" />
