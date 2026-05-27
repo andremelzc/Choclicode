@@ -61,7 +61,7 @@ const mockConversations: Conversation[] = [
 ];
 
 export const chatService = {
-  getConversations: async (studentId: string): Promise<Conversation[]> => {
+  getConversations: async (_studentId: string): Promise<Conversation[]> => {
     await new Promise(resolve => setTimeout(resolve, 800));
     return mockConversations;
   },

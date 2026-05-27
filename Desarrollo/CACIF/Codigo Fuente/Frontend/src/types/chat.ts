@@ -4,6 +4,7 @@ export interface CitedSource {
   start_page?: number;
   end_page?: number;
   similarity_score: number;
+}
 export interface TimelineEvent {
   title: string;
   date: string;
