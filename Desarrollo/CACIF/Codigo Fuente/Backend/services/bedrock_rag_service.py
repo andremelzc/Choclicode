@@ -11,6 +11,8 @@ from typing import Optional
 import boto3
 from langchain_aws import AmazonKnowledgeBasesRetriever, ChatBedrockConverse
 from langchain_core.messages import HumanMessage, SystemMessage
+from pydantic import BaseModel, Field
+from typing import Optional, Dict, Any, List
 
 from app.config import Settings
 from prompts.prompts import CACIF_SYSTEM_PROMPT
@@ -22,6 +24,13 @@ _INTENT_KEYWORDS: dict[str, list[str]] = {
     "CU03": ["tesis", "convalidar", "ppp", "título", "titulaci", "graduaci", "bachiller"],
     "CU04": ["normativa", "plagio", "resoluci", "reglamento", "artículo", "directiva", "oficial"],
 }
+
+class StructuredAssistantResponse(BaseModel):
+    answer: str = Field(description="La respuesta textual principal en formato académico, basándose en el contexto.")
+    intent_type: str = Field(description="Clasifica el caso de uso en: CU01 (Grupos), CU02 (Convocatorias), CU03 (Trámites), CU04 (Normativa), o CU00 (Consulta General).")
+    ui_type: str = Field(description="Determina la UI. Valores posibles: 'text', 'matchmaking_cards' (si intent_type es CU01), 'convocatoria_cards' (si intent_type es CU02), 'stepper_cards' (si intent_type es CU03), 'citation_cards' (si intent_type es CU04).")
+    ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Por ejemplo, para matchmaking_cards, devuelve una lista en la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data'.")
+
 
 
 def _detect_intent(query: str) -> str:
@@ -68,7 +77,7 @@ class BedrockRAGService:
         self.llm = ChatBedrockConverse(
             model=settings.BEDROCK_LLM_MODEL,
             client=session.client("bedrock-runtime"),
-        )
+        ).with_structured_output(StructuredAssistantResponse)
 
     async def run(self, query: str) -> dict:
         """Ejecuta el pipeline RAG completo: recuperar → sintetizar.
@@ -105,17 +114,21 @@ class BedrockRAGService:
                 content=(
                     f"Contexto recuperado de la base de conocimientos:\n{context}\n\n"
                     f"Pregunta del estudiante: {query}\n\n"
-                    "Responde en español académico formal basándote exclusivamente en el contexto."
+                    "Por favor, analiza la pregunta y el contexto, clasifica el caso de uso y provee tu respuesta llenando la estructura requerida. "
+                    "Si determinas que es CU01, genera datos estructurados en 'ui_data' -> 'cards_data'. "
+                    "Si es CU02, genera datos en 'ui_data' -> 'contest_data'. "
+                    "Asegúrate de no inventar datos que no estén en el contexto, pero simula IDs o nombres si es estrictamente necesario para armar la tarjeta visual. "
                 )
             ),
         ]
 
-        response = await self.llm.ainvoke(messages)
-        answer: str = response.content if hasattr(response, "content") else str(response)
+        structured_response: StructuredAssistantResponse = await self.llm.ainvoke(messages)
 
         return {
-            "answer": answer,
-            "intent": _detect_intent(query),
+            "answer": structured_response.answer,
+            "intent": structured_response.intent_type,
+            "ui_type": structured_response.ui_type,
+            "ui_data": structured_response.ui_data,
             "confidence": confidence,
             "sources": sources,
         }

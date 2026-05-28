@@ -253,7 +253,11 @@ async def send_message(
     response_content: str = rag_result["answer"]
     detected_intent: str = rag_result["intent"]
     rag_confidence: float = rag_result["confidence"]
-    ui_type = "text"
+    ui_type: str = rag_result.get("ui_type", "text")
+    ui_data: dict = rag_result.get("ui_data", {})
+    
+    cards_data = ui_data.get("cards_data") if ui_data else None
+    contest_data = ui_data.get("contest_data") if ui_data else None
 
     assistant_msg_id = str(uuid.uuid4())
 
@@ -269,7 +273,7 @@ async def send_message(
             content=response_content,
             rag_confidence=rag_confidence,
             ui_type=ui_type,
-            ui_data=None,
+            ui_data=ui_data if ui_data else None,
         )
         db.add(assistant_msg)
         conv.total_messages += 1
@@ -283,6 +287,6 @@ async def send_message(
         rag_confidence=rag_confidence,
         sent_at=datetime.now(timezone.utc).isoformat(),
         ui_type=ui_type,
-        cards_data=None,
-        contest_data=None,
+        cards_data=cards_data,
+        contest_data=contest_data,
     )
