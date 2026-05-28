@@ -9,9 +9,11 @@ from __future__ import annotations
 from typing import Optional
 
 import boto3
-from langchain_aws import AmazonKnowledgeBasesRetriever, ChatBedrockConverse
+from langchain_aws import AmazonKnowledgeBasesRetriever
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+import json
 from typing import Optional, Dict, Any, List
 
 from app.config import Settings
@@ -30,6 +32,16 @@ class StructuredAssistantResponse(BaseModel):
     intent_type: str = Field(description="Clasifica el caso de uso en: CU01 (Grupos), CU02 (Convocatorias), CU03 (Trámites), CU04 (Normativa), o CU00 (Consulta General).")
     ui_type: str = Field(description="Determina la UI. Valores posibles: 'text', 'matchmaking_cards' (si intent_type es CU01), 'convocatoria_cards' (si intent_type es CU02), 'stepper_cards' (si intent_type es CU03), 'citation_cards' (si intent_type es CU04).")
     ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Por ejemplo, para matchmaking_cards, devuelve una lista en la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data'.")
+
+    @field_validator('ui_data', mode='before')
+    @classmethod
+    def parse_ui_data(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except Exception:
+                return {}
+        return v
 
 
 
@@ -74,9 +86,10 @@ class BedrockRAGService:
             client=session.client("bedrock-agent-runtime"),
         )
 
-        self.llm = ChatBedrockConverse(
-            model=settings.BEDROCK_LLM_MODEL,
-            client=session.client("bedrock-runtime"),
+        self.llm = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_MODEL,
+            api_key=settings.GEMINI_API_KEY,
+            temperature=0.0
         ).with_structured_output(StructuredAssistantResponse)
 
     async def run(self, query: str) -> dict:
