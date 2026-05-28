@@ -11,13 +11,14 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Conversacion, Mensaje, Estudiante, FuenteCitada
+from app.models import Conversacion, Mensaje, FuenteCitada
 from app.schemas import (
     ConversationCreate,
     ConversationResponse,
@@ -25,6 +26,7 @@ from app.schemas import (
     MessageResponse,
     CitedSourceResponse,
 )
+from services.bedrock_rag_service import get_bedrock_rag_service
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -192,17 +194,12 @@ async def send_message(
 ):
     """Endpoint principal del pipeline RAG-QA.
 
-    Flujo segun CACIF-EBC:
-    1. Guardar mensaje del usuario en tabla Mensaje
-    2. Generar embedding con Google Gemini
-    3. Buscar FAQs similares en Azure AI Search
-    4. Sintetizar respuesta con LLM (Gemini)
-    5. Detectar ui_type segun intent (CU01 -> matchmaking_cards, CU02 -> convocatoria_cards)
-    6. Guardar respuesta del asistente (solo si no es invitado)
-
-    Nota: La integracion real con Gemini y Azure AI Search se implementa
-    en el servicio RAG (commit posterior). Este endpoint actualmente retorna
-    una respuesta de esqueleto funcional.
+    Flujo:
+    1. Guardar mensaje del usuario en DB (solo usuarios autenticados)
+    2. Recuperar docs relevantes desde AWS Bedrock Knowledge Base (KWLERMH1JC)
+    3. Sintetizar respuesta con Claude via Bedrock (ChatBedrockConverse)
+    4. Detectar intent (CU01-CU04) por keywords para actualizar conversacion
+    5. Guardar respuesta del asistente (solo si no es invitado)
     """
     is_guest = current_user.get("role") == "invitado"
     conv_id = uuid.UUID(payload.conversation_id)
@@ -235,103 +232,36 @@ async def send_message(
         # Actualizar contador
         conv.total_messages += 1
 
-    # ── 2-5. Pipeline RAG (esqueleto funcional) ─────────────────────
-    # TODO: Integrar con RAGService real en commit posterior.
-    # Por ahora, generamos una respuesta basica para que el endpoint
-    # sea funcional de punta a punta.
+    # ── 2-5. Pipeline RAG con AWS Bedrock Knowledge Base ────────────
+    try:
+        settings = get_settings()
+        rag_service = get_bedrock_rag_service(settings)
+        rag_result = await rag_service.run(payload.content)
+    except Exception as exc:
+        # Respuesta de fallback si Bedrock no está disponible
+        rag_result = {
+            "answer": (
+                "En este momento no puedo acceder a la base de conocimientos. "
+                "Por favor, intenta nuevamente o contacta a "
+                "investigacion.fisi@unmsm.edu.pe"
+            ),
+            "intent": "CU00",
+            "confidence": 0.0,
+            "sources": [],
+        }
 
-    lower_content = payload.content.lower()
+    response_content: str = rag_result["answer"]
+    detected_intent: str = rag_result["intent"]
+    rag_confidence: float = rag_result["confidence"]
     ui_type = "text"
-    rag_confidence = 0.85
-    cards_data_mock = None
-    contest_data_mock = None
-    
-    response_content = (
-        "Entiendo tu consulta. Como Asistente CACIF, puedo ayudarte con "
-        "orientación sobre grupos de investigación, convocatorias, "
-        "trámites de tesis y normativa académica de la FISI. "
-        "¿Podrías darme más detalles sobre lo que necesitas?"
-    )
 
-    # Deteccion basica de intent para ui_type e intent_type
-    if any(kw in lower_content for kw in ["convocatoria", "concurso", "vacante", "postular"]):
-        ui_type = "convocatoria_cards"
-        detected_intent = "CU02"
-        response_content = (
-            "He encontrado las siguientes convocatorias vigentes para "
-            "grupos de investigación:"
-        )
-        rag_confidence = 0.90
-        contest_data_mock = [
-            {
-                "id": "picv-2026",
-                "title": "PICV-UNMSM 2026",
-                "contest_type": "Inducción Científica",
-                "status_badge": "Activo",
-                "status_label": "Abierto",
-                "requirements": ["Ser alumno regular FISI", "Tercio superior"],
-                "prize": "S/ 1,500 + Certificado",
-                "required_documents": "CV, Récord Académico",
-                "apply_url": "https://vrip.unmsm.edu.pe",
-                "timeline_events": [
-                    {"title": "Lanzamiento", "date": "1 Ene", "status": "completed"},
-                    {"title": "Cierre", "date": "15 Feb", "status": "current"},
-                    {"title": "Resultados", "date": "1 Mar", "status": "upcoming"}
-                ]
-            }
-        ]
-    elif any(kw in lower_content for kw in ["grupo", "investigación", "matchmaking", "ia", "software"]):
-        ui_type = "matchmaking_cards"
-        detected_intent = "CU01"
-        response_content = (
-            "He analizado tus intereses y encontré los siguientes grupos "
-            "de investigación que podrían interesarte:"
-        )
-        rag_confidence = 0.92
-        cards_data_mock = [
-            {
-                "id": "g1",
-                "name": "Laboratorio de Inteligencia Artificial (LIA)",
-                "coordinator": "Dr. Juan Pérez",
-                "lines": ["Machine Learning", "NLP"],
-                "technical_areas": ["IA", "Data Science"],
-                "description": "Grupo enfocado en la investigación y aplicación de IA."
-            },
-            {
-                "id": "g2",
-                "name": "Grupo de Ingeniería de Software (GIS)",
-                "coordinator": "Dra. María González",
-                "lines": ["Arquitecturas Ágiles", "DevOps"],
-                "technical_areas": ["Ing. Software", "Sistemas Distribuidos"],
-                "description": "Metodologías modernas de desarrollo."
-            }
-        ]
-    elif any(kw in lower_content for kw in ["tesis", "convalidar", "ppp", "título"]):
-        ui_type = "text"
-        detected_intent = "CU03"
-        response_content = (
-            "Para los trámites relacionados con tu tesis o convalidación "
-            "de PPP, te puedo orientar con los requisitos y procedimientos "
-            "establecidos en el reglamento de la FISI."
-        )
-        rag_confidence = 0.88
-    else:
-        detected_intent = "CU00"
-        
     assistant_msg_id = str(uuid.uuid4())
 
     if not is_guest:
         # Actualizar intent_type de la conversacion si era CU00
         if conv.intent_type == "CU00" and detected_intent != "CU00":
             conv.intent_type = detected_intent
-            
-        # Preparar ui_data
-        ui_data_dict = {}
-        if cards_data_mock:
-            ui_data_dict["cards_data"] = cards_data_mock
-        if contest_data_mock:
-            ui_data_dict["contest_data"] = contest_data_mock
-            
+
         assistant_msg = Mensaje(
             id=uuid.UUID(assistant_msg_id),
             conversation_id=conv_id,
@@ -339,7 +269,7 @@ async def send_message(
             content=response_content,
             rag_confidence=rag_confidence,
             ui_type=ui_type,
-            ui_data=ui_data_dict if ui_data_dict else None,
+            ui_data=None,
         )
         db.add(assistant_msg)
         conv.total_messages += 1
@@ -353,6 +283,6 @@ async def send_message(
         rag_confidence=rag_confidence,
         sent_at=datetime.now(timezone.utc).isoformat(),
         ui_type=ui_type,
-        cards_data=cards_data_mock,
-        contest_data=contest_data_mock,
+        cards_data=None,
+        contest_data=None,
     )
