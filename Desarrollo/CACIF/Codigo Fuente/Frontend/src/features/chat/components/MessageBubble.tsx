@@ -1,6 +1,7 @@
 import type { Message } from "../../../types/chat"
 import { Search, Link as LinkIcon, ExternalLink, FileText } from "lucide-react"
 import { motion } from "framer-motion"
+import ReactMarkdown from "react-markdown"
 
 interface MessageBubbleProps {
   message: Message;
@@ -22,9 +23,9 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
       >
         <div className="flex flex-col items-end max-w-[80%]">
           <div className="rounded-2xl rounded-tr-sm bg-primary/20 text-primary-foreground p-5 border border-primary/30 shadow-sm backdrop-blur-sm">
-            <p className="text-[14px] leading-relaxed whitespace-pre-wrap">
-              {message.content}
-            </p>
+            <div className="text-[14px] leading-relaxed [&>p]:mb-3 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:ml-5 [&>ol]:list-decimal [&>ol]:ml-5 [&>li]:mb-1 [&_strong]:font-bold">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
           </div>
           <div className="mt-2 text-[11px] font-medium text-muted-foreground mr-2">
             {formattedTime}
@@ -63,8 +64,8 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
             )}
           </div>
           
-          <div className="text-[14px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
-            {message.content}
+          <div className="text-[14px] text-foreground/90 leading-relaxed [&>p]:mb-3 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:ml-5 [&>ol]:list-decimal [&>ol]:ml-5 [&>li]:mb-1 [&>h1]:font-bold [&>h1]:text-[18px] [&>h1]:mb-2 [&>h2]:font-bold [&>h2]:text-[16px] [&>h2]:mb-2 [&>h3]:font-bold [&>h3]:text-[15px] [&>h3]:mb-2 [&_strong]:font-bold [&_strong]:text-foreground [&>pre]:bg-background [&>pre]:p-3 [&>pre]:rounded-lg [&>pre]:my-3 [&>pre]:overflow-x-auto [&:not(pre)>code]:bg-background [&:not(pre)>code]:px-1.5 [&:not(pre)>code]:py-0.5 [&:not(pre)>code]:rounded-md [&:not(pre)>code]:text-primary">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
 
           {/* Render Matchmaking Cards (CU01) */}

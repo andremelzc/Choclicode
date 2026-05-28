@@ -63,30 +63,28 @@ class CitedSourceResponse(BaseModel):
 
 
 class TimelineEventResponse(BaseModel):
-    title: str
-    date: str
-    status: str  # 'completed' | 'current' | 'upcoming'
-
+    title: Optional[str] = None
+    date: Optional[str] = None
+    status: Optional[str] = None
 
 class ContestDataResponse(BaseModel):
     id: str
-    title: str
-    contest_type: str
-    status_badge: str
-    status_label: str
-    requirements: list[str]
-    prize: str
-    required_documents: str
-    apply_url: str
-    timeline_events: list[TimelineEventResponse]
-
+    title: Optional[str] = None
+    contest_type: Optional[str] = None
+    status_badge: Optional[str] = None
+    status_label: Optional[str] = None
+    requirements: Optional[list[str]] = []
+    prize: Optional[str] = None
+    required_documents: Optional[str] = None
+    apply_url: Optional[str] = None
+    timeline_events: Optional[list[TimelineEventResponse]] = []
 
 class GroupCardDataResponse(BaseModel):
     id: str
-    name: str
-    coordinator: str
-    lines: list[str]
-    technical_areas: list[str]
+    name: Optional[str] = None
+    coordinator: Optional[str] = None
+    lines: Optional[list[str]] = []
+    technical_areas: Optional[list[str]] = []
     description: Optional[str] = None
 
 
