@@ -267,31 +267,80 @@ Usuario escribe consulta
 │       │   ├── 📄 CACIF-DN.docx
 │       │   ├── 📄 CACIF-MR.xlsx
 │       │   └── 📄 CACIF-RNF.xlsx
-│       ├── 📁 Cronograma/
-│       │   └── 📄 CACIF-CP.xlsx
+│       ├── 📁 Codigo Fuente/
+│       │   ├── 📄 docker-compose.yml
+│       │   ├── 📁 Backend/
+│       │   │   ├── 📄 .dockerignore
+│       │   │   ├── 📄 .gitignore
+│       │   │   ├── 📄 Dockerfile
+│       │   │   ├── 📄 requirements.txt
+│       │   │   └── 📁 app/
+│       │   │       ├── 📄 __init__.py
+│       │   │       └── 📄 main.py
+│       │   └── 📁 Frontend/
+│       │       ├── 📄 .dockerignore
+│       │       ├── 📄 .gitignore
+│       │       ├── 📄 Dockerfile
+│       │       ├── 📄 README.md
+│       │       ├── 📄 components.json
+│       │       ├── 📄 eslint.config.js
+│       │       ├── 📄 index.html
+│       │       ├── 📄 package-lock.json
+│       │       ├── 📄 package.json
+│       │       ├── 📄 tsconfig.app.json
+│       │       ├── 📄 tsconfig.json
+│       │       ├── 📄 tsconfig.node.json
+│       │       ├── 📄 vite.config.ts
+│       │       ├── 📁 public/
+│       │       │   ├── 📄 favicon.svg
+│       │       │   └── 📄 icons.svg
+│       │       └── 📁 src/
+│       │           ├── 📄 App.tsx
+│       │           ├── 📄 index.css
+│       │           ├── 📄 main.tsx
+│       │           ├── 📁 assets/
+│       │           │   ├── 📄 hero.png
+│       │           │   ├── 📄 react.svg
+│       │           │   └── 📄 vite.svg
+│       │           ├── 📁 components/
+│       │           │   └── 📁 ui/
+│       │           │       └── 📄 button.tsx
+│       │           └── 📁 lib/
+│       │               └── 📄 utils.ts
 │       ├── 📁 Diseño/
 │       │   ├── 📄 CACIF-CPRAG.docx
 │       │   ├── 📄 CACIF-DA.docx
 │       │   ├── 📄 CACIF-DI.docx
 │       │   ├── 📄 CACIF-EBC.docx
 │       │   ├── 📄 CACIF-ELT.docx
-│       │   └── 📄 CACIF-MD.docx
+│       │   ├── 📄 CACIF-MD.docx
+│       │   ├── 📄 CACIF-PC.docx
+│       │   └── 📄 CACIF-PP.docx
 │       └── 📁 Gestión/
+│           ├── 📄 CACIF-CP.xlsx
 │           └── 📄 CACIF-PC.docx
 ├── 📁 Documentos/
 │   └── 📁 Planes/
-│       └── 📄 CACIF-PGC.docx
+│       └── 📄 PGC.docx
 └── 📁 Linea Base/
     └── 📁 CACIF/
-        └── 📁 Linea Base 01/
-            ├── 📄 CACIF-CU01.docx
-            ├── 📄 CACIF-CU02.docx
-            ├── 📄 CACIF-CU03.docx
-            ├── 📄 CACIF-CU04.docx
-            ├── 📄 CACIF-DN.docx
-            ├── 📄 CACIF-MR.xlsx
-            ├── 📄 CACIF-PC.docx
-            └── 📄 CACIF-RNF.xlsx
+        ├── 📁 Linea Base 01/
+        │   ├── 📄 CACIF-CU01.docx
+        │   ├── 📄 CACIF-CU02.docx
+        │   ├── 📄 CACIF-CU03.docx
+        │   ├── 📄 CACIF-CU04.docx
+        │   ├── 📄 CACIF-DN.docx
+        │   ├── 📄 CACIF-MR.xlsx
+        │   ├── 📄 CACIF-PC.docx
+        │   └── 📄 CACIF-RNF.xlsx
+        └── 📁 Linea Base 02/
+            ├── 📄 CACIF-CPRAG.docx
+            ├── 📄 CACIF-DA.docx
+            ├── 📄 CACIF-DI.docx
+            ├── 📄 CACIF-EBC.docx
+            ├── 📄 CACIF-ELT.docx
+            ├── 📄 CACIF-MD.docx
+            └── 📄 CACIF-PP.docx
 ```
 
 > 🤖 *Estructura generada automáticamente vía GitHub Actions.*
@@ -310,9 +359,9 @@ Usuario escribe consulta
 
 | Tipo | Cantidad |
 |---|---|
-| 📝 Documentos Word (.docx) | **19** |
+| 📝 Documentos Word (.docx) | **28** |
 | 📊 Hojas de cálculo (.xlsx) | **5** |
-| 📄 **Total** | **24** |
+| 📄 **Total** | **33** |
 
 
 #### 📁 `Desarrollo/CACIF/Analisis/`
@@ -327,12 +376,6 @@ Usuario escribe consulta
 | 📊 | `CACIF-MR.xlsx` | 2026-05-03 | Miguel Solis |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-09 | Mantari Flores Fabrizio Armando |
 
-#### 📁 `Desarrollo/CACIF/Cronograma/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📊 | `CACIF-CP.xlsx` | 2026-05-14 | andremelzc |
-
 #### 📁 `Desarrollo/CACIF/Diseño/`
 
 | | Documento | Última modificación | Autor |
@@ -343,18 +386,21 @@ Usuario escribe consulta
 | 📝 | `CACIF-EBC.docx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-ELT.docx` | 2026-05-13 | Mantari Flores Fabrizio Armando |
 | 📝 | `CACIF-MD.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-PC.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-PP.docx` | 2026-05-18 | Miguel Solis |
 
 #### 📁 `Desarrollo/CACIF/Gestión/`
 
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
+| 📊 | `CACIF-CP.xlsx` | 2026-05-21 | andremelzc |
 | 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
 
 #### 📁 `Documentos/Planes/`
 
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
-| 📝 | `CACIF-PGC.docx` | 2026-05-16 | Mihael Cristobal |
+| 📝 | `PGC.docx` | 2026-05-21 | andremelzc |
 
 #### 📁 `Linea Base/CACIF/Linea Base 01/`
 
@@ -368,6 +414,18 @@ Usuario escribe consulta
 | 📊 | `CACIF-MR.xlsx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-14 | andremelzc |
+
+#### 📁 `Linea Base/CACIF/Linea Base 02/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-CPRAG.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-DA.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-DI.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-EBC.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-ELT.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-MD.docx` | 2026-05-18 | andremelzc |
+| 📝 | `CACIF-PP.docx` | 2026-05-18 | andremelzc |
 
 > 🤖 *Índice generado automáticamente vía GitHub Actions.*
 
