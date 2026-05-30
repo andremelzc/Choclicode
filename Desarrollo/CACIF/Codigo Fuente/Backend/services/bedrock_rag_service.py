@@ -31,7 +31,7 @@ class StructuredAssistantResponse(BaseModel):
     answer: str = Field(description="La respuesta textual principal en formato académico, basándose en el contexto.")
     intent_type: str = Field(description="Clasifica el caso de uso en: CU01 (Grupos), CU02 (Convocatorias), CU03 (Trámites), CU04 (Normativa), o CU00 (Consulta General).")
     ui_type: str = Field(description="Determina la UI. Valores posibles: 'text', 'matchmaking_cards' (si intent_type es CU01), 'convocatoria_cards' (si intent_type es CU02), 'stepper_cards' (si intent_type es CU03), 'citation_cards' (si intent_type es CU04).")
-    ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Por ejemplo, para matchmaking_cards, devuelve una lista en la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data'.")
+    ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Por ejemplo, para matchmaking_cards, devuelve una lista en la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data'. Para stepper_cards, la llave 'stepper_data' (con 'procedure_name', 'estimated_time', 'cost', 'requirements', 'steps'). Para citation_cards, la llave 'citation_data' (con 'document_name', 'article_number', 'exact_quote', 'explanation').")
 
     @field_validator('ui_data', mode='before')
     @classmethod
@@ -130,6 +130,8 @@ class BedrockRAGService:
                     "Por favor, analiza la pregunta y el contexto, clasifica el caso de uso y provee tu respuesta llenando la estructura requerida. "
                     "Si determinas que es CU01, genera datos estructurados en 'ui_data' -> 'cards_data'. "
                     "Si es CU02, genera datos en 'ui_data' -> 'contest_data'. "
+                    "Si es CU03, genera datos en 'ui_data' -> 'stepper_data'. "
+                    "Si es CU04, genera datos en 'ui_data' -> 'citation_data'. "
                     "Asegúrate de no inventar datos que no estén en el contexto, pero simula IDs o nombres si es estrictamente necesario para armar la tarjeta visual. "
                 )
             ),
