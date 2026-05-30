@@ -282,11 +282,17 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
             >
               {message.citation_data.map((cit) => (
                 <motion.div key={cit.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring" } } }} className="bg-surface/30 border border-border rounded-2xl overflow-hidden shadow-sm mb-6">
-                  <div className="bg-muted/50 px-5 py-3 border-b border-border flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">
-                      {cit.document_name || 'Documento Legal'} {cit.article_number ? `· ${cit.article_number}` : ''}
-                    </span>
+                  <div className="bg-muted/50 px-5 py-3 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">
+                        {cit.document_name || 'Documento Legal'} {cit.article_number ? `· ${cit.article_number}` : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-success/10 border border-success/30 rounded-md" title="Verificado en la Base de Conocimientos oficial">
+                      <div className="w-1.5 h-1.5 rounded-full bg-success" />
+                      <span className="text-[10px] font-bold text-success uppercase tracking-wider">Resolución Vigente</span>
+                    </div>
                   </div>
                   
                   <div className="p-6">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Menu, X } from "lucide-react"
+import { Menu, X, AlertTriangle } from "lucide-react"
 import { Sidebar } from "../../components/layout/Sidebar"
 import { TopHeader } from "../../components/layout/TopHeader"
 import { MessageList } from "../../features/chat/components/MessageList"
@@ -17,6 +17,19 @@ export default function ChatPage() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+
+  useEffect(() => {
+    const hasSeenDisclaimer = sessionStorage.getItem("cacif_disclaimer_seen");
+    if (!hasSeenDisclaimer) {
+      setShowDisclaimer(true);
+    }
+  }, []);
+
+  const closeDisclaimer = () => {
+    sessionStorage.setItem("cacif_disclaimer_seen", "true");
+    setShowDisclaimer(false);
+  };
 
   // Derive active conversation details
   const activeConversation = conversations.find(c => c.id === activeConversationId);
@@ -188,6 +201,39 @@ export default function ChatPage() {
           <ChatInput onSend={handleSend} isLoading={isLoadingMessages} hasMessages={messages.length > 0} />
         </main>
       </div>
+
+      {/* Disclaimer Modal */}
+      {showDisclaimer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={closeDisclaimer} />
+          <div className="relative z-10 w-full max-w-md bg-surface border border-border rounded-2xl shadow-2xl p-6 md:p-8 animate-in zoom-in-95 duration-200">
+            <div className="mx-auto w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center mb-5">
+              <AlertTriangle className="w-6 h-6 text-warning" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground text-center mb-3">
+              Versión Prototipo
+            </h3>
+            <div className="text-[14px] text-foreground/80 space-y-4 mb-8">
+              <p>
+                El asistente <strong>CACIF</strong> se encuentra en fase de pruebas. La información proporcionada es generada por Inteligencia Artificial basándose en los reglamentos de la FISI.
+              </p>
+              <p>
+                Por favor, <strong>toma esta información con pinzas</strong> y úsala solo como una guía orientativa.
+              </p>
+              <div className="p-4 bg-muted/50 rounded-xl border border-border mt-4 text-[13px]">
+                <p className="font-bold text-foreground mb-1">Para mayor seguridad y trámites formales:</p>
+                <p>Acércate a la <strong>Unidad de Investigación (FISI)</strong> o escribe directamente al correo institucional: <a href="mailto:investigacion.fisi@unmsm.edu.pe" className="text-primary hover:underline font-medium">investigacion.fisi@unmsm.edu.pe</a>.</p>
+              </div>
+            </div>
+            <button 
+              onClick={closeDisclaimer}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(88,101,242,0.3)]"
+            >
+              Entendido, continuar al chat
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -43,28 +43,51 @@ export default function LandingPage() {
         </div>
 
         {/* Features minimalistas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
-          <div className="flex flex-col items-center p-4">
-            <div className="h-10 w-10 rounded-full bg-surface/50 border border-border flex items-center justify-center text-primary mb-3">
-              <Search className="w-5 h-5" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mb-16">
+          <div className="flex flex-col items-center p-6 bg-surface/30 border border-border rounded-2xl hover:border-primary/30 transition-colors">
+            <div className="h-12 w-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4">
+              <Search className="w-6 h-6" />
             </div>
-            <h3 className="text-sm font-bold text-foreground mb-1">Encuentra Grupos</h3>
-            <p className="text-[13px] text-muted-foreground">Matchmaking inteligente con líneas de investigación.</p>
+            <h3 className="text-base font-bold text-foreground mb-2">Encuentra Grupos</h3>
+            <p className="text-[13px] text-muted-foreground leading-relaxed">Matchmaking inteligente para conectar con líneas de investigación y laboratorios ideales para ti.</p>
           </div>
-          <div className="flex flex-col items-center p-4">
-            <div className="h-10 w-10 rounded-full bg-surface/50 border border-border flex items-center justify-center text-primary mb-3">
-              <BookOpen className="w-5 h-5" />
+          <div className="flex flex-col items-center p-6 bg-surface/30 border border-border rounded-2xl hover:border-primary/30 transition-colors">
+            <div className="h-12 w-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4">
+              <BookOpen className="w-6 h-6" />
             </div>
-            <h3 className="text-sm font-bold text-foreground mb-1">Gestión de Tesis</h3>
-            <p className="text-[13px] text-muted-foreground">Guía administrativa paso a paso.</p>
+            <h3 className="text-base font-bold text-foreground mb-2">Gestión de Tesis</h3>
+            <p className="text-[13px] text-muted-foreground leading-relaxed">Guía administrativa paso a paso para la inscripción, desarrollo y sustentación de tu proyecto.</p>
           </div>
-          <div className="flex flex-col items-center p-4">
-            <div className="h-10 w-10 rounded-full bg-surface/50 border border-border flex items-center justify-center text-primary mb-3">
-              <Scale className="w-5 h-5" />
+          <div className="flex flex-col items-center p-6 bg-surface/30 border border-border rounded-2xl hover:border-primary/30 transition-colors">
+            <div className="h-12 w-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4">
+              <Scale className="w-6 h-6" />
             </div>
-            <h3 className="text-sm font-bold text-foreground mb-1">Convalidaciones</h3>
-            <p className="text-[13px] text-muted-foreground">Requisitos legales y normativos claros.</p>
+            <h3 className="text-base font-bold text-foreground mb-2">Normativa Clara</h3>
+            <p className="text-[13px] text-muted-foreground leading-relaxed">Respuestas precisas sobre convalidaciones, reglamentos y derechos estudiantiles.</p>
           </div>
+        </div>
+
+        {/* Contacto */}
+        <div className="w-full max-w-2xl border-t border-border/50 pt-10 pb-8 flex flex-col items-center">
+          <h4 className="text-[11px] font-bold text-muted-foreground tracking-widest uppercase mb-4">
+            ¿Necesitas ayuda adicional?
+          </h4>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-[13px] text-foreground/80">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span>
+                Correo: <a href="mailto:investigacion.fisi@unmsm.edu.pe" className="text-primary hover:underline font-medium">investigacion.fisi@unmsm.edu.pe</a>
+              </span>
+            </div>
+            <div className="hidden sm:block text-muted-foreground/30">|</div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-warning" />
+              <span>Unidad de Investigación, FISI - UNMSM</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-muted-foreground/60 mt-4 text-center max-w-lg leading-relaxed">
+            CACIF es una herramienta de asistencia impulsada por Inteligencia Artificial. Toda información provista está basada en documentación oficial, pero se recomienda validar casos excepcionales directamente con la Unidad.
+          </p>
         </div>
       </div>
     </div>
