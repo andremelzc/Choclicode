@@ -66,6 +66,10 @@ Este documento sirve como un mapa de ruta exacto para el equipo de backend.
 2. **Lógica RAG-QA:**
    - [x] Implementar el orquestador del Chat (`POST /api/chat/message`). Conectado con RAG real de AWS y Gemini.
    - [x] Afinar el Prompt del LLM (System Instruction) para obligarlo a usar Structured Outputs (JSON) y detectar automáticamente el `intent_type`.
+   - [x] **CU03:** Forzar al LLM a devolver obligatoriamente 4 secciones específicas para trámites de tesis mediante reglas adicionales en el System Prompt.
+   - [x] **CU03:** Enviar el esquema completo y exacto de `stepper_cards` (`id`, `procedure_name`, `estimated_time`, `cost`, `requirements`, `steps`) en el modelo de datos de Pydantic.
+   - [x] **CU04:** Agregar regla EX4 al System Prompt para manejar alertas formales por grupos no oficiales y por exceso de similitud (>20%).
+   - [x] **CU04:** Enviar el esquema completo y exacto de `citation_cards` (`id`, `document_name`, `article_number`, `exact_quote`, `explanation`, `page`, `link`) en el modelo de Pydantic.
 
 3. **Modificaciones a Futuro (Siguientes Pasos):**
    - [ ] Habilitar Streaming (Server-Sent Events) para que el bot escriba en tiempo real (requerirá rediseñar cómo se devuelven los JSONs de `cards_data`).

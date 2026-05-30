@@ -26,11 +26,13 @@
 
 ## 5. Feature: Chatbot - Caso de Uso 3 (Asesoría de Grados y Trámites)
 - [x] Diseñar UI de "Paso a Paso" o Timeline vertical (`ui_type: 'stepper_cards'`) para explicar de forma interactiva el procedimiento administrativo de vinculación de plan de tesis.
+- [x] Asegurar que el backend envíe el esquema estricto de `stepper_cards` (`id`, `procedure_name`, `estimated_time`, `cost`, `requirements`, `steps`).
 - [ ] Crear visualización de Tarjetas de Requisitos (`ui_type: 'requirement_cards'`) con checkboxes visuales inactivos para ilustrar lo que se necesita para convalidar PPP.
 - [ ] Maquetar componentes informativos para listar beneficios académicos de forma estructurada.
 
 ## 6. Feature: Chatbot - Caso de Uso 4 (Marco Normativo)
 - [x] Diseñar UI de Citas Normativas Enriquecidas (`ui_type: 'citation_cards'`) para mostrar el artículo citado en un bloque destacado (blockquote elegante) separado del texto natural.
+- [x] Asegurar que el backend envíe el esquema estricto de `citation_cards` (`id`, `document_name`, `article_number`, `exact_quote`, `explanation`, `page`, `link`).
 - [ ] Configurar tooltips flotantes o enlaces estilizados dentro de las tarjetas que apunten directamente a la página del PDF del Reglamento de la UNMSM.
 - [x] Crear un componente visual de verificación (ej. Checkmark verde o Badge "Resolución Vigente") para confirmar el estado legal de la respuesta.
 
