@@ -38,7 +38,15 @@ class StructuredAssistantResponse(BaseModel):
     def parse_ui_data(cls, v):
         if isinstance(v, str):
             try:
-                return json.loads(v)
+                # Limpiar bloques de markdown si el LLM los generó (ej. ```json ... ```)
+                clean_v = v.strip()
+                if clean_v.startswith("```json"):
+                    clean_v = clean_v[7:]
+                elif clean_v.startswith("```"):
+                    clean_v = clean_v[3:]
+                if clean_v.endswith("```"):
+                    clean_v = clean_v[:-3]
+                return json.loads(clean_v.strip())
             except Exception:
                 return {}
         return v

@@ -42,3 +42,4 @@
 - [ ] Preparar arquitectura para un posible Dashboard Administrativo (`src/features/admin`).
 - [ ] Dejar hooks básicos para sistema de notificaciones push o alertas in-app.
 - [ ] Diseñar UI para historial avanzado y exportación de transcripciones del chat.
+- [ ] **Optimización RAG/LLM:** Preparar el parseo del Frontend para soportar *Function Calling* estructurado desde el Backend, reemplazando el esquema genérico actual por llamadas directas a componentes.
