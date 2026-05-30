@@ -360,8 +360,8 @@ Usuario escribe consulta
 | Tipo | Cantidad |
 |---|---|
 | 📝 Documentos Word (.docx) | **28** |
-| 📊 Hojas de cálculo (.xlsx) | **5** |
-| 📄 **Total** | **33** |
+| 📊 Hojas de cálculo (.xlsx) | **6** |
+| 📄 **Total** | **34** |
 
 
 #### 📁 `Desarrollo/CACIF/Analisis/`
@@ -375,6 +375,12 @@ Usuario escribe consulta
 | 📝 | `CACIF-DN.docx` | 2026-05-14 | andremelzc |
 | 📊 | `CACIF-MR.xlsx` | 2026-05-03 | Miguel Solis |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-09 | Mantari Flores Fabrizio Armando |
+
+#### 📁 `Desarrollo/CACIF/Codigo Fuente/Pruebas/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📊 | `CACIF-RE01.xlsx` | 2026-05-29 | lightbluedev05 |
 
 #### 📁 `Desarrollo/CACIF/Diseño/`
 
