@@ -7,9 +7,10 @@ import { motion } from "framer-motion"
 interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
+  onQuickAction?: (text: string) => void;
 }
 
-export const MessageList = ({ messages, isLoading }: MessageListProps) => {
+export const MessageList = ({ messages, isLoading, onQuickAction }: MessageListProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export const MessageList = ({ messages, isLoading }: MessageListProps) => {
         )}
 
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
+          <MessageBubble key={msg.id} message={msg} onQuickAction={onQuickAction} />
         ))}
 
         {isLoading && (

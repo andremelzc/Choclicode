@@ -1,12 +1,14 @@
 import type { Message } from "../../../types/chat"
 import { Search, Link as LinkIcon, ExternalLink, FileText } from "lucide-react"
 import { motion } from "framer-motion"
+import ReactMarkdown from "react-markdown"
 
 interface MessageBubbleProps {
   message: Message;
+  onQuickAction?: (text: string) => void;
 }
 
-export const MessageBubble = ({ message }: MessageBubbleProps) => {
+export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) => {
   const isUser = message.role === 'user';
   
   const formattedTime = new Date(message.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -21,9 +23,9 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
       >
         <div className="flex flex-col items-end max-w-[80%]">
           <div className="rounded-2xl rounded-tr-sm bg-primary/20 text-primary-foreground p-5 border border-primary/30 shadow-sm backdrop-blur-sm">
-            <p className="text-[14px] leading-relaxed whitespace-pre-wrap">
-              {message.content}
-            </p>
+            <div className="text-[14px] leading-relaxed [&>p]:mb-3 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:ml-5 [&>ol]:list-decimal [&>ol]:ml-5 [&>li]:mb-1 [&_strong]:font-bold">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
           </div>
           <div className="mt-2 text-[11px] font-medium text-muted-foreground mr-2">
             {formattedTime}
@@ -50,8 +52,10 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
           
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-[11px] font-bold text-primary tracking-widest uppercase">
-              {message.ui_type === 'matchmaking_cards' ? 'ORIENTACIÓN Y MATCHMAKING - RF01, RF02, RF03' : 
-               message.ui_type === 'convocatoria_cards' ? 'GESTIÓN DE CONVOCATORIAS - RF04, RF05, RF06' : 
+              {message.ui_type === 'matchmaking_cards' ? 'ORIENTACIÓN Y MATCHMAKING' : 
+               message.ui_type === 'convocatoria_cards' ? 'GESTIÓN DE CONVOCATORIAS' : 
+               message.ui_type === 'stepper_cards' ? 'TRÁMITES ACADÉMICOS' :
+               message.ui_type === 'citation_cards' ? 'MARCO NORMATIVO' :
                'CACIF · ASISTENTE FISI'}
             </h3>
             {message.rag_confidence && (
@@ -62,8 +66,8 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
             )}
           </div>
           
-          <div className="text-[14px] text-foreground/90 leading-relaxed whitespace-pre-wrap">
-            {message.content}
+          <div className="text-[14px] text-foreground/90 leading-relaxed [&>p]:mb-3 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:ml-5 [&>ol]:list-decimal [&>ol]:ml-5 [&>li]:mb-1 [&>h1]:font-bold [&>h1]:text-[18px] [&>h1]:mb-2 [&>h2]:font-bold [&>h2]:text-[16px] [&>h2]:mb-2 [&>h3]:font-bold [&>h3]:text-[15px] [&>h3]:mb-2 [&_strong]:font-bold [&_strong]:text-foreground [&>pre]:bg-background [&>pre]:p-3 [&>pre]:rounded-lg [&>pre]:my-3 [&>pre]:overflow-x-auto [&:not(pre)>code]:bg-background [&:not(pre)>code]:px-1.5 [&:not(pre)>code]:py-0.5 [&:not(pre)>code]:rounded-md [&:not(pre)>code]:text-primary">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
 
           {/* Render Matchmaking Cards (CU01) */}
@@ -102,7 +106,10 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
                     </div>
                   )}
                   
-                  <button className="w-full bg-primary/90 text-white font-medium text-[13px] py-2.5 rounded-lg hover:bg-primary transition-colors">
+                  <button 
+                    onClick={() => onQuickAction?.(`Dame más información sobre el ${card.name}`)}
+                    className="w-full bg-primary/90 text-white font-medium text-[13px] py-2.5 rounded-lg hover:bg-primary transition-colors"
+                  >
                     Ver información completa
                   </button>
                 </motion.div>
@@ -137,7 +144,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
                     <div className="mb-5">
                       <p className="text-[13px] text-muted-foreground mb-2">Requisitos para participar como grupo:</p>
                       <ul className="space-y-1.5 ml-1">
-                        {contest.requirements.map((req, idx) => {
+                        {contest.requirements && contest.requirements.length > 0 ? contest.requirements.map((req, idx) => {
                           const boldParts = req.split('**');
                           return (
                             <li key={idx} className="text-[13px] text-foreground/80 flex items-start gap-2">
@@ -147,10 +154,15 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
                               </span>
                             </li>
                           )
-                        })}
+                        }) : (
+                          <li className="text-[13px] text-foreground/80 flex items-start gap-2">
+                            <span className="text-muted-foreground/50 mt-1">•</span>
+                            <span>No especificado</span>
+                          </li>
+                        )}
                         <li className="text-[13px] text-foreground/80 flex items-start gap-2 pt-1">
                           <span className="text-muted-foreground/50 mt-1">•</span>
-                          <span><strong className="text-foreground">Premio:</strong> {contest.prize}</span>
+                          <span><strong className="text-foreground">Premio:</strong> {contest.prize || 'No especificado'}</span>
                         </li>
                       </ul>
                     </div>
@@ -160,11 +172,13 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
                         <FileText className="w-4 h-4 text-warning" />
                         <span className="text-[13px] font-bold text-warning">Documentos requeridos del grupo:</span>
                       </div>
-                      <p className="text-[12px] text-foreground/80 leading-relaxed ml-6">{contest.required_documents}</p>
+                      <p className="text-[12px] text-foreground/80 leading-relaxed ml-6">{contest.required_documents || 'No especificado'}</p>
                     </div>
 
                     <a 
                       href={contest.apply_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full bg-warning text-warning-foreground py-3 rounded-xl text-[14px] font-bold hover:bg-warning/90 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                     >
                       Inscribir proyecto del grupo <ExternalLink className="w-4 h-4" />
@@ -193,6 +207,111 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
                     </div>
                   )}
 
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Render Stepper Cards (CU03) */}
+          {message.ui_type === 'stepper_cards' && message.stepper_data && (
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.2 } } }}
+              className="mt-6 flex flex-col gap-6"
+            >
+              {message.stepper_data.map((proc) => (
+                <motion.div key={proc.id} variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { type: "spring" } } }} className="bg-surface/30 border border-border rounded-2xl p-6 shadow-sm mb-6">
+                  <h4 className="font-bold text-[18px] text-foreground mb-4">{proc.procedure_name || 'Procedimiento no especificado'}</h4>
+                  
+                  <div className="flex flex-wrap gap-4 mb-6">
+                    <div className="bg-surface border border-border px-3 py-1.5 rounded-lg">
+                      <span className="text-[11px] text-muted-foreground block mb-0.5">Tiempo estimado</span>
+                      <span className="text-[13px] font-medium text-foreground">{proc.estimated_time || 'No especificado'}</span>
+                    </div>
+                    <div className="bg-surface border border-border px-3 py-1.5 rounded-lg">
+                      <span className="text-[11px] text-muted-foreground block mb-0.5">Costo</span>
+                      <span className="text-[13px] font-medium text-foreground">{proc.cost || 'No especificado'}</span>
+                    </div>
+                  </div>
+
+                  {proc.requirements && proc.requirements.length > 0 && (
+                    <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                      <h5 className="text-[13px] font-bold text-primary mb-2">Requisitos previos:</h5>
+                      <ul className="list-disc ml-5 space-y-1">
+                        {proc.requirements.map((req, idx) => (
+                          <li key={idx} className="text-[13px] text-foreground/80">{req}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {proc.steps && proc.steps.length > 0 && (
+                    <div>
+                      <h5 className="text-[14px] font-bold text-foreground mb-4">Pasos a seguir:</h5>
+                      <div className="relative border-l-2 border-primary/30 ml-3 space-y-6 pb-2">
+                        {proc.steps.map((step, idx) => (
+                          <div key={idx} className="relative pl-6">
+                            <div className="absolute -left-[13px] top-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-bold shadow-sm border-2 border-background">
+                              {step.step_number || (idx + 1)}
+                            </div>
+                            <h6 className="text-[14px] font-bold text-foreground mb-1">{step.title || `Paso ${idx + 1}`}</h6>
+                            <p className="text-[13px] text-foreground/80 leading-relaxed">{step.description || 'Sin descripción detallada'}</p>
+                            {step.action_url && (
+                              <a href={step.action_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-2 text-[12px] font-medium text-primary hover:underline">
+                                Ir al trámite <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Render Citation Cards (CU04) */}
+          {message.ui_type === 'citation_cards' && message.citation_data && (
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.2 } } }}
+              className="mt-6 flex flex-col gap-6"
+            >
+              {message.citation_data.map((cit) => (
+                <motion.div key={cit.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring" } } }} className="bg-surface/30 border border-border rounded-2xl overflow-hidden shadow-sm mb-6">
+                  <div className="bg-muted/50 px-5 py-3 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">
+                        {cit.document_name || 'Documento Legal'} {cit.article_number ? `· ${cit.article_number}` : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-success/10 border border-success/30 rounded-md" title="Verificado en la Base de Conocimientos oficial">
+                      <div className="w-1.5 h-1.5 rounded-full bg-success" />
+                      <span className="text-[10px] font-bold text-success uppercase tracking-wider">Resolución Vigente</span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="relative pl-6 border-l-4 border-primary/50 mb-6 bg-primary/5 py-4 pr-4 rounded-r-lg">
+                      <span className="absolute left-2 top-2 text-primary/30 text-4xl font-serif leading-none">"</span>
+                      <p className="text-[14px] text-foreground/90 italic relative z-10 leading-relaxed">
+                        {cit.exact_quote || 'Cita no disponible'}
+                      </p>
+                    </div>
+
+                    <div className="bg-background border border-border p-4 rounded-xl">
+                      <h5 className="text-[12px] font-bold text-foreground mb-2 flex items-center gap-1.5">
+                        <Search className="w-3.5 h-3.5 text-primary" /> Explicación:
+                      </h5>
+                      <p className="text-[13px] text-foreground/80 leading-relaxed">
+                        {cit.explanation || 'No se proporcionó explicación adicional'}
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>

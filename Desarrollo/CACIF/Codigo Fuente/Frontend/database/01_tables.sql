@@ -71,4 +71,3 @@ CREATE TABLE public.cited_sources (
     position INTEGER NOT NULL,
     similarity_score FLOAT NOT NULL
 );
-

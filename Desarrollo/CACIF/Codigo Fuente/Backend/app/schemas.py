@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 # ═══════════════════════════════════════════════════════════════════
 
 class LoginRequest(BaseModel):
-    university_code: str
+    email: str
     password: str
 
 
@@ -38,7 +38,6 @@ class AuthResponse(BaseModel):
 # ═══════════════════════════════════════════════════════════════════
 
 class ConversationCreate(BaseModel):
-    title: str = "Nueva conversación"
     intent_type: str = "CU00"
 
 
@@ -46,7 +45,6 @@ class ConversationResponse(BaseModel):
     id: str
     student_id: str
     intent_type: str
-    title: str
     started_at: str
     closed_at: Optional[str] = None
     total_messages: int
@@ -64,31 +62,53 @@ class CitedSourceResponse(BaseModel):
     similarity_score: float
 
 
-class TimelineEventResponse(BaseModel):
-    title: str
-    date: str
-    status: str  # 'completed' | 'current' | 'upcoming'
+class CitationDataResponse(BaseModel):
+    id: str
+    document_name: Optional[str] = None
+    article_number: Optional[str] = None
+    exact_quote: Optional[str] = None
+    explanation: Optional[str] = None
+    page: Optional[int] = None
+    link: Optional[str] = None
 
+class StepResponse(BaseModel):
+    step_number: Optional[int] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    action_url: Optional[str] = None
+
+class ProcedureDataResponse(BaseModel):
+    id: str
+    procedure_name: Optional[str] = None
+    estimated_time: Optional[str] = None
+    cost: Optional[str] = None
+    requirements: Optional[list[str]] = []
+    steps: Optional[list[StepResponse]] = []
+
+
+class TimelineEventResponse(BaseModel):
+    title: Optional[str] = None
+    date: Optional[str] = None
+    status: Optional[str] = None
 
 class ContestDataResponse(BaseModel):
     id: str
-    title: str
-    contest_type: str
-    status_badge: str
-    status_label: str
-    requirements: list[str]
-    prize: str
-    required_documents: str
-    apply_url: str
-    timeline_events: list[TimelineEventResponse]
-
+    title: Optional[str] = None
+    contest_type: Optional[str] = None
+    status_badge: Optional[str] = None
+    status_label: Optional[str] = None
+    requirements: Optional[list[str]] = []
+    prize: Optional[str] = None
+    required_documents: Optional[str] = None
+    apply_url: Optional[str] = None
+    timeline_events: Optional[list[TimelineEventResponse]] = []
 
 class GroupCardDataResponse(BaseModel):
     id: str
-    name: str
-    coordinator: str
-    lines: list[str]
-    technical_areas: list[str]
+    name: Optional[str] = None
+    coordinator: Optional[str] = None
+    lines: Optional[list[str]] = []
+    technical_areas: Optional[list[str]] = []
     description: Optional[str] = None
 
 
@@ -106,9 +126,11 @@ class MessageResponse(BaseModel):
     rag_confidence: Optional[float] = None
     sent_at: str
     cited_sources: Optional[list[CitedSourceResponse]] = None
-    ui_type: Optional[str] = None  # 'text' | 'matchmaking_cards' | 'convocatoria_cards'
+    ui_type: Optional[str] = None  # 'text' | 'matchmaking_cards' | 'convocatoria_cards' | 'stepper_cards' | 'citation_cards'
     cards_data: Optional[list[GroupCardDataResponse]] = None
     contest_data: Optional[list[ContestDataResponse]] = None
+    stepper_data: Optional[list[ProcedureDataResponse]] = None
+    citation_data: Optional[list[CitationDataResponse]] = None
 
 
 # ═══════════════════════════════════════════════════════════════════

@@ -11,12 +11,14 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, func
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Conversacion, Mensaje, Estudiante
+from app.models import Conversacion, Mensaje, FuenteCitada
 from app.schemas import (
     ConversationCreate,
     ConversationResponse,
@@ -24,6 +26,7 @@ from app.schemas import (
     MessageResponse,
     CitedSourceResponse,
 )
+from services.bedrock_rag_service import get_bedrock_rag_service
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -36,7 +39,6 @@ def _conv_to_response(conv: Conversacion) -> ConversationResponse:
         id=str(conv.id),
         student_id=str(conv.student_id),
         intent_type=conv.intent_type,
-        title=conv.title,
         started_at=conv.started_at.isoformat(),
         closed_at=conv.closed_at.isoformat() if conv.closed_at else None,
         total_messages=conv.total_messages,
@@ -52,6 +54,11 @@ def _msg_to_response(msg: Mensaje) -> MessageResponse:
         content=msg.content,
         tokens_used=msg.tokens_used,
         rag_confidence=msg.rag_confidence,
+        ui_type=msg.ui_type,
+        cards_data=msg.ui_data.get("cards_data") if msg.ui_data else None,
+        contest_data=msg.ui_data.get("contest_data") if msg.ui_data else None,
+        stepper_data=msg.ui_data.get("stepper_data") if msg.ui_data else None,
+        citation_data=msg.ui_data.get("citation_data") if msg.ui_data else None,
         sent_at=msg.sent_at.isoformat(),
         cited_sources=[
             CitedSourceResponse(
@@ -112,7 +119,6 @@ async def create_conversation(
             id=str(uuid.uuid4()),
             student_id=current_user["sub"],
             intent_type=payload.intent_type,
-            title=payload.title,
             started_at=datetime.now(timezone.utc).isoformat(),
             total_messages=0,
         )
@@ -123,7 +129,6 @@ async def create_conversation(
     nueva = Conversacion(
         student_id=student_id,
         intent_type=payload.intent_type,
-        title=payload.title,
     )
     db.add(nueva)
     await db.commit()
@@ -171,6 +176,7 @@ async def list_messages(
     # Obtener mensajes
     msg_result = await db.execute(
         select(Mensaje)
+        .options(selectinload(Mensaje.fuentes_citadas).selectinload(FuenteCitada.chunk))
         .where(Mensaje.conversation_id == conv_uuid)
         .order_by(Mensaje.sent_at.asc())
     )
@@ -190,17 +196,12 @@ async def send_message(
 ):
     """Endpoint principal del pipeline RAG-QA.
 
-    Flujo segun CACIF-EBC:
-    1. Guardar mensaje del usuario en tabla Mensaje
-    2. Generar embedding con Google Gemini
-    3. Buscar FAQs similares en Azure AI Search
-    4. Sintetizar respuesta con LLM (Gemini)
-    5. Detectar ui_type segun intent (CU01 -> matchmaking_cards, CU02 -> convocatoria_cards)
-    6. Guardar respuesta del asistente (solo si no es invitado)
-
-    Nota: La integracion real con Gemini y Azure AI Search se implementa
-    en el servicio RAG (commit posterior). Este endpoint actualmente retorna
-    una respuesta de esqueleto funcional.
+    Flujo:
+    1. Guardar mensaje del usuario en DB (solo usuarios autenticados)
+    2. Recuperar docs relevantes desde AWS Bedrock Knowledge Base (KWLERMH1JC)
+    3. Sintetizar respuesta con Claude via Bedrock (ChatBedrockConverse)
+    4. Detectar intent (CU01-CU04) por keywords para actualizar conversacion
+    5. Guardar respuesta del asistente (solo si no es invitado)
     """
     is_guest = current_user.get("role") == "invitado"
     conv_id = uuid.UUID(payload.conversation_id)
@@ -233,54 +234,50 @@ async def send_message(
         # Actualizar contador
         conv.total_messages += 1
 
-    # ── 2-5. Pipeline RAG (esqueleto funcional) ─────────────────────
-    # TODO: Integrar con RAGService real en commit posterior.
-    # Por ahora, generamos una respuesta basica para que el endpoint
-    # sea funcional de punta a punta.
+    # ── 2-5. Pipeline RAG con AWS Bedrock Knowledge Base ────────────
+    try:
+        settings = get_settings()
+        rag_service = get_bedrock_rag_service(settings)
+        rag_result = await rag_service.run(payload.content)
+    except Exception as exc:
+        # Respuesta de fallback si Bedrock no está disponible
+        rag_result = {
+            "answer": (
+                "En este momento no puedo acceder a la base de conocimientos. "
+                "Por favor, intenta nuevamente o contacta a "
+                "investigacion.fisi@unmsm.edu.pe"
+            ),
+            "intent": "CU00",
+            "confidence": 0.0,
+            "sources": [],
+        }
 
-    lower_content = payload.content.lower()
-    ui_type = "text"
-    rag_confidence = 0.85
-    response_content = (
-        "Entiendo tu consulta. Como Asistente CACIF, puedo ayudarte con "
-        "orientación sobre grupos de investigación, convocatorias, "
-        "trámites de tesis y normativa académica de la FISI. "
-        "¿Podrías darme más detalles sobre lo que necesitas?"
-    )
+    response_content: str = rag_result["answer"]
+    detected_intent: str = rag_result["intent"]
+    rag_confidence: float = rag_result["confidence"]
+    ui_type: str = rag_result.get("ui_type", "text")
+    ui_data: dict = rag_result.get("ui_data", {})
+    
+    cards_data = ui_data.get("cards_data") if ui_data else None
+    contest_data = ui_data.get("contest_data") if ui_data else None
+    stepper_data = ui_data.get("stepper_data") if ui_data else None
+    citation_data = ui_data.get("citation_data") if ui_data else None
 
-    # Deteccion basica de intent para ui_type
-    if any(kw in lower_content for kw in ["grupo", "investigación", "matchmaking", "ia", "software"]):
-        ui_type = "matchmaking_cards"
-        response_content = (
-            "He analizado tus intereses y encontré los siguientes grupos "
-            "de investigación que podrían interesarte:"
-        )
-        rag_confidence = 0.92
-    elif any(kw in lower_content for kw in ["convocatoria", "concurso", "vacante", "postular"]):
-        ui_type = "convocatoria_cards"
-        response_content = (
-            "He encontrado las siguientes convocatorias vigentes para "
-            "grupos de investigación:"
-        )
-        rag_confidence = 0.90
-    elif any(kw in lower_content for kw in ["tesis", "convalidar", "ppp", "título"]):
-        response_content = (
-            "Para los trámites relacionados con tu tesis o convalidación "
-            "de PPP, te puedo orientar con los requisitos y procedimientos "
-            "establecidos en el reglamento de la FISI."
-        )
-        rag_confidence = 0.88
-
-    # ── 6. Guardar respuesta del asistente ──────────────────────────
     assistant_msg_id = str(uuid.uuid4())
 
     if not is_guest:
+        # Actualizar intent_type de la conversacion si era CU00
+        if conv.intent_type == "CU00" and detected_intent != "CU00":
+            conv.intent_type = detected_intent
+
         assistant_msg = Mensaje(
             id=uuid.UUID(assistant_msg_id),
             conversation_id=conv_id,
             role="assistant",
             content=response_content,
             rag_confidence=rag_confidence,
+            ui_type=ui_type,
+            ui_data=ui_data if ui_data else None,
         )
         db.add(assistant_msg)
         conv.total_messages += 1
@@ -294,4 +291,8 @@ async def send_message(
         rag_confidence=rag_confidence,
         sent_at=datetime.now(timezone.utc).isoformat(),
         ui_type=ui_type,
+        cards_data=cards_data,
+        contest_data=contest_data,
+        stepper_data=stepper_data,
+        citation_data=citation_data,
     )

@@ -26,11 +26,37 @@ export interface ContestData {
 
 export interface GroupCardData {
   id: string;
-  name: string;
-  coordinator: string;
-  lines: string[];
-  technical_areas: string[];
+  name?: string;
+  coordinator?: string;
+  lines?: string[];
+  technical_areas?: string[];
   description?: string;
+}
+
+export interface StepData {
+  step_number?: number;
+  title?: string;
+  description?: string;
+  action_url?: string;
+}
+
+export interface ProcedureData {
+  id: string;
+  procedure_name?: string;
+  estimated_time?: string;
+  cost?: string;
+  requirements?: string[];
+  steps?: StepData[];
+}
+
+export interface CitationData {
+  id: string;
+  document_name?: string;
+  article_number?: string;
+  exact_quote?: string;
+  explanation?: string;
+  page?: number;
+  link?: string;
 }
 
 export interface Message {
@@ -44,16 +70,17 @@ export interface Message {
   cited_sources?: CitedSource[];
   
   // Custom UI Fields for Rendering Matchmaking / Complex UI
-  ui_type?: 'text' | 'matchmaking_cards' | 'convocatoria_cards';
+  ui_type?: 'text' | 'matchmaking_cards' | 'convocatoria_cards' | 'stepper_cards' | 'citation_cards';
   cards_data?: GroupCardData[];
   contest_data?: ContestData[];
+  stepper_data?: ProcedureData[];
+  citation_data?: CitationData[];
 }
 
 export interface Conversation {
   id: string;
   student_id: string;
   intent_type: string; // 'CU01' | 'CU02' | 'CU03' | 'CU04'
-  title: string;       // Not in DB directly, but useful for sidebar UI derived from intent/first message
   started_at: string;
   closed_at?: string;
   total_messages: number;
