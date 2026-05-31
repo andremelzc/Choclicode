@@ -18,6 +18,7 @@ from typing import Optional, Dict, Any, List
 
 from app.config import Settings
 from prompts.prompts import CACIF_SYSTEM_PROMPT
+from services.cache_service import get_cache_service
 
 
 _INTENT_KEYWORDS: dict[str, list[str]] = {
@@ -103,9 +104,22 @@ class BedrockRAGService:
     async def run(self, query: str) -> dict:
         """Ejecuta el pipeline RAG completo: recuperar → sintetizar.
 
+        Antes de ejecutar el pipeline, consulta el cache de Redis.
+        Si hay un cache hit, retorna la respuesta cacheada directamente
+        sin llamar a Bedrock ni a Gemini.
+
         Returns:
-            dict con claves: answer, intent, confidence, sources
+            dict con claves: answer, intent, confidence, sources, from_cache
         """
+        # ── Cache lookup ────────────────────────────────────────────
+        cache = get_cache_service()
+        if cache is not None:
+            cached = cache.get(query)
+            if cached is not None:
+                cached["from_cache"] = True
+                return cached
+
+        # ── Pipeline RAG (solo si no hay cache hit) ─────────────────
         docs = await self.retriever.ainvoke(query)
 
         if docs:
@@ -147,7 +161,7 @@ class BedrockRAGService:
 
         structured_response: StructuredAssistantResponse = await self.llm.ainvoke(messages)
 
-        return {
+        result = {
             "answer": structured_response.answer,
             "intent": structured_response.intent_type,
             "ui_type": structured_response.ui_type,
@@ -155,6 +169,13 @@ class BedrockRAGService:
             "confidence": confidence,
             "sources": sources,
         }
+
+        # ── Cache store ─────────────────────────────────────────────
+        if cache is not None:
+            cache.set(query, result)
+
+        result["from_cache"] = False
+        return result
 
 
 # ── Singleton ────────────────────────────────────────────────────────
