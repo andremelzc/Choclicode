@@ -38,55 +38,43 @@ Este documento sirve como un mapa de ruta exacto para el equipo de backend.
   - **Lógica:** Recuperar el historial de mensajes de una conversación específica.
   - **Response:** `Message[]` ordenados cronológicamente.
 
-- [ ] `POST /api/chat/message` *(Mock implementado, falta lógica RAG real)*
+- [x] `POST /api/chat/message`
   - **Headers:** `Authorization: Bearer <token>`
   - **Body:** `{ "conversation_id": "uuid", "content": "Quiero unirme a un grupo" }`
   - **Lógica Principal (Flujo RAG-QA según EBC):**
     1. **Guardado Inicial:** Registrar el mensaje del usuario en la tabla `Mensaje`.
-    2. **Generación de Embedding:** Convertir el `content` (pregunta del usuario o atajo de UI) a un vector usando Google Gemini Embeddings.
-    3. **Búsqueda Vectorial:** Consultar el índice de **Azure AI Search**. Buscar similitud vectorial contra el campo `pregunta` de las FAQs indexadas.
-    4. **Síntesis con LLM:** Tomar el "Top-k" de FAQs recuperadas y pasarlas como contexto al prompt de Gemini para que genere una respuesta.
-    5. **Detección de Interfaz (UI):** 
+    2. **Recuperación Vectorial:** Consultar la **Knowledge Base de AWS Bedrock**.
+    3. **Síntesis con LLM:** Tomar los fragmentos recuperados y pasarlos como contexto al prompt de Gemini (Structured Outputs) para que genere una respuesta.
+    4. **Detección de Interfaz (UI):** 
        - Si Gemini detecta el intent **CU01 (Búsqueda de GI)**, el backend adjunta al JSON `ui_type: 'matchmaking_cards'` y empaqueta `cards_data`.
        - Si Gemini detecta el intent **CU02 (Concursos/Convocatorias)**, el backend adjunta `ui_type: 'convocatoria_cards'` y empaqueta `contest_data`.
-       - Si Gemini detecta el intent **CU03 (Trámites/Grados)**, el backend adjunta `ui_type: 'stepper_cards'` (o `requirement_cards`) y empaqueta un JSON con el flujo paso a paso o la lista de requisitos formales para mantener la UX estructurada.
-       - Si Gemini detecta el intent **CU04 (Normativa)**, el backend adjunta `ui_type: 'citation_cards'` y empaqueta un JSON con el artículo normativo destacado, incluyendo un enlace directo al PDF oficial y la página, en lugar de mezclarlo como texto plano.
-    6. **Guardado Final y Persistencia de UI:** *Solo si el usuario NO es invitado*, registrar la respuesta en la tabla `Mensaje`. Se deben guardar obligatoriamente las columnas `ui_type` (VARCHAR) y `ui_data` (JSONB) para que el Frontend pueda reconstruir las tarjetas enriquecidas al cargar el historial.
+       - Si Gemini detecta el intent **CU03 (Trámites/Grados)**, el backend adjunta `ui_type: 'stepper_cards'` y empaqueta un JSON con el flujo paso a paso.
+       - Si Gemini detecta el intent **CU04 (Normativa)**, el backend adjunta `ui_type: 'citation_cards'` y empaqueta un JSON con el artículo normativo destacado.
+    5. **Guardado Final y Persistencia de UI:** *Solo si el usuario NO es invitado*, registrar la respuesta en la tabla `Mensaje`. Se deben guardar obligatoriamente las columnas `ui_type` (VARCHAR) y `ui_data` (JSONB).
   - **Response:** Objeto `Message` del asistente (incluyendo `ui_type`, `cards_data`, `contest_data` y `cited_sources`).
 
 ---
 
-## 3. Módulo de Knowledge Base / FAQs (`/api/kb`) (Uso Interno/Admin)
-
-El sistema no hace chunking crudo de PDFs en tiempo de ejecución, sino que utiliza **FAQs validadas**.
-
-- [x] `POST /api/kb/faqs`
-  - **Body:** El esquema JSON definido en la sección 3.2 del EBC.
-  - **Lógica:** Generar el `embedding` con Gemini e insertar en **Azure AI Search**.
-
-- [x] `PUT /api/kb/faqs/:faq_id`
-  - **Lógica:** Actualizar una FAQ (por ejemplo, cambios de cronogramas).
-
-- [x] `GET /api/kb/faqs`
-  - **Query Params:** `?caso_uso=CU03&tema=requisitos_tesis`
-  - **Lógica:** Listar FAQs para revisión manual.
-
----
-
-## 4. Tareas Core para el Desarrollador Backend (TODO)
+## 3. Tareas Core para el Desarrollador Backend (TODO)
 
 1. **Infraestructura:**
-   - [x] Configurar proyecto Node.js/Python (NestJS o FastAPI).
-   - [x] Configurar conexión a PostgreSQL.
-   - [x] Provisionar recurso de **Azure AI Search** y crear el índice `cacif-qa-index`. (Archivos listos)
+   - [x] Configurar proyecto Python (FastAPI).
+   - [x] Configurar conexión a PostgreSQL (Supabase).
+   - [x] Provisionar recurso de **AWS Bedrock Knowledge Base**.
    - [x] Obtener API Key de **Google Gemini**.
 
 2. **Lógica RAG-QA:**
-   - [ ] Implementar script de **ingesta masiva**: Leer JSON con FAQs, generar embeddings y subir a Azure AI Search en batch. *(Pendiente de ejecución)*
-   - [ ] Implementar el orquestador del Chat (`POST /api/chat/message`). *(Actualizado con Mock JSONB persistente, falta conectar RAG real de AWS y Gemini)*
-   - [ ] Afinar el Prompt del LLM (System Instruction) para obligarlo a usar Structured Outputs (JSON) y detectar automáticamente el `intent_type` de la conversación en lugar de depender de palabras clave.
+   - [x] Implementar el orquestador del Chat (`POST /api/chat/message`). Conectado con RAG real de AWS y Gemini.
+   - [x] Afinar el Prompt del LLM (System Instruction) para obligarlo a usar Structured Outputs (JSON) y detectar automáticamente el `intent_type`.
+   - [x] **CU03:** Forzar al LLM a devolver obligatoriamente 4 secciones específicas para trámites de tesis mediante reglas adicionales en el System Prompt.
+   - [x] **CU03:** Enviar el esquema completo y exacto de `stepper_cards` (`id`, `procedure_name`, `estimated_time`, `cost`, `requirements`, `steps`) en el modelo de datos de Pydantic.
+   - [x] **CU04:** Agregar regla EX4 al System Prompt para manejar alertas formales por grupos no oficiales y por exceso de similitud (>20%).
+   - [x] **CU04:** Enviar el esquema completo y exacto de `citation_cards` (`id`, `document_name`, `article_number`, `exact_quote`, `explanation`, `page`, `link`) en el modelo de Pydantic.
 
 3. **Modificaciones a Futuro (Siguientes Pasos):**
    - [ ] Habilitar Streaming (Server-Sent Events) para que el bot escriba en tiempo real (requerirá rediseñar cómo se devuelven los JSONs de `cards_data`).
    - [ ] Agregar validación estricta de dominios permitidos (CORS) para entornos de producción.
    - [ ] Implementar manejo de caché en Redis para las preguntas más frecuentes y acelerar el response time.
+   - [ ] **Optimización RAG/LLM:** Implementar Enrutamiento Dinámico (*Intent-Based Prompting*) para inyectar solo las reglas y el esquema correspondiente al Caso de Uso detectado, ahorrando tokens y reduciendo alucinaciones.
+   - [ ] **Optimización RAG/LLM:** Migrar el esquema genérico actual (`ui_data`) hacia un enfoque de *Function Calling* (Herramientas), mejorando la velocidad y reduciendo el consumo de tokens de salida.
+   - [ ] **Optimización RAG/LLM:** Habilitar *Prompt Caching* en la API de Gemini/Bedrock para las partes estáticas del `System Prompt`.

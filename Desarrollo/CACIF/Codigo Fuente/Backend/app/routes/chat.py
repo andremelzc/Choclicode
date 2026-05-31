@@ -57,6 +57,8 @@ def _msg_to_response(msg: Mensaje) -> MessageResponse:
         ui_type=msg.ui_type,
         cards_data=msg.ui_data.get("cards_data") if msg.ui_data else None,
         contest_data=msg.ui_data.get("contest_data") if msg.ui_data else None,
+        stepper_data=msg.ui_data.get("stepper_data") if msg.ui_data else None,
+        citation_data=msg.ui_data.get("citation_data") if msg.ui_data else None,
         sent_at=msg.sent_at.isoformat(),
         cited_sources=[
             CitedSourceResponse(
@@ -258,6 +260,8 @@ async def send_message(
     
     cards_data = ui_data.get("cards_data") if ui_data else None
     contest_data = ui_data.get("contest_data") if ui_data else None
+    stepper_data = ui_data.get("stepper_data") if ui_data else None
+    citation_data = ui_data.get("citation_data") if ui_data else None
 
     assistant_msg_id = str(uuid.uuid4())
 
@@ -289,4 +293,6 @@ async def send_message(
         ui_type=ui_type,
         cards_data=cards_data,
         contest_data=contest_data,
+        stepper_data=stepper_data,
+        citation_data=citation_data,
     )

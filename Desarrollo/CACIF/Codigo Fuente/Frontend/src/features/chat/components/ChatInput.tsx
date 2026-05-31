@@ -22,17 +22,15 @@ export const ChatInput = ({ onSend, isLoading, hasMessages }: ChatInputProps) =>
   };
 
   const SUGGESTIONS = [
-    "🤖 Inteligencia Artificial",
-    "🛡️ Ciberseguridad",
-    "🎓 Trámite de Tesis",
-    "📢 Ver Convocatorias"
+    { label: "🔍 Grupos de IA", query: "Quiero buscar grupos de investigación o laboratorios sobre Inteligencia Artificial en la FISI." },
+    { label: "📢 Concursos Activos", query: "¿Cuáles son las convocatorias o concursos de investigación actualmente activos?" },
+    { label: "🎓 Trámite de Tesis", query: "¿Cuáles son los requisitos y el procedimiento paso a paso para inscribir mi plan de tesis?" },
+    { label: "⚖️ Derechos de Autor", query: "¿Qué dice el reglamento sobre los derechos de autor y propiedad intelectual en las tesis?" }
   ];
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = (query: string) => {
     if (!isLoading) {
-      // Remove the emoji prefix for the actual query
-      const query = suggestion.replace(/^[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]\s*/g, '').trim();
-      onSend(`Quiero buscar grupos de investigación sobre ${query}`);
+      onSend(query);
     }
   };
 
@@ -48,17 +46,28 @@ export const ChatInput = ({ onSend, isLoading, hasMessages }: ChatInputProps) =>
               className="flex flex-wrap items-center gap-2 mb-4 px-2"
             >
               <Sparkles className="w-4 h-4 text-primary/70 mr-1" />
-              <span className="text-[12px] font-semibold text-muted-foreground mr-1">Sugerencias:</span>
-              {SUGGESTIONS.map((suggestion) => (
-                <Badge 
-                  key={suggestion}
-                  variant="secondary"
-                  className="cursor-pointer hover:bg-primary/20 hover:text-primary hover:border-primary/30 transition-all text-[11px] py-1 border border-border/50"
-                  onClick={() => handleSuggestionClick(suggestion)}
-                >
-                  {suggestion}
-                </Badge>
-              ))}
+              <span className="text-[12px] font-semibold text-muted-foreground mr-1" id="suggestions-label">Sugerencias:</span>
+              <div role="list" aria-labelledby="suggestions-label" className="flex gap-2">
+                {SUGGESTIONS.map((suggestion, idx) => (
+                  <Badge 
+                    key={idx}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-primary/20 hover:text-primary hover:border-primary/30 transition-all text-[11px] py-1 border border-border/50 focus:ring-2 focus:ring-primary focus:outline-none"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Sugerencia: ${suggestion.label}`}
+                    onClick={() => handleSuggestionClick(suggestion.query)}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSuggestionClick(suggestion.query);
+                      }
+                    }}
+                  >
+                    {suggestion.label}
+                  </Badge>
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -83,8 +92,13 @@ export const ChatInput = ({ onSend, isLoading, hasMessages }: ChatInputProps) =>
             )}
           </button>
         </form>
-        <div className="mt-4 text-center text-[11px] font-bold text-muted-foreground/50 tracking-widest uppercase">
-          CACIF · FISI-UNMSM · Motor RAG Activo
+        <div className="mt-4 flex flex-col items-center gap-1.5 text-center">
+          <div className="text-[11px] font-bold text-muted-foreground/50 tracking-widest uppercase">
+            CACIF · FISI-UNMSM · Motor RAG Activo
+          </div>
+          <p className="text-[10px] text-muted-foreground/60 max-w-xl leading-relaxed">
+            Esta es una versión prototipo. La información generada debe tomarse bajo su propia responsabilidad, ya que podría estar sujeta a actualizaciones. Para mayor seguridad o consultas formales, puedes escribir a <a href="mailto:investigacion.fisi@unmsm.edu.pe" className="text-primary/70 hover:text-primary hover:underline transition-colors font-medium">investigacion.fisi@unmsm.edu.pe</a> o acercarte directamente a la Unidad de Investigación.
+          </p>
         </div>
       </div>
     </div>

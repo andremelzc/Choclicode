@@ -25,18 +25,21 @@
 - [x] Implementar botones de acción para redirección al enlace de inscripción oficial.
 
 ## 5. Feature: Chatbot - Caso de Uso 3 (Asesoría de Grados y Trámites)
-- [ ] Diseñar UI de "Paso a Paso" o Timeline vertical (`ui_type: 'stepper_cards'`) para explicar de forma interactiva el procedimiento administrativo de vinculación de plan de tesis.
+- [x] Diseñar UI de "Paso a Paso" o Timeline vertical (`ui_type: 'stepper_cards'`) para explicar de forma interactiva el procedimiento administrativo de vinculación de plan de tesis.
+- [x] Asegurar que el backend envíe el esquema estricto de `stepper_cards` (`id`, `procedure_name`, `estimated_time`, `cost`, `requirements`, `steps`).
 - [ ] Crear visualización de Tarjetas de Requisitos (`ui_type: 'requirement_cards'`) con checkboxes visuales inactivos para ilustrar lo que se necesita para convalidar PPP.
 - [ ] Maquetar componentes informativos para listar beneficios académicos de forma estructurada.
 
 ## 6. Feature: Chatbot - Caso de Uso 4 (Marco Normativo)
-- [ ] Diseñar UI de Citas Normativas Enriquecidas (`ui_type: 'citation_cards'`) para mostrar el artículo citado en un bloque destacado (blockquote elegante) separado del texto natural.
+- [x] Diseñar UI de Citas Normativas Enriquecidas (`ui_type: 'citation_cards'`) para mostrar el artículo citado en un bloque destacado (blockquote elegante) separado del texto natural.
+- [x] Asegurar que el backend envíe el esquema estricto de `citation_cards` (`id`, `document_name`, `article_number`, `exact_quote`, `explanation`, `page`, `link`).
 - [ ] Configurar tooltips flotantes o enlaces estilizados dentro de las tarjetas que apunten directamente a la página del PDF del Reglamento de la UNMSM.
-- [ ] Crear un componente visual de verificación (ej. Checkmark verde o Badge "Resolución Vigente") para confirmar el estado legal de la respuesta.
+- [x] Crear un componente visual de verificación (ej. Checkmark verde o Badge "Resolución Vigente") para confirmar el estado legal de la respuesta.
 
 ## 7. Futuras Implementaciones (Escalabilidad)
-- [ ] Conectar finalmente `src/features/chat/services/chat.service.ts` con el LLM real, asegurando que se extraigan correctamente el `ui_type` y `ui_data` (Mock actual 100% funcional y persistente).
-- [ ] Agregar validaciones de accesibilidad (a11y) y navegación por teclado en todo el chat.
+- [x] Conectar finalmente `src/features/chat/services/chat.service.ts` con el LLM real, asegurando que se extraigan correctamente el `ui_type` y `ui_data` (Mock actual 100% funcional y persistente).
+- [x] Agregar validaciones de accesibilidad (a11y) y navegación por teclado en todo el chat.
 - [ ] Preparar arquitectura para un posible Dashboard Administrativo (`src/features/admin`).
 - [ ] Dejar hooks básicos para sistema de notificaciones push o alertas in-app.
 - [ ] Diseñar UI para historial avanzado y exportación de transcripciones del chat.
+- [ ] **Optimización RAG/LLM:** Preparar el parseo del Frontend para soportar *Function Calling* estructurado desde el Backend, reemplazando el esquema genérico actual por llamadas directas a componentes.

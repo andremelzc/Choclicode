@@ -62,6 +62,30 @@ class CitedSourceResponse(BaseModel):
     similarity_score: float
 
 
+class CitationDataResponse(BaseModel):
+    id: str
+    document_name: Optional[str] = None
+    article_number: Optional[str] = None
+    exact_quote: Optional[str] = None
+    explanation: Optional[str] = None
+    page: Optional[int] = None
+    link: Optional[str] = None
+
+class StepResponse(BaseModel):
+    step_number: Optional[int] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    action_url: Optional[str] = None
+
+class ProcedureDataResponse(BaseModel):
+    id: str
+    procedure_name: Optional[str] = None
+    estimated_time: Optional[str] = None
+    cost: Optional[str] = None
+    requirements: Optional[list[str]] = []
+    steps: Optional[list[StepResponse]] = []
+
+
 class TimelineEventResponse(BaseModel):
     title: Optional[str] = None
     date: Optional[str] = None
@@ -102,9 +126,11 @@ class MessageResponse(BaseModel):
     rag_confidence: Optional[float] = None
     sent_at: str
     cited_sources: Optional[list[CitedSourceResponse]] = None
-    ui_type: Optional[str] = None  # 'text' | 'matchmaking_cards' | 'convocatoria_cards'
+    ui_type: Optional[str] = None  # 'text' | 'matchmaking_cards' | 'convocatoria_cards' | 'stepper_cards' | 'citation_cards'
     cards_data: Optional[list[GroupCardDataResponse]] = None
     contest_data: Optional[list[ContestDataResponse]] = None
+    stepper_data: Optional[list[ProcedureDataResponse]] = None
+    citation_data: Optional[list[CitationDataResponse]] = None
 
 
 # ═══════════════════════════════════════════════════════════════════
