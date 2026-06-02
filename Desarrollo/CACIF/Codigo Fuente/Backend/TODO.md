@@ -74,7 +74,7 @@ Este documento sirve como un mapa de ruta exacto para el equipo de backend.
 3. **Modificaciones a Futuro (Siguientes Pasos):**
    - [ ] Habilitar Streaming (Server-Sent Events) para que el bot escriba en tiempo real (requerirá rediseñar cómo se devuelven los JSONs de `cards_data`).
    - [ ] Agregar validación estricta de dominios permitidos (CORS) para entornos de producción.
-   - [ ] Implementar manejo de caché en Redis para las preguntas más frecuentes y acelerar el response time.
+   - [x] Implementar manejo de caché en Redis para las preguntas más frecuentes y acelerar el response time.
    - [ ] **Optimización RAG/LLM:** Implementar Enrutamiento Dinámico (*Intent-Based Prompting*) para inyectar solo las reglas y el esquema correspondiente al Caso de Uso detectado, ahorrando tokens y reduciendo alucinaciones.
    - [ ] **Optimización RAG/LLM:** Migrar el esquema genérico actual (`ui_data`) hacia un enfoque de *Function Calling* (Herramientas), mejorando la velocidad y reduciendo el consumo de tokens de salida.
    - [ ] **Optimización RAG/LLM:** Habilitar *Prompt Caching* en la API de Gemini/Bedrock para las partes estáticas del `System Prompt`.

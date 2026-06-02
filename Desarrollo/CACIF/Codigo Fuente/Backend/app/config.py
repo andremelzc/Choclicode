@@ -40,6 +40,11 @@ class Settings(BaseSettings):
     RAG_TOP_K: int = 5
     RAG_SIMILARITY_THRESHOLD: float = 0.75
 
+    # --- Cache (Upstash Redis) ---
+    UPSTASH_REDIS_URL: str = ""
+    UPSTASH_REDIS_TOKEN: str = ""
+    CACHE_TTL_SECONDS: int = 86400  # 24 horas
+
     # --- Rate Limiting ---
     GUEST_MAX_QUESTIONS: int = 5
 
