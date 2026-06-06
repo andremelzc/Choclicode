@@ -400,7 +400,7 @@ Usuario escribe consulta
 
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
-| 📝 | `PGC.docx` | 2026-05-21 | andremelzc |
+| 📝 | `PGC.docx` | 2026-06-05 | andremelzc |
 
 #### 📁 `Linea Base/CACIF/Linea Base 01/`
 
