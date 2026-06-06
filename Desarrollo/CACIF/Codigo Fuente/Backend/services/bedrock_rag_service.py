@@ -18,6 +18,7 @@ from typing import Optional, Dict, Any, List
 
 from app.config import Settings
 from prompts.prompts import CACIF_SYSTEM_PROMPT
+from services.cache_service import get_cache_service
 
 
 _INTENT_KEYWORDS: dict[str, list[str]] = {
@@ -31,14 +32,22 @@ class StructuredAssistantResponse(BaseModel):
     answer: str = Field(description="La respuesta textual principal en formato académico, basándose en el contexto.")
     intent_type: str = Field(description="Clasifica el caso de uso en: CU01 (Grupos), CU02 (Convocatorias), CU03 (Trámites), CU04 (Normativa), o CU00 (Consulta General).")
     ui_type: str = Field(description="Determina la UI. Valores posibles: 'text', 'matchmaking_cards' (si intent_type es CU01), 'convocatoria_cards' (si intent_type es CU02), 'stepper_cards' (si intent_type es CU03), 'citation_cards' (si intent_type es CU04).")
-    ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Por ejemplo, para matchmaking_cards, devuelve una lista en la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data'.")
+    ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Para matchmaking_cards, la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data'. Para stepper_cards (CU03), la llave 'stepper_data' como una lista de objetos que contengan obligatoriamente 'id', 'procedure_name', 'estimated_time', 'cost', 'requirements' (lista de strings), y 'steps' (lista de objetos con 'step_number', 'title', 'description' y 'action_url'). Para citation_cards (CU04), la llave 'citation_data' como una lista de objetos que contengan obligatoriamente 'id', 'document_name', 'article_number', 'exact_quote', 'explanation', 'page' y 'link'.")
 
     @field_validator('ui_data', mode='before')
     @classmethod
     def parse_ui_data(cls, v):
         if isinstance(v, str):
             try:
-                return json.loads(v)
+                # Limpiar bloques de markdown si el LLM los generó (ej. ```json ... ```)
+                clean_v = v.strip()
+                if clean_v.startswith("```json"):
+                    clean_v = clean_v[7:]
+                elif clean_v.startswith("```"):
+                    clean_v = clean_v[3:]
+                if clean_v.endswith("```"):
+                    clean_v = clean_v[:-3]
+                return json.loads(clean_v.strip())
             except Exception:
                 return {}
         return v
@@ -95,9 +104,22 @@ class BedrockRAGService:
     async def run(self, query: str) -> dict:
         """Ejecuta el pipeline RAG completo: recuperar → sintetizar.
 
+        Antes de ejecutar el pipeline, consulta el cache de Redis.
+        Si hay un cache hit, retorna la respuesta cacheada directamente
+        sin llamar a Bedrock ni a Gemini.
+
         Returns:
-            dict con claves: answer, intent, confidence, sources
+            dict con claves: answer, intent, confidence, sources, from_cache
         """
+        # ── Cache lookup ────────────────────────────────────────────
+        cache = get_cache_service()
+        if cache is not None:
+            cached = cache.get(query)
+            if cached is not None:
+                cached["from_cache"] = True
+                return cached
+
+        # ── Pipeline RAG (solo si no hay cache hit) ─────────────────
         docs = await self.retriever.ainvoke(query)
 
         if docs:
@@ -130,6 +152,8 @@ class BedrockRAGService:
                     "Por favor, analiza la pregunta y el contexto, clasifica el caso de uso y provee tu respuesta llenando la estructura requerida. "
                     "Si determinas que es CU01, genera datos estructurados en 'ui_data' -> 'cards_data'. "
                     "Si es CU02, genera datos en 'ui_data' -> 'contest_data'. "
+                    "Si es CU03, genera datos en 'ui_data' -> 'stepper_data'. "
+                    "Si es CU04, genera datos en 'ui_data' -> 'citation_data'. "
                     "Asegúrate de no inventar datos que no estén en el contexto, pero simula IDs o nombres si es estrictamente necesario para armar la tarjeta visual. "
                 )
             ),
@@ -137,7 +161,7 @@ class BedrockRAGService:
 
         structured_response: StructuredAssistantResponse = await self.llm.ainvoke(messages)
 
-        return {
+        result = {
             "answer": structured_response.answer,
             "intent": structured_response.intent_type,
             "ui_type": structured_response.ui_type,
@@ -145,6 +169,13 @@ class BedrockRAGService:
             "confidence": confidence,
             "sources": sources,
         }
+
+        # ── Cache store ─────────────────────────────────────────────
+        if cache is not None:
+            cache.set(query, result)
+
+        result["from_cache"] = False
+        return result
 
 
 # ── Singleton ────────────────────────────────────────────────────────

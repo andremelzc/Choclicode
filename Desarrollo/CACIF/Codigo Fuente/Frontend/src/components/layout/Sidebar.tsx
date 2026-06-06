@@ -30,7 +30,8 @@ export const Sidebar = ({
       <div className="p-4">
         <button 
           onClick={onNewConversation}
-          className="flex w-full items-center justify-start px-5 gap-3 rounded-xl border border-primary/40 bg-primary/10 py-3 text-[14px] font-medium text-primary hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(88,101,242,0.3)] transition-all duration-300"
+          aria-label="Crear nueva conversación"
+          className="flex w-full items-center justify-start px-5 gap-3 rounded-xl border border-primary/40 bg-primary/10 py-3 text-[14px] font-medium text-primary hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(88,101,242,0.3)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <Plus className="w-4 h-4" />
           Nueva conversación
@@ -38,17 +39,19 @@ export const Sidebar = ({
       </div>
       
       <div className="px-4 py-2 flex-1 overflow-y-auto">
-        <h3 className="text-[11px] font-bold text-muted-foreground tracking-widest mb-3 px-1 uppercase">
+        <h3 className="text-[11px] font-bold text-muted-foreground tracking-widest mb-3 px-1 uppercase" id="conversations-heading">
           Conversaciones
         </h3>
         
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1" role="navigation" aria-labelledby="conversations-heading">
           <AnimatePresence mode="wait">
             {isLoadingConversations ? (
               <motion.div 
                 key="loader"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="flex justify-center py-4 text-muted-foreground"
+                aria-live="polite"
+                aria-busy="true"
               >
                 <Loader2 className="w-5 h-5 animate-spin" />
               </motion.div>
@@ -58,7 +61,7 @@ export const Sidebar = ({
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="text-center py-6 px-4"
               >
-                <MessageSquare className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                <MessageSquare className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" aria-hidden="true" />
                 <p className="text-[12px] font-medium text-muted-foreground">No hay conversaciones previas</p>
               </motion.div>
             ) : (
@@ -89,8 +92,10 @@ export const Sidebar = ({
                         visible: { opacity: 1, x: 0 }
                       }}
                       onClick={() => onSelectConversation(conv.id)}
+                      aria-label={`Ver conversación: ${displayTitle} del ${formatDate(conv.started_at)}`}
+                      aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "flex flex-col items-start gap-1 rounded-xl px-4 py-3 text-left transition-colors duration-300",
+                        "flex flex-col items-start gap-1 rounded-xl px-4 py-3 text-left transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary",
                         isActive 
                           ? "bg-surface border border-primary/30 shadow-[0_0_10px_rgba(88,101,242,0.1)]" 
                           : "hover:bg-surface/50 text-muted-foreground border border-transparent hover:shadow-[0_0_10px_rgba(255,255,255,0.02)]"
