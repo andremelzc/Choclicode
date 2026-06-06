@@ -360,8 +360,8 @@ Usuario escribe consulta
 | Tipo | Cantidad |
 |---|---|
 | 📝 Documentos Word (.docx) | **30** |
-| 📊 Hojas de cálculo (.xlsx) | **6** |
-| 📄 **Total** | **36** |
+| 📊 Hojas de cálculo (.xlsx) | **7** |
+| 📄 **Total** | **37** |
 
 
 #### 📁 `Desarrollo/CACIF/Analisis/`
@@ -381,6 +381,7 @@ Usuario escribe consulta
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
 | 📊 | `CACIF-RE01.xlsx` | 2026-05-29 | lightbluedev05 |
+| 📊 | `CACIF-RE02.xlsx` | 2026-06-05 | lightbluedev05 |
 
 #### 📁 `Desarrollo/CACIF/Diseño/`
 
