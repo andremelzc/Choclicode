@@ -359,9 +359,9 @@ Usuario escribe consulta
 
 | Tipo | Cantidad |
 |---|---|
-| 📝 Documentos Word (.docx) | **28** |
+| 📝 Documentos Word (.docx) | **30** |
 | 📊 Hojas de cálculo (.xlsx) | **6** |
-| 📄 **Total** | **34** |
+| 📄 **Total** | **36** |
 
 
 #### 📁 `Desarrollo/CACIF/Analisis/`
@@ -387,11 +387,11 @@ Usuario escribe consulta
 | | Documento | Última modificación | Autor |
 |---|---|---|---|
 | 📝 | `CACIF-CPRAG.docx` | 2026-05-14 | Miguel Solis |
-| 📝 | `CACIF-DA.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-DA.docx` | 2026-06-05 | andremelzc |
 | 📝 | `CACIF-DI.docx` | 2026-05-17 | Mihael Cristobal |
 | 📝 | `CACIF-EBC.docx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-ELT.docx` | 2026-05-13 | Mantari Flores Fabrizio Armando |
-| 📝 | `CACIF-MD.docx` | 2026-05-14 | andremelzc |
+| 📝 | `CACIF-MD.docx` | 2026-06-05 | andremelzc |
 | 📝 | `CACIF-PC.docx` | 2026-05-18 | andremelzc |
 | 📝 | `CACIF-PP.docx` | 2026-05-18 | Miguel Solis |
 
@@ -420,6 +420,13 @@ Usuario escribe consulta
 | 📊 | `CACIF-MR.xlsx` | 2026-05-14 | andremelzc |
 | 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-14 | andremelzc |
+
+#### 📁 `Linea Base/CACIF/Linea Base 02.2/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📝 | `CACIF-DA.docx` | 2026-06-05 | andremelzc |
+| 📝 | `CACIF-MD.docx` | 2026-06-05 | andremelzc |
 
 #### 📁 `Linea Base/CACIF/Linea Base 02/`
 
