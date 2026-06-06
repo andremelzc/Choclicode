@@ -376,6 +376,12 @@ Usuario escribe consulta
 | 📊 | `CACIF-MR.xlsx` | 2026-05-03 | Miguel Solis |
 | 📊 | `CACIF-RNF.xlsx` | 2026-05-09 | Mantari Flores Fabrizio Armando |
 
+#### 📁 `Desarrollo/CACIF/Codigo Fuente/Pruebas/`
+
+| | Documento | Última modificación | Autor |
+|---|---|---|---|
+| 📊 | `CACIF-RE01.xlsx` | 2026-05-29 | lightbluedev05 |
+
 #### 📁 `Desarrollo/CACIF/Diseño/`
 
 | | Documento | Última modificación | Autor |
