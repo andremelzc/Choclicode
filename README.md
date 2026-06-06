@@ -360,8 +360,8 @@ Usuario escribe consulta
 | Tipo | Cantidad |
 |---|---|
 | 📝 Documentos Word (.docx) | **30** |
-| 📊 Hojas de cálculo (.xlsx) | **5** |
-| 📄 **Total** | **35** |
+| 📊 Hojas de cálculo (.xlsx) | **6** |
+| 📄 **Total** | **36** |
 
 
 #### 📁 `Desarrollo/CACIF/Analisis/`
