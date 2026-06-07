@@ -39,15 +39,15 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     // If we use asChild, we fallback to standard Slot without motion to prevent ref issues
-    const Comp = asChild ? Slot : motion.button
+    const Comp = asChild ? Slot : (motion.button as React.ElementType<any>)
     const motionProps = asChild ? {} : { whileTap: { scale: 0.97 } }
     
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref as any}
+        ref={ref as React.Ref<HTMLButtonElement>}
         {...motionProps}
-        {...(props as any)}
+        {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
       />
     )
   }
@@ -55,3 +55,5 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
+
+// @refresh reset

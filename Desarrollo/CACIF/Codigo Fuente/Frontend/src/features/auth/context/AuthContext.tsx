@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (storedUser && storedToken) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (e) {
+      } catch {
         console.error("Error parsing stored user data");
         localStorage.removeItem('cacif_user');
         localStorage.removeItem('cacif_token');
@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const login = (newUser: User, _token: string) => {
     setUser(newUser);
   };
