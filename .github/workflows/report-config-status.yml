@@ -28,24 +28,37 @@ jobs:
           get_description() {
             local fname="$1"
             case "$fname" in
+              # ── Análisis ──
               CACIF-PC.docx)    echo "Project Charter" ;;
-              CACIF-MR.xlsx)    echo "Matriz de Requisitos Funcionales" ;;
+              CACIF-MR.xlsx)    echo "Matriz de Requisitos" ;;
               CACIF-RNF.xlsx)   echo "Requisitos No Funcionales" ;;
               CACIF-DN.docx)    echo "Documento de Negocio" ;;
-              CACIF-CU01.docx)  echo "Caso de Uso 01 — Orientación y Selección de GI" ;;
-              CACIF-CU02.docx)  echo "Caso de Uso 02 — Gestión de Convocatorias" ;;
-              CACIF-CU03.docx)  echo "Caso de Uso 03 — Asesoría Administrativa" ;;
-              CACIF-CU04.docx)  echo "Caso de Uso 04 — Marco Normativo" ;;
+              CACIF-CU01.docx)  echo "Caso de Uso 01" ;;
+              CACIF-CU02.docx)  echo "Caso de Uso 02" ;;
+              CACIF-CU03.docx)  echo "Caso de Uso 03" ;;
+              CACIF-CU04.docx)  echo "Caso de Uso 04" ;;
+              # ── Diseño ──
               CACIF-DA.docx)    echo "Documento de Arquitectura" ;;
-              CACIF-DI.docx)    echo "Diseño de Interfaz" ;;
+              CACIF-MD.docx)    echo "Modelo de Datos" ;;
               CACIF-EBC.docx)   echo "Especificación de la Base de Conocimiento" ;;
               CACIF-ELT.docx)   echo "Especificación de Logs y Trazabilidad" ;;
               CACIF-CPRAG.docx) echo "Catálogo de Prompts RAG" ;;
-              CACIF-MD.docx)    echo "Modelo de Datos" ;;
+              CACIF-DI.docx)    echo "Diseño de Interfaz" ;;
               CACIF-PP.docx)    echo "Plan de Pruebas" ;;
               CACIF-CP.xlsx)    echo "Matriz de Casos de Prueba" ;;
-              CACIF-RE01.xlsx)  echo "Reporte de Ejecución 01" ;;
-              CACIF-RE02.xlsx)  echo "Reporte de Ejecución 02" ;;
+              # ── Desarrollo / Pruebas ──
+              CACIF-RE01.xlsx)  echo "Reporte de Ejecución 1" ;;
+              CACIF-RE02.xlsx)  echo "Reporte de Ejecución 2" ;;
+              # ── QA y Calidad ──
+              CACIF-RMIA.xlsx)  echo "Reporte de Métricas de Inteligencia Artificial" ;;
+              CACIF-IV.docx)    echo "Informe de Validación" ;;
+              CACIF-BE.xlsx)    echo "Backlog de Errores" ;;
+              CACIF-AAQA.docx)  echo "Acta de Aprobación de QA" ;;
+              # ── Despliegue ──
+              CACIF-MT.docx)    echo "Manual Técnico" ;;
+              CACIF-MU.docx)    echo "Manual de Usuario" ;;
+              CACIF-AC.docx)    echo "Acta de Cierre" ;;
+              # ── Configuración ──
               PGC.docx)         echo "Plan de Gestión de Configuración" ;;
               *)                echo "$fname" ;;
             esac
