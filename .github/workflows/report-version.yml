@@ -29,8 +29,8 @@ jobs:
 
           echo "Buscando '$FILENAME' en el repositorio..."
 
-          # ── Buscar el archivo ──────────────────────────────────────
-          MATCHES=$(find . -name "$FILENAME" -not -path './.git/*' | sed 's|^\./||')
+          # ── Buscar el archivo (excluyendo Linea Base) ──────────────
+          MATCHES=$(find . -name "$FILENAME" -not -path './.git/*' -not -path '*/Linea Base/*' | sed 's|^\./||')
           MATCH_COUNT=$(echo "$MATCHES" | grep -c -v '^$' || true)
 
           if [ "$MATCH_COUNT" -eq 0 ] || [ -z "$MATCHES" ]; then
