@@ -28,15 +28,14 @@
 5. [Flujo del Pipeline RAG](#-flujo-del-pipeline-rag)
 6. [Stack Tecnológico](#-stack-tecnológico)
 7. [Estructura del Repositorio](#-estructura-del-repositorio)
-8. [Índice de Documentos](#-índice-de-documentos)
-9. [Modelo de Datos](#-modelo-de-datos)
-10. [Diseño UI/UX](#-diseño-uiux)
-11. [Base de Conocimientos](#-base-de-conocimientos)
-12. [Logs y Trazabilidad](#-logs-y-trazabilidad)
-13. [Gestión de la Configuración](#-gestión-de-la-configuración)
-14. [Cronograma e Hitos](#-cronograma-e-hitos)
-15. [Presupuesto](#-presupuesto)
-16. [Artefactos del Proyecto](#-artefactos-del-proyecto)
+8. [Modelo de Datos](#-modelo-de-datos)
+9. [Diseño UI/UX](#-diseño-uiux)
+10. [Base de Conocimientos](#-base-de-conocimientos)
+11. [Logs y Trazabilidad](#-logs-y-trazabilidad)
+12. [Gestión de la Configuración](#-gestión-de-la-configuración)
+13. [Cronograma e Hitos](#-cronograma-e-hitos)
+14. [Presupuesto](#-presupuesto)
+15. [Artefactos del Proyecto](#-artefactos-del-proyecto)
 
 ---
 
@@ -350,100 +349,6 @@ Usuario escribe consulta
 > **Nota sobre la nomenclatura:** Todos los artefactos siguen el estándar definido en el Plan de Gestión de Configuración:
 > - `[Acrónimo Proyecto]-[Acrónimo Ítem].[Extensión]` → ej. `CACIF-DAS.docx`
 > - Cuando el ítem se instancia por elemento: `[Acrónimo Proyecto]-[Acrónimo Ítem][NN]` → ej. `CACIF-CU01.docx`
-
----
-
-## 📋 Índice de Documentos
-
-<!-- DOCS-INDEX-START -->
-
-| Tipo | Cantidad |
-|---|---|
-| 📝 Documentos Word (.docx) | **30** |
-| 📊 Hojas de cálculo (.xlsx) | **7** |
-| 📄 **Total** | **37** |
-
-
-#### 📁 `Desarrollo/CACIF/Analisis/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📝 | `CACIF-CU01.docx` | 2026-05-10 | Miguel Solis |
-| 📝 | `CACIF-CU02.docx` | 2026-05-10 | Mantari Flores Fabrizio Armando |
-| 📝 | `CACIF-CU03.docx` | 2026-05-07 | andremelzc |
-| 📝 | `CACIF-CU04.docx` | 2026-05-10 | Mihael Cristobal |
-| 📝 | `CACIF-DN.docx` | 2026-05-14 | andremelzc |
-| 📊 | `CACIF-MR.xlsx` | 2026-05-03 | Miguel Solis |
-| 📊 | `CACIF-RNF.xlsx` | 2026-05-09 | Mantari Flores Fabrizio Armando |
-
-#### 📁 `Desarrollo/CACIF/Codigo Fuente/Pruebas/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📊 | `CACIF-RE01.xlsx` | 2026-05-29 | lightbluedev05 |
-| 📊 | `CACIF-RE02.xlsx` | 2026-06-05 | lightbluedev05 |
-
-#### 📁 `Desarrollo/CACIF/Diseño/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📝 | `CACIF-CPRAG.docx` | 2026-05-14 | Miguel Solis |
-| 📝 | `CACIF-DA.docx` | 2026-06-05 | andremelzc |
-| 📝 | `CACIF-DI.docx` | 2026-05-17 | Mihael Cristobal |
-| 📝 | `CACIF-EBC.docx` | 2026-05-14 | andremelzc |
-| 📝 | `CACIF-ELT.docx` | 2026-05-13 | Mantari Flores Fabrizio Armando |
-| 📝 | `CACIF-MD.docx` | 2026-06-05 | andremelzc |
-| 📝 | `CACIF-PC.docx` | 2026-05-18 | andremelzc |
-| 📝 | `CACIF-PP.docx` | 2026-05-18 | Miguel Solis |
-
-#### 📁 `Desarrollo/CACIF/Gestión/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📊 | `CACIF-CP.xlsx` | 2026-05-21 | andremelzc |
-| 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
-
-#### 📁 `Documentos/Planes/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📝 | `PGC.docx` | 2026-06-05 | andremelzc |
-
-#### 📁 `Linea Base/CACIF/Linea Base 01/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📝 | `CACIF-CU01.docx` | 2026-05-14 | andremelzc |
-| 📝 | `CACIF-CU02.docx` | 2026-05-14 | andremelzc |
-| 📝 | `CACIF-CU03.docx` | 2026-05-14 | andremelzc |
-| 📝 | `CACIF-CU04.docx` | 2026-05-14 | andremelzc |
-| 📝 | `CACIF-DN.docx` | 2026-05-14 | andremelzc |
-| 📊 | `CACIF-MR.xlsx` | 2026-05-14 | andremelzc |
-| 📝 | `CACIF-PC.docx` | 2026-05-14 | andremelzc |
-| 📊 | `CACIF-RNF.xlsx` | 2026-05-14 | andremelzc |
-
-#### 📁 `Linea Base/CACIF/Linea Base 02.2/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📝 | `CACIF-DA.docx` | 2026-06-05 | andremelzc |
-| 📝 | `CACIF-MD.docx` | 2026-06-05 | andremelzc |
-
-#### 📁 `Linea Base/CACIF/Linea Base 02/`
-
-| | Documento | Última modificación | Autor |
-|---|---|---|---|
-| 📝 | `CACIF-CPRAG.docx` | 2026-05-18 | andremelzc |
-| 📝 | `CACIF-DA.docx` | 2026-05-18 | andremelzc |
-| 📝 | `CACIF-DI.docx` | 2026-05-18 | andremelzc |
-| 📝 | `CACIF-EBC.docx` | 2026-05-18 | andremelzc |
-| 📝 | `CACIF-ELT.docx` | 2026-05-18 | andremelzc |
-| 📝 | `CACIF-MD.docx` | 2026-05-18 | andremelzc |
-| 📝 | `CACIF-PP.docx` | 2026-05-18 | andremelzc |
-
-> 🤖 *Índice generado automáticamente vía GitHub Actions.*
-
-<!-- DOCS-INDEX-END -->
 
 ---
 

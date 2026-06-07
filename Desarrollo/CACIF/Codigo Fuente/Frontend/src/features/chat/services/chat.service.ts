@@ -2,6 +2,7 @@ import type { Message, Conversation } from "../../../types/chat";
 import { api } from "../../../services/api";
 
 export const chatService = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getConversations: async (_studentId: string): Promise<Conversation[]> => {
     try {
       const response = await api.get('/chat/conversations');

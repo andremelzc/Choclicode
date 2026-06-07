@@ -1,0 +1,180 @@
+name: "📦 Reporte de Estado de Configuración"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  config-report:
+    name: "📊 Generar reporte de todos los ítems"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📋 Generar reporte de configuración
+        shell: bash
+        run: |
+          REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          REMOTE_URL=$(git remote get-url origin 2>/dev/null | sed 's|https://||;s|\.git$||' || echo "—")
+
+          # ── Mapa de descripciones ──────────────────────────────────
+          get_description() {
+            local fname="$1"
+            case "$fname" in
+              # ── Análisis ──
+              CACIF-PC.docx)    echo "Project Charter" ;;
+              CACIF-MR.xlsx)    echo "Matriz de Requisitos" ;;
+              CACIF-RNF.xlsx)   echo "Requisitos No Funcionales" ;;
+              CACIF-DN.docx)    echo "Documento de Negocio" ;;
+              CACIF-CU01.docx)  echo "Caso de Uso 01" ;;
+              CACIF-CU02.docx)  echo "Caso de Uso 02" ;;
+              CACIF-CU03.docx)  echo "Caso de Uso 03" ;;
+              CACIF-CU04.docx)  echo "Caso de Uso 04" ;;
+              # ── Diseño ──
+              CACIF-DA.docx)    echo "Documento de Arquitectura" ;;
+              CACIF-MD.docx)    echo "Modelo de Datos" ;;
+              CACIF-EBC.docx)   echo "Especificación de la Base de Conocimiento" ;;
+              CACIF-ELT.docx)   echo "Especificación de Logs y Trazabilidad" ;;
+              CACIF-CPRAG.docx) echo "Catálogo de Prompts RAG" ;;
+              CACIF-DI.docx)    echo "Diseño de Interfaz" ;;
+              CACIF-PP.docx)    echo "Plan de Pruebas" ;;
+              CACIF-CP.xlsx)    echo "Matriz de Casos de Prueba" ;;
+              # ── Desarrollo / Pruebas ──
+              CACIF-RE01.xlsx)  echo "Reporte de Ejecución 1" ;;
+              CACIF-RE02.xlsx)  echo "Reporte de Ejecución 2" ;;
+              # ── QA y Calidad ──
+              CACIF-RMIA.xlsx)  echo "Reporte de Métricas de Inteligencia Artificial" ;;
+              CACIF-IV.docx)    echo "Informe de Validación" ;;
+              CACIF-BE.xlsx)    echo "Backlog de Errores" ;;
+              CACIF-AAQA.docx)  echo "Acta de Aprobación de QA" ;;
+              # ── Despliegue ──
+              CACIF-MT.docx)    echo "Manual Técnico" ;;
+              CACIF-MU.docx)    echo "Manual de Usuario" ;;
+              CACIF-AC.docx)    echo "Acta de Cierre" ;;
+              # ── Configuración ──
+              PGC.docx)         echo "Plan de Gestión de Configuración" ;;
+              *)                echo "$fname" ;;
+            esac
+          }
+
+          # ── Buscar todos los .docx y .xlsx excluyendo Codigo Fuente ─
+          ALL_FILES=$(find . -type f \( -name "*.docx" -o -name "*.xlsx" \) \
+            -not -path './.git/*' \
+            -not -path '*/Codigo Fuente/*' \
+            -not -path '*/node_modules/*' \
+            | sed 's|^\./||' | sort)
+
+          TOTAL_FILES=$(echo "$ALL_FILES" | grep -c -v '^$' || echo 0)
+          TOTAL_DOCX=$(echo "$ALL_FILES" | grep -c '\.docx$' || echo 0)
+          TOTAL_XLSX=$(echo "$ALL_FILES" | grep -c '\.xlsx$' || echo 0)
+
+          # ── Generar reporte ────────────────────────────────────────
+          {
+            echo "## 📦 Reporte de Estado de Contabilidad de la Configuración"
+            echo ""
+            echo "> 📅 Generado el $(date -u +'%d/%m/%Y a las %H:%M UTC')"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### 📋 Datos del Proyecto"
+            echo ""
+            echo "| Campo | Valor |"
+            echo "|---|---|"
+            echo "| **ID del proyecto** | CACIF |"
+            echo "| **Repositorio** | $REMOTE_URL |"
+            echo "| **Rama** | \`$BRANCH\` |"
+            echo "| **Total de ítems** | **$TOTAL_FILES** ($TOTAL_DOCX docx, $TOTAL_XLSX xlsx) |"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### 📊 Resultado del Reporte — Ítems del Proyecto CACIF"
+            echo ""
+            echo "| Código del ítem | Descripción del ítem | Último Commit | Autor | Email | Última versión | Fecha última modificación | Hora | Ruta en el repositorio |"
+            echo "|---|---|---|---|---|---|---|---|---|"
+
+            while IFS= read -r file_path; do
+              [ -z "$file_path" ] && continue
+
+              FILENAME=$(basename "$file_path")
+              DESCRIPTION=$(get_description "$FILENAME")
+
+              # Último commit que tocó este archivo
+              LAST_HASH=$(git log -1 --format="%h" -- "$file_path" 2>/dev/null || echo "—")
+              LAST_AUTHOR=$(git log -1 --format="%an" -- "$file_path" 2>/dev/null || echo "—")
+              LAST_EMAIL=$(git log -1 --format="%ae" -- "$file_path" 2>/dev/null || echo "—")
+              LAST_DATE=$(git log -1 --format="%ad" --date=format:"%d/%m/%Y" -- "$file_path" 2>/dev/null || echo "—")
+              LAST_TIME=$(git log -1 --format="%ad" --date=format:"%H:%M" -- "$file_path" 2>/dev/null || echo "—")
+
+              # Contar versiones (total de commits que tocaron el archivo)
+              COMMIT_COUNT=$(git log --follow --oneline -- "$file_path" 2>/dev/null | wc -l)
+              if [ "$COMMIT_COUNT" -le 1 ]; then
+                VERSION="v1.0"
+              else
+                MINOR=$((COMMIT_COUNT - 1))
+                VERSION="v1.${MINOR}"
+              fi
+
+              # Ruta para mostrar
+              DISPLAY_PATH="/${REPO_NAME}/${file_path}"
+
+              echo "| \`$FILENAME\` | $DESCRIPTION | \`$LAST_HASH\` | $LAST_AUTHOR | $LAST_EMAIL | **$VERSION** | $LAST_DATE | $LAST_TIME | \`$DISPLAY_PATH\` |"
+
+            done <<< "$ALL_FILES"
+
+            echo ""
+            echo "---"
+            echo ""
+            echo "### 📈 Resumen por Ubicación"
+            echo ""
+
+            # Agrupar por directorio
+            CURRENT_DIR=""
+            DIR_COUNT=0
+            while IFS= read -r file_path; do
+              [ -z "$file_path" ] && continue
+              DIR=$(dirname "$file_path")
+              if [ "$DIR" != "$CURRENT_DIR" ]; then
+                if [ -n "$CURRENT_DIR" ]; then
+                  echo "| \`$CURRENT_DIR/\` | **$DIR_COUNT** ítems |"
+                fi
+                CURRENT_DIR="$DIR"
+                DIR_COUNT=0
+              fi
+              DIR_COUNT=$((DIR_COUNT + 1))
+            done <<< "$ALL_FILES"
+            # Último grupo
+            if [ -n "$CURRENT_DIR" ]; then
+              if [ "$DIR_COUNT" -eq 0 ]; then
+                :
+              else
+                if [ "$CURRENT_DIR" = "$CURRENT_DIR" ]; then
+                  # Imprimir header si es la primera vez
+                  :
+                fi
+              fi
+            fi
+
+            # Recalcular limpiamente
+            echo "| Ubicación | Cantidad |"
+            echo "|---|---|"
+            echo "$ALL_FILES" | while IFS= read -r fp; do
+              [ -z "$fp" ] && continue
+              dirname "$fp"
+            done | sort | uniq -c | sort -rn | while read -r count dir; do
+              echo "| \`$dir/\` | **$count** |"
+            done
+
+            echo ""
+            echo "---"
+            echo "<sub>🤖 Bot de Choclicode · Workflow: Estado de Configuración</sub>"
+
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "✅ Reporte generado: $TOTAL_FILES ítems procesados"
