@@ -64,10 +64,11 @@ jobs:
             esac
           }
 
-          # ── Buscar todos los .docx y .xlsx excluyendo Codigo Fuente ─
+          # ── Buscar todos los .docx y .xlsx excluyendo Codigo Fuente y Linea Base ─
           ALL_FILES=$(find . -type f \( -name "*.docx" -o -name "*.xlsx" \) \
             -not -path './.git/*' \
             -not -path '*/Codigo Fuente/*' \
+            -not -path '*/Linea Base/*' \
             -not -path '*/node_modules/*' \
             | sed 's|^\./||' | sort)
 
