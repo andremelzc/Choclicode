@@ -128,7 +128,7 @@ class MessageResponse(BaseModel):
     cited_sources: Optional[list[CitedSourceResponse]] = None
     ui_type: Optional[str] = None  # 'text' | 'matchmaking_cards' | 'convocatoria_cards' | 'stepper_cards' | 'citation_cards'
     cards_data: Optional[list[GroupCardDataResponse]] = None
-    contest_data: Optional[list[ContestDataResponse]] = None
+    contest_data: Optional[Union[ContestDataResponse, list[ContestDataResponse]]] = None
     stepper_data: Optional[list[ProcedureDataResponse]] = None
     citation_data: Optional[list[CitationDataResponse]] = None
 
