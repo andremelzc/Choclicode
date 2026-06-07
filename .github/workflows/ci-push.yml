@@ -35,8 +35,8 @@ jobs:
       - name: 📦 Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install httpx
+          pip install --no-cache-dir -r requirements.txt
+          pip install --no-cache-dir pytest-asyncio httpx
 
       - name: ✅ Verificar sintaxis Python
         run: |
@@ -48,6 +48,9 @@ jobs:
           python -m py_compile app/routes/auth.py
           python -m py_compile app/routes/chat.py
           python -m py_compile app/routes/kb.py
+
+      - name: 🔗 Verificar imports
+        run: python -c "from app.main import app; print('✓ App imports correctamente')"
 
       - name: 🧪 Ejecutar tests unitarios
         run: |
@@ -85,7 +88,7 @@ jobs:
           cache-dependency-path: "Desarrollo/CACIF/Codigo Fuente/Frontend/package-lock.json"
 
       - name: 📦 Instalar dependencias
-        run: npm ci
+        run: npm install
 
       - name: 🔍 ESLint
         run: npm run lint
