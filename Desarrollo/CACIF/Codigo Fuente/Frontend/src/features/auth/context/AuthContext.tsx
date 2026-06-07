@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { User } from '../../../types/auth';
 
@@ -32,7 +32,6 @@ function useInitialUser() {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useInitialUser();
-  const [isLoading, setIsLoading] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const login = (newUser: User, _token: string) => {
@@ -49,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider value={{
       user,
       isAuthenticated: !!user,
-      isLoading,
+      isLoading: false,
       login,
       logout
     }}>
@@ -58,6 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

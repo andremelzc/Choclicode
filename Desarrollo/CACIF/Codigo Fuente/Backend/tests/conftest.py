@@ -1,12 +1,12 @@
 """Fixtures compartidos para tests del backend CACIF.
 
-Provee un TestClient async (httpx) que apunta a la app FastAPI
+Provee un TestClient que apunta a la app FastAPI
 sin necesidad de base de datos real ni servicios externos.
 """
 
 import os
 import pytest
-import httpx
+from starlette.testclient import TestClient
 
 # Forzar variables de entorno antes de importar la app,
 # para evitar que intente conectarse a servicios reales.
@@ -26,11 +26,8 @@ from app.dependencies import create_access_token  # noqa: E402
 
 @pytest.fixture()
 def client():
-    """Cliente HTTP de prueba que usa ASGI transport (no necesita servidor)."""
-    transport = httpx.ASGITransport(app=app)
-    client_instance = httpx.Client(transport=transport, base_url="http://testserver")
-    yield client_instance
-    client_instance.close()
+    """Cliente de prueba sincrónico para la app FastAPI."""
+    return TestClient(app)
 
 
 @pytest.fixture()
