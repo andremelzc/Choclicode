@@ -1,0 +1,169 @@
+name: "📋 Reporte de Versionado de Archivo"
+
+on:
+  workflow_dispatch:
+    inputs:
+      filename:
+        description: "Nombre del archivo (ej: CACIF-CPRAG.docx, PGC.docx)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  version-report:
+    name: "📊 Generar reporte de versionado"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Buscar archivo y generar reporte
+        shell: bash
+        run: |
+          FILENAME="${{ github.event.inputs.filename }}"
+
+          echo "Buscando '$FILENAME' en el repositorio..."
+
+          # ── Buscar el archivo ──────────────────────────────────────
+          MATCHES=$(find . -name "$FILENAME" -not -path './.git/*' | sed 's|^\./||')
+          MATCH_COUNT=$(echo "$MATCHES" | grep -c -v '^$' || true)
+
+          if [ "$MATCH_COUNT" -eq 0 ] || [ -z "$MATCHES" ]; then
+            {
+              echo "## ❌ Archivo no encontrado"
+              echo ""
+              echo "No se encontró ningún archivo con el nombre \`$FILENAME\` en el repositorio."
+              echo ""
+              echo "### Sugerencias"
+              echo "- Verifica que el nombre esté escrito correctamente (incluyendo extensión)"
+              echo "- El nombre es case-sensitive"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          # Si hay múltiples coincidencias, usar la primera
+          FILE_PATH=$(echo "$MATCHES" | head -1)
+
+          if [ "$MATCH_COUNT" -gt 1 ]; then
+            echo "⚠️ Se encontraron $MATCH_COUNT coincidencias. Usando: $FILE_PATH"
+            echo ""
+            echo "Todas las coincidencias:"
+            echo "$MATCHES"
+            echo ""
+          fi
+
+          echo "Archivo encontrado: $FILE_PATH"
+
+          # ── Mapa de descripciones de ítems ─────────────────────────
+          get_description() {
+            local fname="$1"
+            case "$fname" in
+              CACIF-PC.docx)    echo "Project Charter" ;;
+              CACIF-MR.xlsx)    echo "Matriz de Requisitos Funcionales" ;;
+              CACIF-RNF.xlsx)   echo "Requisitos No Funcionales" ;;
+              CACIF-DN.docx)    echo "Documento de Negocio" ;;
+              CACIF-CU01.docx)  echo "Caso de Uso 01 — Orientación y Selección de GI" ;;
+              CACIF-CU02.docx)  echo "Caso de Uso 02 — Gestión de Convocatorias" ;;
+              CACIF-CU03.docx)  echo "Caso de Uso 03 — Asesoría Administrativa" ;;
+              CACIF-CU04.docx)  echo "Caso de Uso 04 — Marco Normativo" ;;
+              CACIF-DA.docx)    echo "Documento de Arquitectura de Software" ;;
+              CACIF-DI.docx)    echo "Diagrama de Interfaces" ;;
+              CACIF-EBC.docx)   echo "Especificación de Base de Conocimiento" ;;
+              CACIF-ELT.docx)   echo "Especificación de Logs y Trazabilidad" ;;
+              CACIF-CPRAG.docx) echo "Catálogo de Prompts RAG" ;;
+              CACIF-MD.docx)    echo "Modelo de Datos" ;;
+              CACIF-PP.docx)    echo "Plan de Pruebas" ;;
+              CACIF-CP.xlsx)    echo "Matriz de Casos de Prueba" ;;
+              PGC.docx)         echo "Plan de Gestión de Configuración" ;;
+              CACIF-RE01.xlsx)  echo "Reporte de Ejecución 01" ;;
+              CACIF-RE02.xlsx)  echo "Reporte de Ejecución 02" ;;
+              *)                echo "$fname" ;;
+            esac
+          }
+
+          DESCRIPTION=$(get_description "$FILENAME")
+
+          # ── Obtener historial completo con git log ─────────────────
+          # --follow para rastrear renombramientos
+          # --diff-filter=ACDMR para incluir creación, copia, borrado, modificación, renombrado
+          # Formato: hash|author|email|date|time|subject
+          LOG_DATA=$(git log --follow --format="%h|%an|%ae|%ad|%s" --date=format:"%d/%m/%Y|%H:%M" -- "$FILE_PATH")
+
+          if [ -z "$LOG_DATA" ]; then
+            {
+              echo "## ⚠️ Sin historial"
+              echo ""
+              echo "El archivo \`$FILENAME\` existe pero no tiene historial de commits."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Contar total de versiones
+          TOTAL_VERSIONS=$(echo "$LOG_DATA" | wc -l)
+
+          # ── Generar reporte ────────────────────────────────────────
+          {
+            echo "## 📋 Reporte de Versionado — \`$FILENAME\`"
+            echo ""
+            echo "> 📅 Generado el $(date -u +'%d/%m/%Y a las %H:%M UTC')"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### 📄 Información del Ítem"
+            echo ""
+            echo "| Campo | Valor |"
+            echo "|---|---|"
+            echo "| **Código del ítem** | \`$FILENAME\` |"
+            echo "| **Descripción** | $DESCRIPTION |"
+            echo "| **Ruta en el repositorio** | \`/$FILE_PATH\` |"
+            echo "| **Total de versiones** | **$TOTAL_VERSIONS** |"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### 📊 Historial Completo de Versiones"
+            echo ""
+            echo "| Versión | Commit | Autor | Email | Fecha | Hora | Descripción del cambio |"
+            echo "|---|---|---|---|---|---|---|"
+
+            # Invertir el orden (más antiguo primero) para asignar versiones
+            REVERSED=$(echo "$LOG_DATA" | tac)
+            VERSION=1
+
+            while IFS='|' read -r HASH AUTHOR EMAIL DATE TIME SUBJECT; do
+              [ -z "$HASH" ] && continue
+              echo "| **v${VERSION}.0** | \`$HASH\` | $AUTHOR | $EMAIL | $DATE | $TIME | $SUBJECT |"
+              VERSION=$((VERSION + 1))
+            done <<< "$REVERSED"
+
+            echo ""
+            echo "---"
+            echo ""
+
+            # Extraer datos de la versión actual (primer línea = más reciente)
+            LATEST=$(echo "$LOG_DATA" | head -1)
+            IFS='|' read -r L_HASH L_AUTHOR L_EMAIL L_DATE L_TIME L_SUBJECT <<< "$LATEST"
+
+            echo "### ✅ Versión Actual"
+            echo ""
+            echo "| Campo | Valor |"
+            echo "|---|---|"
+            echo "| **Última versión** | **v$((TOTAL_VERSIONS)).0** |"
+            echo "| **Último commit** | \`$L_HASH\` |"
+            echo "| **Autor** | $L_AUTHOR |"
+            echo "| **Email** | $L_EMAIL |"
+            echo "| **Fecha** | $L_DATE |"
+            echo "| **Hora** | $L_TIME |"
+            echo "| **Descripción** | $L_SUBJECT |"
+            echo ""
+            echo "---"
+            echo ""
+            echo "<sub>🤖 Bot de Choclicode · Workflow: Reporte de Versionado</sub>"
+
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "✅ Reporte generado exitosamente para '$FILENAME' ($TOTAL_VERSIONS versiones)"
