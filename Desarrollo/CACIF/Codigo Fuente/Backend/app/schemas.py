@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -57,8 +57,8 @@ class ConversationResponse(BaseModel):
 class CitedSourceResponse(BaseModel):
     id: str
     document_name: str
-    start_page: Optional[int] = None
-    end_page: Optional[int] = None
+    start_page: Optional[Union[int, str]] = None
+    end_page: Optional[Union[int, str]] = None
     similarity_score: float
 
 
@@ -68,7 +68,7 @@ class CitationDataResponse(BaseModel):
     article_number: Optional[str] = None
     exact_quote: Optional[str] = None
     explanation: Optional[str] = None
-    page: Optional[int] = None
+    page: Optional[Union[int, str]] = None
     link: Optional[str] = None
 
 class StepResponse(BaseModel):

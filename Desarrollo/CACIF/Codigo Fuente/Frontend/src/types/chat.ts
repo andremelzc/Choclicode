@@ -1,8 +1,8 @@
 export interface CitedSource {
   id: string;
   document_name: string;
-  start_page?: number;
-  end_page?: number;
+  start_page?: number | string;
+  end_page?: number | string;
   similarity_score: number;
 }
 export interface TimelineEvent {
@@ -55,7 +55,7 @@ export interface CitationData {
   article_number?: string;
   exact_quote?: string;
   explanation?: string;
-  page?: number;
+  page?: number | string;
   link?: string;
 }
 
@@ -68,7 +68,7 @@ export interface Message {
   rag_confidence?: number;
   sent_at: string;
   cited_sources?: CitedSource[];
-  
+
   // Custom UI Fields for Rendering Matchmaking / Complex UI
   ui_type?: 'text' | 'matchmaking_cards' | 'convocatoria_cards' | 'stepper_cards' | 'citation_cards';
   cards_data?: GroupCardData[];
