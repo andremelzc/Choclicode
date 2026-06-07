@@ -12,26 +12,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check for existing session on mount
+function useInitialUser() {
+  return useState<User | null>(() => {
     const storedUser = localStorage.getItem('cacif_user');
     const storedToken = localStorage.getItem('cacif_token');
     
     if (storedUser && storedToken) {
       try {
-        setUser(JSON.parse(storedUser));
+        return JSON.parse(storedUser);
       } catch {
         console.error("Error parsing stored user data");
         localStorage.removeItem('cacif_user');
         localStorage.removeItem('cacif_token');
       }
     }
-    setIsLoading(false);
-  }, []);
+    return null;
+  });
+}
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useInitialUser();
+  const [isLoading, setIsLoading] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const login = (newUser: User, _token: string) => {
@@ -64,3 +65,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// @refresh reset

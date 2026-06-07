@@ -14,8 +14,8 @@ export const authService = {
     } catch (error: unknown) {
       const detail = error instanceof Error 
         ? error.message 
-        : (error as any).response?.data?.detail || "Credenciales inválidas o error de conexión.";
-      throw new Error(detail);
+        : (error instanceof Object && 'response' in error && typeof error.response === 'object' && error.response !== null && 'data' in error.response ? (error.response.data as { detail?: string }).detail : undefined) || "Credenciales inválidas o error de conexión.";
+      throw new Error(detail, { cause: error });
     }
   },
 
@@ -31,8 +31,8 @@ export const authService = {
     } catch (error: unknown) {
       const detail = error instanceof Error 
         ? error.message 
-        : (error as any).response?.data?.detail || "Error al iniciar sesión como invitado.";
-      throw new Error(detail);
+        : (error instanceof Object && 'response' in error && typeof error.response === 'object' && error.response !== null && 'data' in error.response ? (error.response.data as { detail?: string }).detail : undefined) || "Error al iniciar sesión como invitado.";
+      throw new Error(detail, { cause: error });
     }
   },
 

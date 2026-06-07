@@ -8,6 +8,14 @@ import { chatService } from "../../features/chat/services/chat.service"
 import type { Message, Conversation } from "../../types/chat"
 import { useAuth } from "../../features/auth/context/AuthContext"
 
+function useDisclaimerState() {
+  const [showDisclaimer, setShowDisclaimer] = useState(() => {
+    const hasSeenDisclaimer = sessionStorage.getItem("cacif_disclaimer_seen");
+    return !hasSeenDisclaimer;
+  });
+  return [showDisclaimer, setShowDisclaimer] as const;
+}
+
 export default function ChatPage() {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -17,14 +25,7 @@ export default function ChatPage() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
-
-  useEffect(() => {
-    const hasSeenDisclaimer = sessionStorage.getItem("cacif_disclaimer_seen");
-    if (!hasSeenDisclaimer) {
-      setShowDisclaimer(true);
-    }
-  }, []);
+  const [showDisclaimer, setShowDisclaimer] = useDisclaimerState();
 
   const closeDisclaimer = () => {
     sessionStorage.setItem("cacif_disclaimer_seen", "true");

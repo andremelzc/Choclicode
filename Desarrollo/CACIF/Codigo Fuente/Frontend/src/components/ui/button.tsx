@@ -39,7 +39,7 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     // If we use asChild, we fallback to standard Slot without motion to prevent ref issues
-    const Comp = asChild ? Slot : (motion.button as React.ElementType<any>)
+    const Comp = asChild ? Slot : motion.button
     const motionProps = asChild ? {} : { whileTap: { scale: 0.97 } }
     
     return (

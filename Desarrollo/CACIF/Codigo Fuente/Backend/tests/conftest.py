@@ -27,9 +27,9 @@ from app.dependencies import create_access_token  # noqa: E402
 @pytest.fixture()
 def client():
     """Cliente HTTP de prueba que usa ASGI transport (no necesita servidor)."""
-    with httpx.ASGITransport(app=app) as transport:
-        with httpx.Client(transport=transport, base_url="http://testserver") as c:
-            yield c
+    transport = httpx.ASGITransport(app=app)
+    with httpx.Client(transport=transport, base_url="http://testserver") as c:
+        yield c
 
 
 @pytest.fixture()
