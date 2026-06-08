@@ -1,4 +1,4 @@
-name: "📂 Actualizar README — Estructura e Índice"
+name: "📂 Actualizar README — Estructura del Repositorio"
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   update-readme:
-    name: "🗂️ Generar estructura, índice y comentar PR"
+    name: "🗂️ Generar estructura y comentar PR"
     runs-on: ubuntu-latest
 
     steps:
@@ -86,55 +86,6 @@ jobs:
           echo "Estructura generada:"
           cat /tmp/tree_output.txt
 
-      - name: 📋 Generar índice de documentos
-        shell: bash
-        run: |
-          ALL_DOCX=$(find . -type f \( -name "*.docx" -o -name "*.xlsx" \) -not -path './.git/*' | sed 's|^\./||' | sort)
-
-          TOTAL_DOCX=$(find . -type f -name "*.docx" -not -path './.git/*' | wc -l)
-          TOTAL_XLSX=$(find . -type f -name "*.xlsx" -not -path './.git/*' | wc -l)
-          TOTAL=$((TOTAL_DOCX + TOTAL_XLSX))
-
-          {
-            echo "| Tipo | Cantidad |"
-            echo "|---|---|"
-            echo "| 📝 Documentos Word (.docx) | **${TOTAL_DOCX}** |"
-            echo "| 📊 Hojas de cálculo (.xlsx) | **${TOTAL_XLSX}** |"
-            echo "| 📄 **Total** | **${TOTAL}** |"
-            echo ""
-
-            CURRENT_FOLDER=""
-            while IFS= read -r file; do
-              [ -z "$file" ] && continue
-              DIRNAME=$(dirname "$file")
-              FILENAME=$(basename "$file")
-              EXT="${FILENAME##*.}"
-
-              LAST_DATE=$(git log -1 --format="%ai" -- "$file" 2>/dev/null | cut -d' ' -f1 || echo "—")
-              LAST_AUTHOR=$(git log -1 --format="%an" -- "$file" 2>/dev/null || echo "—")
-
-              if [ "$EXT" = "docx" ]; then
-                ICON="📝"
-              else
-                ICON="📊"
-              fi
-
-              if [ "$DIRNAME" != "$CURRENT_FOLDER" ]; then
-                CURRENT_FOLDER="$DIRNAME"
-                echo ""
-                echo "#### 📁 \`${DIRNAME}/\`"
-                echo ""
-                echo "| | Documento | Última modificación | Autor |"
-                echo "|---|---|---|---|"
-              fi
-
-              echo "| ${ICON} | \`${FILENAME}\` | ${LAST_DATE} | ${LAST_AUTHOR} |"
-            done <<< "$ALL_DOCX"
-          } > /tmp/docs_index.txt
-
-          echo "Índice generado:"
-          cat /tmp/docs_index.txt
-
       - name: 📝 Actualizar README.md
         shell: bash
         run: |
@@ -152,9 +103,6 @@ jobs:
           with open('/tmp/tree_output.txt', 'r', encoding='utf-8') as f:
               tree = f.read().strip()
 
-          with open('/tmp/docs_index.txt', 'r', encoding='utf-8') as f:
-              index = f.read().strip()
-
           # Actualizar estructura
           pattern1 = r'(<!-- REPO-STRUCTURE-START -->).*?(<!-- REPO-STRUCTURE-END -->)'
           rep1 = (
@@ -164,16 +112,6 @@ jobs:
               + '<!-- REPO-STRUCTURE-END -->'
           )
           readme = re.sub(pattern1, rep1, readme, flags=re.DOTALL)
-
-          # Actualizar índice de documentos
-          pattern2 = r'(<!-- DOCS-INDEX-START -->).*?(<!-- DOCS-INDEX-END -->)'
-          rep2 = (
-              '<!-- DOCS-INDEX-START -->\n\n'
-              + index + '\n\n'
-              + '> 🤖 *Índice generado automáticamente vía GitHub Actions.*\n\n'
-              + '<!-- DOCS-INDEX-END -->'
-          )
-          readme = re.sub(pattern2, rep2, readme, flags=re.DOTALL)
 
           with open('README.md', 'w', encoding='utf-8') as f:
               f.write(readme)
@@ -211,27 +149,7 @@ jobs:
             NEW_TABLE="| | |\n|---|---|\n| ℹ️ | No se detectaron documentos nuevos o modificados en este PR |\n"
           fi
 
-          FULL_TABLE=""
-          CURRENT_FOLDER=""
-          while IFS= read -r file; do
-            [ -z "$file" ] && continue
-            DIRNAME=$(dirname "$file")
-            FILENAME=$(basename "$file")
-            if [ "$DIRNAME" != "$CURRENT_FOLDER" ]; then
-              CURRENT_FOLDER="$DIRNAME"
-              FULL_TABLE="${FULL_TABLE}\n**📁 \`${DIRNAME}/\`**\n\n| Documento | Tipo |\n|---|---|\n"
-            fi
-            EXT="${FILENAME##*.}"
-            if [ "$EXT" = "docx" ]; then
-              ICON="📝"
-            else
-              ICON="📊"
-            fi
-            FULL_TABLE="${FULL_TABLE}| ${ICON} \`${FILENAME}\` | .${EXT} |\n"
-          done <<< "$ALL_DOCX"
-
           echo -e "$NEW_TABLE" > /tmp/new_table.txt
-          echo -e "$FULL_TABLE" > /tmp/full_table.txt
           echo "total_docs=${TOTAL_DOCS}" >> "$GITHUB_OUTPUT"
           echo "new_docs=${NEW_DOCS}" >> "$GITHUB_OUTPUT"
 
@@ -241,7 +159,6 @@ jobs:
           script: |
             const fs = require('fs');
             const newTable = fs.readFileSync('/tmp/new_table.txt', 'utf8');
-            const fullTable = fs.readFileSync('/tmp/full_table.txt', 'utf8');
             const totalDocs = '${{ steps.summary.outputs.total_docs }}';
             const newDocs = '${{ steps.summary.outputs.new_docs }}';
 
@@ -273,16 +190,7 @@ jobs:
               '',
               '---',
               '',
-              '<details>',
-              '<summary>📚 <strong>Ver inventario completo de documentos del repositorio</strong></summary>',
-              '',
-              fullTable,
-              '',
-              '</details>',
-              '',
-              '---',
-              '',
-              '> ✅ **Confirmado:** La estructura del `README.md` y el índice de documentos han sido actualizados automáticamente.',
+              '> ✅ **Confirmado:** La estructura del `README.md` ha sido actualizada automáticamente.',
               '> Las carpetas vacías fueron omitidas. Solo se muestran carpetas con archivos reales.',
               '',
               '---',
@@ -326,7 +234,7 @@ jobs:
             echo "ℹ️ No hay cambios en README.md."
           else
             git add README.md
-            git commit -m "🤖 docs: actualizar estructura e índice en README.md"
+            git commit -m "🤖 docs: actualizar estructura en README.md"
             git push
             echo "✅ README.md actualizado y pusheado."
           fi
