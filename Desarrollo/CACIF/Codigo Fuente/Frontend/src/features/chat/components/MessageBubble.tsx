@@ -89,7 +89,7 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
                   
                   <div className="mb-4">
                     <span className="inline-block border border-primary text-primary bg-primary/10 px-3 py-1.5 rounded-lg text-[12px] font-medium">
-                      {card.lines[0]}
+                      {card.lines?.[0] ?? 'Sin línea de investigación'}
                     </span>
                   </div>
 

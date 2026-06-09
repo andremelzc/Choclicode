@@ -251,8 +251,6 @@ Usuario escribe consulta
 
 ## 📁 Estructura del Repositorio
 
-<!-- REPO-STRUCTURE-START -->
-
 ```
 📁 Choclicode/
 ├── 📄 README.md
@@ -341,10 +339,6 @@ Usuario escribe consulta
             ├── 📄 CACIF-MD.docx
             └── 📄 CACIF-PP.docx
 ```
-
-> 🤖 *Estructura generada automáticamente vía GitHub Actions.*
-
-<!-- REPO-STRUCTURE-END -->
 
 > **Nota sobre la nomenclatura:** Todos los artefactos siguen el estándar definido en el Plan de Gestión de Configuración:
 > - `[Acrónimo Proyecto]-[Acrónimo Ítem].[Extensión]` → ej. `CACIF-DAS.docx`
