@@ -155,8 +155,8 @@ class ChunkNormativo(Base):
         UUID(as_uuid=True), ForeignKey("normative_documents.id"), nullable=False
     )
     source_document: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)
-    start_page: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    end_page: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    start_page: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    end_page: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     version: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     valid_from: Mapped[Optional[datetime]] = mapped_column(
