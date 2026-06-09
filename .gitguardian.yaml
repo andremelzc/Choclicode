@@ -1,8 +1,12 @@
 version: 2
 
-# Ignorar archivos o directorios específicos
-matches:
-  paths:
-    - 'Desarrollo/CACIF/Codigo Fuente/Frontend/e2e/**/*'
+secret:
+  # Ignore test files with mock/fake credentials
+  ignored-paths:
+    - '**/e2e/**'
     - '**/*.spec.ts'
     - '**/*.test.ts'
+
+  ignored-matches:
+    - name: "Mock test credentials in e2e specs"
+      match: "prueba123"
