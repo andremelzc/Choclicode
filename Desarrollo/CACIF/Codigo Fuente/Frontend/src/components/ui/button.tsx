@@ -38,16 +38,25 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    // If we use asChild, we fallback to standard Slot without motion to prevent ref issues
-    const Comp = asChild ? Slot : motion.button
-    const motionProps = asChild ? {} : { whileTap: { scale: 0.97 } }
-    
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        />
+      )
+    }
+
+    // Omit HTML drag event handlers that conflict with Framer Motion's types
+    const { onDrag, onDragStart, onDragEnd, onDragOver, ...motionSafeProps } = props;
+
     return (
-      <Comp
+      <motion.button
         className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref as React.Ref<HTMLButtonElement>}
-        {...motionProps}
-        {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+        ref={ref}
+        whileTap={{ scale: 0.97 }}
+        {...motionSafeProps}
       />
     )
   }
