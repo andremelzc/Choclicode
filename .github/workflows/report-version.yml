@@ -27,11 +27,31 @@ jobs:
         run: |
           FILENAME="${{ github.event.inputs.filename }}"
 
+          echo "============================================"
+          echo "🔍 DEBUG: Inicio del reporte de versionado"
+          echo "============================================"
+          echo "📌 Input filename: '$FILENAME'"
+          echo "📌 Working directory: $(pwd)"
+          echo "📌 Git branch: $(git rev-parse --abbrev-ref HEAD)"
+          echo "📌 Git HEAD: $(git rev-parse HEAD)"
+          echo ""
+
           echo "Buscando '$FILENAME' en el repositorio..."
 
           # ── Buscar el archivo (excluyendo Linea Base) ──────────────
+          echo "🔍 DEBUG: Ejecutando find..."
+          echo "  Comando: find . -name \"$FILENAME\" -not -path './.git/*' -not -path '*/Linea Base/*'"
           MATCHES=$(find . -name "$FILENAME" -not -path './.git/*' -not -path '*/Linea Base/*' | sed 's|^\./||')
           MATCH_COUNT=$(echo "$MATCHES" | grep -c -v '^$' || true)
+
+          echo "🔍 DEBUG: Resultados de find:"
+          echo "  Match count: $MATCH_COUNT"
+          echo "  Matches encontrados:"
+          echo "$MATCHES" | while IFS= read -r m; do
+            [ -z "$m" ] && continue
+            echo "    - '$m'"
+          done
+          echo ""
 
           if [ "$MATCH_COUNT" -eq 0 ] || [ -z "$MATCHES" ]; then
             {
@@ -57,7 +77,90 @@ jobs:
             echo ""
           fi
 
-          echo "Archivo encontrado: $FILE_PATH"
+          echo "📌 Archivo seleccionado: '$FILE_PATH'"
+          echo ""
+
+          # ── DEBUG: Verificar que el archivo existe en disco ────────
+          echo "🔍 DEBUG: Verificando existencia del archivo en disco..."
+          if [ -f "$FILE_PATH" ]; then
+            echo "  ✅ El archivo existe en disco"
+            echo "  Tamaño: $(stat --printf='%s bytes' "$FILE_PATH" 2>/dev/null || wc -c < "$FILE_PATH") "
+          else
+            echo "  ⚠️ El archivo NO existe en disco (podría haber sido eliminado)"
+          fi
+          echo ""
+
+          # ── DEBUG: git log SIN --follow ────────────────────────────
+          echo "============================================"
+          echo "🔍 DEBUG: git log SIN --follow (solo commits directos)"
+          echo "============================================"
+          echo "  Comando: git log --format='%h|%an|%ae|%ad|%s' --date=format:'%d/%m/%Y|%H:%M' -- \"$FILE_PATH\""
+          LOG_NO_FOLLOW=$(git log --format="%h|%an|%ae|%ad|%s" --date=format:"%d/%m/%Y|%H:%M" -- "$FILE_PATH")
+          NO_FOLLOW_COUNT=$(echo "$LOG_NO_FOLLOW" | grep -c -v '^$' || echo 0)
+          echo "  Total commits (sin follow): $NO_FOLLOW_COUNT"
+          echo "  Datos raw:"
+          echo "$LOG_NO_FOLLOW" | while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            echo "    $line"
+          done
+          echo ""
+
+          # ── DEBUG: git log CON --follow ────────────────────────────
+          echo "============================================"
+          echo "🔍 DEBUG: git log CON --follow (rastreando renombramientos)"
+          echo "============================================"
+          echo "  Comando: git log --follow --format='%h|%an|%ae|%ad|%s' --date=format:'%d/%m/%Y|%H:%M' -- \"$FILE_PATH\""
+          LOG_WITH_FOLLOW=$(git log --follow --format="%h|%an|%ae|%ad|%s" --date=format:"%d/%m/%Y|%H:%M" -- "$FILE_PATH")
+          WITH_FOLLOW_COUNT=$(echo "$LOG_WITH_FOLLOW" | grep -c -v '^$' || echo 0)
+          echo "  Total commits (con follow): $WITH_FOLLOW_COUNT"
+          echo "  Datos raw:"
+          echo "$LOG_WITH_FOLLOW" | while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            echo "    $line"
+          done
+          echo ""
+
+          # ── DEBUG: Comparar ambos resultados ───────────────────────
+          if [ "$NO_FOLLOW_COUNT" != "$WITH_FOLLOW_COUNT" ]; then
+            echo "⚠️ DIFERENCIA DETECTADA: --follow agrega $((WITH_FOLLOW_COUNT - NO_FOLLOW_COUNT)) commits extra"
+            echo "  Esto indica que git está rastreando renombramientos que podrían ser incorrectos."
+            echo ""
+            echo "🔍 DEBUG: Commits EXTRA que agrega --follow:"
+            # Mostrar los commits que solo aparecen con --follow
+            diff <(echo "$LOG_NO_FOLLOW" | cut -d'|' -f1 | sort) <(echo "$LOG_WITH_FOLLOW" | cut -d'|' -f1 | sort) | grep '^>' || echo "  (no se pudo calcular diff)"
+            echo ""
+          else
+            echo "✅ Ambos métodos devuelven la misma cantidad de commits ($NO_FOLLOW_COUNT)"
+            echo ""
+          fi
+
+          # ── DEBUG: Mostrar qué archivos tocó cada commit ───────────
+          echo "============================================"
+          echo "🔍 DEBUG: Archivos modificados por cada commit (con --follow)"
+          echo "============================================"
+          echo "$LOG_WITH_FOLLOW" | while IFS='|' read -r hash rest; do
+            [ -z "$hash" ] && continue
+            echo "  Commit $hash:"
+            echo "    Mensaje: $(git log -1 --format='%s' "$hash")"
+            echo "    Archivos modificados en este commit:"
+            git diff-tree --no-commit-id -r --name-status "$hash" 2>/dev/null | while IFS=$'\t' read -r status fname; do
+              echo "      [$status] $fname"
+            done
+            echo ""
+          done
+          echo ""
+
+          # ── DEBUG: Detectar renombramientos con --follow --name-status
+          echo "============================================"
+          echo "🔍 DEBUG: Detección de renombramientos (--follow --name-status)"
+          echo "============================================"
+          echo "  Comando: git log --follow --name-status --format='COMMIT:%h|%s' -- \"$FILE_PATH\""
+          git log --follow --name-status --format="COMMIT:%h|%s" -- "$FILE_PATH" | head -80
+          echo ""
+          echo "============================================"
+          echo "🔍 DEBUG: Fin de la sección de depuración"
+          echo "============================================"
+          echo ""
 
           # ── Mapa de descripciones de ítems ─────────────────────────
           get_description() {
