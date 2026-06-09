@@ -49,7 +49,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     // Omit HTML drag event handlers that conflict with Framer Motion's types
-    const { onDrag: _onDrag, onDragStart: _onDragStart, onDragEnd: _onDragEnd, onDragOver: _onDragOver, ...motionSafeProps } = props;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { onDrag, onDragStart, onDragEnd, onDragOver, ...motionSafeProps } = props;
 
     return (
       <motion.button
