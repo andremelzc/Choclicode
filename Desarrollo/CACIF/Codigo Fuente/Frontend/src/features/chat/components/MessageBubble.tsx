@@ -125,90 +125,93 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
               variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.2 } } }}
               className="mt-6 flex flex-col gap-6"
             >
-              {message.contest_data.map((contest) => (
-                <motion.div key={contest.id} variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { type: "spring" } } }}>
-                  
-                  <div className="bg-surface/30 border border-border rounded-2xl p-6 shadow-sm mb-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="bg-warning text-warning-foreground px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                        {contest.status_badge}
-                      </span>
-                      <span className="bg-success text-success-foreground px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-success/30">
-                        {contest.status_label}
-                      </span>
-                    </div>
-
-                    <h4 className="font-bold text-[18px] text-foreground mb-2">{contest.title}</h4>
-                    <p className="text-[13px] text-muted-foreground mb-5">Tipo: <span className="font-medium text-foreground">{contest.contest_type}</span></p>
+              {(() => {
+                const contests = Array.isArray(message.contest_data) ? message.contest_data : [message.contest_data];
+                return contests.map((contest) => (
+                  <motion.div key={contest.id} variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { type: "spring" } } }}>
                     
-                    <div className="mb-5">
-                      <p className="text-[13px] text-muted-foreground mb-2">Requisitos para participar como grupo:</p>
-                      <ul className="space-y-1.5 ml-1">
-                        {contest.requirements && contest.requirements.length > 0 ? contest.requirements.map((req, idx) => {
-                          const boldParts = req.split('**');
-                          return (
-                            <li key={idx} className="text-[13px] text-foreground/80 flex items-start gap-2">
+                    <div className="bg-surface/30 border border-border rounded-2xl p-6 shadow-sm mb-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="bg-warning text-warning-foreground px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                          {contest.status_badge}
+                        </span>
+                        <span className="bg-success text-success-foreground px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-success/30">
+                          {contest.status_label}
+                        </span>
+                      </div>
+
+                      <h4 className="font-bold text-[18px] text-foreground mb-2">{contest.title}</h4>
+                      <p className="text-[13px] text-muted-foreground mb-5">Tipo: <span className="font-medium text-foreground">{contest.contest_type}</span></p>
+                      
+                      <div className="mb-5">
+                        <p className="text-[13px] text-muted-foreground mb-2">Requisitos para participar como grupo:</p>
+                        <ul className="space-y-1.5 ml-1">
+                          {contest.requirements && contest.requirements.length > 0 ? contest.requirements.map((req, idx) => {
+                            const boldParts = req.split('**');
+                            return (
+                              <li key={idx} className="text-[13px] text-foreground/80 flex items-start gap-2">
+                                <span className="text-muted-foreground/50 mt-1">•</span>
+                                <span>
+                                  {boldParts.map((part, i) => i % 2 === 1 ? <strong key={i} className="text-foreground">{part}</strong> : part)}
+                                </span>
+                              </li>
+                            )
+                          }) : (
+                            <li className="text-[13px] text-foreground/80 flex items-start gap-2">
                               <span className="text-muted-foreground/50 mt-1">•</span>
-                              <span>
-                                {boldParts.map((part, i) => i % 2 === 1 ? <strong key={i} className="text-foreground">{part}</strong> : part)}
-                              </span>
+                              <span>No especificado</span>
                             </li>
-                          )
-                        }) : (
-                          <li className="text-[13px] text-foreground/80 flex items-start gap-2">
+                          )}
+                          <li className="text-[13px] text-foreground/80 flex items-start gap-2 pt-1">
                             <span className="text-muted-foreground/50 mt-1">•</span>
-                            <span>No especificado</span>
+                            <span><strong className="text-foreground">Premio:</strong> {contest.prize || 'No especificado'}</span>
                           </li>
-                        )}
-                        <li className="text-[13px] text-foreground/80 flex items-start gap-2 pt-1">
-                          <span className="text-muted-foreground/50 mt-1">•</span>
-                          <span><strong className="text-foreground">Premio:</strong> {contest.prize || 'No especificado'}</span>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="mt-5 mb-5 p-4 border border-warning/40 rounded-xl bg-warning/5 relative">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FileText className="w-4 h-4 text-warning" />
-                        <span className="text-[13px] font-bold text-warning">Documentos requeridos del grupo:</span>
+                        </ul>
                       </div>
-                      <p className="text-[12px] text-foreground/80 leading-relaxed ml-6">{contest.required_documents || 'No especificado'}</p>
-                    </div>
 
-                    <a 
-                      href={contest.apply_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full bg-warning text-warning-foreground py-3 rounded-xl text-[14px] font-bold hover:bg-warning/90 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                    >
-                      Inscribir proyecto del grupo <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-
-                  {/* Timeline section */}
-                  {contest.timeline_events && contest.timeline_events.length > 0 && (
-                    <div className="px-2">
-                      <h4 className="text-[14px] font-bold text-foreground mb-6">Cronograma y Eventos - {contest.title.split(':')[0]}</h4>
-                      <div className="relative border-l-2 border-border ml-2 pl-6 pb-2 space-y-7">
-                        {contest.timeline_events.map((event, idx) => (
-                          <div key={idx} className="relative">
-                            <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-background ${
-                              event.status === 'completed' ? 'bg-success' :
-                              event.status === 'current' ? 'bg-warning' :
-                              'bg-border'
-                            }`}></div>
-                            <h5 className={`text-[14px] font-bold leading-none ${event.status === 'upcoming' ? 'text-foreground/60' : 'text-foreground'}`}>
-                              {event.title}
-                            </h5>
-                            <p className="text-[12px] text-muted-foreground mt-1.5 font-medium">{event.date}</p>
-                          </div>
-                        ))}
+                      <div className="mt-5 mb-5 p-4 border border-warning/40 rounded-xl bg-warning/5 relative">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="w-4 h-4 text-warning" />
+                          <span className="text-[13px] font-bold text-warning">Documentos requeridos del grupo:</span>
+                        </div>
+                        <p className="text-[12px] text-foreground/80 leading-relaxed ml-6">{contest.required_documents || 'No especificado'}</p>
                       </div>
-                    </div>
-                  )}
 
-                </motion.div>
-              ))}
+                      <a 
+                        href={contest.apply_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full bg-warning text-warning-foreground py-3 rounded-xl text-[14px] font-bold hover:bg-warning/90 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+                      >
+                        Inscribir proyecto del grupo <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+
+                    {/* Timeline section */}
+                    {contest.timeline_events && contest.timeline_events.length > 0 && (
+                      <div className="px-2">
+                        <h4 className="text-[14px] font-bold text-foreground mb-6">Cronograma y Eventos - {contest.title.split(':')[0]}</h4>
+                        <div className="relative border-l-2 border-border ml-2 pl-6 pb-2 space-y-7">
+                          {contest.timeline_events.map((event, idx) => (
+                            <div key={idx} className="relative">
+                              <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-background ${
+                                event.status === 'completed' ? 'bg-success' :
+                                event.status === 'current' ? 'bg-warning' :
+                                'bg-border'
+                              }`}></div>
+                              <h5 className={`text-[14px] font-bold leading-none ${event.status === 'upcoming' ? 'text-foreground/60' : 'text-foreground'}`}>
+                                {event.title}
+                              </h5>
+                              <p className="text-[12px] text-muted-foreground mt-1.5 font-medium">{event.date}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  </motion.div>
+                ));
+              })()}
             </motion.div>
           )}
 
