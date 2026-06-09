@@ -1,0 +1,8 @@
+version: 2
+
+# Ignorar archivos o directorios específicos
+matches:
+  paths:
+    - 'Desarrollo/CACIF/Codigo Fuente/Frontend/e2e/**/*'
+    - '**/*.spec.ts'
+    - '**/*.test.ts'
