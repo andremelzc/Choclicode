@@ -46,7 +46,7 @@ test.describe('CACIF - Validación Integral (E2E + UX)', () => {
       const content = postData?.content || '';
       
       let ui_type = 'general';
-      let ui_data: any = {};
+      let ui_data: Record<string, unknown> = {};
       let responseContent = 'Entendido, ¿en qué más puedo ayudarte?';
 
       if (/\bia\b/i.test(content) || content.toLowerCase().includes('grupo')) {
