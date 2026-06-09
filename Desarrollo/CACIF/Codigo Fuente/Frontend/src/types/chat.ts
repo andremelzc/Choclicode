@@ -70,7 +70,7 @@ export interface Message {
   cited_sources?: CitedSource[];
 
   // Custom UI Fields for Rendering Matchmaking / Complex UI
-  ui_type?: 'text' | 'matchmaking_cards' | 'convocatoria_cards' | 'stepper_cards' | 'citation_cards';
+  ui_type?: 'text' | 'matchmaking_quiz' | 'matchmaking_cards' | 'convocatoria_cards' | 'stepper_cards' | 'citation_cards';
   cards_data?: GroupCardData[];
   contest_data?: ContestData[];
   stepper_data?: ProcedureData[];

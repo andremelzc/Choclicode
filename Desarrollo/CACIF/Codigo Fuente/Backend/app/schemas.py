@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -85,6 +85,13 @@ class ProcedureDataResponse(BaseModel):
     requirements: Optional[list[str]] = []
     steps: Optional[list[StepResponse]] = []
 
+    @field_validator('requirements', mode='before')
+    @classmethod
+    def parse_proc_requirements(cls, v):
+        if isinstance(v, str):
+            return [item.strip() for item in v.split(",") if item.strip()]
+        return v
+
 
 class TimelineEventResponse(BaseModel):
     title: Optional[str] = None
@@ -103,6 +110,13 @@ class ContestDataResponse(BaseModel):
     apply_url: Optional[str] = None
     timeline_events: Optional[list[TimelineEventResponse]] = []
 
+    @field_validator('requirements', mode='before')
+    @classmethod
+    def parse_contest_requirements(cls, v):
+        if isinstance(v, str):
+            return [item.strip() for item in v.split(",") if item.strip()]
+        return v
+
 class GroupCardDataResponse(BaseModel):
     id: str
     name: Optional[str] = None
@@ -110,6 +124,13 @@ class GroupCardDataResponse(BaseModel):
     lines: Optional[list[str]] = []
     technical_areas: Optional[list[str]] = []
     description: Optional[str] = None
+
+    @field_validator('lines', 'technical_areas', mode='before')
+    @classmethod
+    def parse_group_lists(cls, v):
+        if isinstance(v, str):
+            return [item.strip() for item in v.split(",") if item.strip()]
+        return v
 
 
 class MessageRequest(BaseModel):
