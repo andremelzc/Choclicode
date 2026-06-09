@@ -285,23 +285,31 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
                           return (
                             <li key={idx} className="text-[13px] text-foreground/80 flex items-start gap-2">
                               <span className="text-muted-foreground/50 mt-1">•</span>
-                              <span>No especificado</span>
+                              <span>
+                                {boldParts.map((part, i) => i % 2 === 1 ? <strong key={i} className="text-foreground">{part}</strong> : part)}
+                              </span>
                             </li>
-                          )}
-                          <li className="text-[13px] text-foreground/80 flex items-start gap-2 pt-1">
+                          );
+                        }) : (
+                          <li className="text-[13px] text-foreground/80 flex items-start gap-2">
                             <span className="text-muted-foreground/50 mt-1">•</span>
-                            <span><strong className="text-foreground">Premio:</strong> {contest.prize || 'No especificado'}</span>
+                            <span>No especificado</span>
                           </li>
-                        </ul>
-                      </div>
+                        )}
+                        <li className="text-[13px] text-foreground/80 flex items-start gap-2 pt-1">
+                          <span className="text-muted-foreground/50 mt-1">•</span>
+                          <span><strong className="text-foreground">Premio:</strong> {contest.prize || 'No especificado'}</span>
+                        </li>
+                      </ul>
+                    </div>
 
-                      <div className="mt-5 mb-5 p-4 border border-warning/40 rounded-xl bg-warning/5 relative">
-                        <div className="flex items-center gap-2 mb-2">
-                          <FileText className="w-4 h-4 text-warning" />
-                          <span className="text-[13px] font-bold text-warning">Documentos requeridos del grupo:</span>
-                        </div>
-                        <p className="text-[12px] text-foreground/80 leading-relaxed ml-6">{contest.required_documents || 'No especificado'}</p>
+                    <div className="mt-5 mb-5 p-4 border border-warning/40 rounded-xl bg-warning/5 relative">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="w-4 h-4 text-warning" />
+                        <span className="text-[13px] font-bold text-warning">Documentos requeridos del grupo:</span>
                       </div>
+                      <p className="text-[12px] text-foreground/80 leading-relaxed ml-6">{contest.required_documents || 'No especificado'}</p>
+                    </div>
 
                     <a
                       href={contest.apply_url}
@@ -320,10 +328,11 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
                       <div className="relative border-l-2 border-border ml-2 pl-6 pb-2 space-y-7">
                         {contest.timeline_events.map((event, idx) => (
                           <div key={idx} className="relative">
-                            <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-background ${event.status === 'completed' ? 'bg-success' :
-                                event.status === 'current' ? 'bg-warning' :
-                                  'bg-border'
-                              }`}></div>
+                            <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-background ${
+                              event.status === 'completed' ? 'bg-success' :
+                              event.status === 'current' ? 'bg-warning' :
+                              'bg-border'
+                            }`}></div>
                             <h5 className={`text-[14px] font-bold leading-none ${event.status === 'upcoming' ? 'text-foreground/60' : 'text-foreground'}`}>
                               {event.title}
                             </h5>
@@ -331,11 +340,11 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
                           </div>
                         ))}
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                  </motion.div>
-                ));
-              })()}
+                </motion.div>
+              ))}
             </motion.div>
           )}
 
