@@ -49,7 +49,7 @@ test.describe('CACIF - Validación Integral (E2E + UX)', () => {
       let ui_data: any = {};
       let responseContent = 'Entendido, ¿en qué más puedo ayudarte?';
 
-      if (content.toLowerCase().includes('ia') || content.toLowerCase().includes('grupo')) {
+      if (/\bia\b/i.test(content) || content.toLowerCase().includes('grupo')) {
         ui_type = 'matchmaking_cards';
         responseContent = 'He encontrado estos grupos de investigación para ti:';
         ui_data = {
