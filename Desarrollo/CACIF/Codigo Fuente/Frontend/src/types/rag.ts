@@ -1,1 +1,1 @@
-export type Rag = {};
+export type Rag = Record<string, unknown>;

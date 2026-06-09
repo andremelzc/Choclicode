@@ -27,8 +27,9 @@ export const LoginForm = () => {
       const response = await authService.login(email, password);
       login(response.user, response.token);
       navigate("/chat");
-    } catch (err: any) {
-      setError(err.message || "Error al iniciar sesión");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error al iniciar sesión";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -41,7 +42,7 @@ export const LoginForm = () => {
       const response = await authService.loginAsGuest();
       login(response.user, response.token);
       navigate("/chat");
-    } catch (err: any) {
+    } catch {
       setError("Error al entrar como invitado");
     } finally {
       setIsGuestLoading(false);

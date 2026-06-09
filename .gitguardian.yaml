@@ -1,0 +1,12 @@
+version: 2
+
+secret:
+  # Ignore test files with mock/fake credentials
+  ignored-paths:
+    - '**/e2e/**'
+    - '**/*.spec.ts'
+    - '**/*.test.ts'
+
+  ignored-matches:
+    - name: "Mock test credentials in e2e specs"
+      match: "prueba123"

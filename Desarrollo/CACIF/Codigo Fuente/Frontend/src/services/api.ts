@@ -10,7 +10,8 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
   // Las llamadas a servicios de IA (RAG) pueden tomar más tiempo
-  timeout: 30000, 
+  // Aumentado a 120s (2 min) para operaciones de embedding + LLM
+  timeout: 120000, 
 });
 
 // Interceptor para inyectar token de autenticación en cada petición

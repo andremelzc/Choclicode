@@ -11,8 +11,11 @@ export const authService = {
       localStorage.setItem("cacif_user", JSON.stringify(user));
 
       return { success: true, user, token };
-    } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Credenciales inválidas o error de conexión.");
+    } catch (error: unknown) {
+      const detail = error instanceof Error 
+        ? error.message 
+        : (error instanceof Object && 'response' in error && typeof error.response === 'object' && error.response !== null && 'data' in error.response ? (error.response.data as { detail?: string }).detail : undefined) || "Credenciales inválidas o error de conexión.";
+      throw new Error(detail, { cause: error });
     }
   },
 
@@ -25,8 +28,11 @@ export const authService = {
       localStorage.setItem("cacif_user", JSON.stringify(user));
       
       return { success: true, user, token };
-    } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Error al iniciar sesión como invitado.");
+    } catch (error: unknown) {
+      const detail = error instanceof Error 
+        ? error.message 
+        : (error instanceof Object && 'response' in error && typeof error.response === 'object' && error.response !== null && 'data' in error.response ? (error.response.data as { detail?: string }).detail : undefined) || "Error al iniciar sesión como invitado.";
+      throw new Error(detail, { cause: error });
     }
   },
 

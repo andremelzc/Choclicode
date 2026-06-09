@@ -38,20 +38,27 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    // If we use asChild, we fallback to standard Slot without motion to prevent ref issues
-    const Comp = asChild ? Slot : motion.button
-    const motionProps = asChild ? {} : { whileTap: { scale: 0.97 } }
-    
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        />
+      )
+    }
+
     return (
-      <Comp
+      <motion.button
         className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref as any}
-        {...motionProps}
-        {...(props as any)}
+        ref={ref}
+        whileTap={{ scale: 0.97 }}
+        {...(props as Record<string, unknown>)}
       />
     )
   }
 )
 Button.displayName = "Button"
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants }
