@@ -32,7 +32,7 @@ class StructuredAssistantResponse(BaseModel):
     answer: str = Field(description="La respuesta textual principal en formato académico, basándose en el contexto.")
     intent_type: str = Field(description="Clasifica el caso de uso en: CU01 (Grupos), CU02 (Convocatorias), CU03 (Trámites), CU04 (Normativa), o CU00 (Consulta General).")
     ui_type: str = Field(description="Determina la UI. Valores posibles: 'text', 'matchmaking_cards' (si intent_type es CU01), 'convocatoria_cards' (si intent_type es CU02), 'stepper_cards' (si intent_type es CU03), 'citation_cards' (si intent_type es CU04).")
-    ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Para matchmaking_cards, la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data'. Para stepper_cards (CU03), la llave 'stepper_data' como una lista de objetos que contengan obligatoriamente 'id', 'procedure_name', 'estimated_time', 'cost', 'requirements' (lista de strings), y 'steps' (lista de objetos con 'step_number', 'title', 'description' y 'action_url'). Para citation_cards (CU04), la llave 'citation_data' como una lista de objetos que contengan obligatoriamente 'id', 'document_name', 'article_number', 'exact_quote', 'explanation', 'page' y 'link'.")
+    ui_data: Optional[Dict[str, Any]] = Field(description="Genera el JSON de datos si la UI no es 'text'. Para matchmaking_cards, la llave 'cards_data' con objetos que incluyan 'id', 'name', 'coordinator', 'lines', 'technical_areas', 'description'. Para convocatoria_cards, la llave 'contest_data' debe contener una lista de objetos con: 'id', 'status_badge', 'status_label', 'title', 'contest_type', 'requirements' (lista de strings), 'prize', 'required_documents', 'apply_url', y 'timeline_events' (lista de objetos con 'title', 'date', 'status'). Para stepper_cards (CU03), la llave 'stepper_data' como una lista de objetos que contengan obligatoriamente 'id', 'procedure_name', 'estimated_time', 'cost', 'requirements' (lista de strings), y 'steps' (lista de objetos con 'step_number', 'title', 'description' y 'action_url'). Para citation_cards (CU04), la llave 'citation_data' como una lista de objetos que contengan obligatoriamente 'id', 'document_name', 'article_number', 'exact_quote', 'explanation', 'page' y 'link'.")
 
     @field_validator('ui_data', mode='before')
     @classmethod
@@ -143,18 +143,28 @@ class BedrockRAGService:
             confidence = 0.0
             sources = []
 
+        import datetime
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
         messages = [
-            SystemMessage(content=CACIF_SYSTEM_PROMPT),
+            SystemMessage(
+                content=CACIF_SYSTEM_PROMPT + f"\nLa fecha actual del sistema es: {current_date}. Usa esta fecha como referencia absoluta para determinar si las convocatorias del contexto están activas o vencidas."
+            ),
             HumanMessage(
                 content=(
                     f"Contexto recuperado de la base de conocimientos:\n{context}\n\n"
                     f"Pregunta del estudiante: {query}\n\n"
-                    "Por favor, analiza la pregunta y el contexto, clasifica el caso de uso y provee tu respuesta llenando la estructura requerida. "
-                    "Si determinas que es CU01, genera datos estructurados en 'ui_data' -> 'cards_data'. "
-                    "Si es CU02, genera datos en 'ui_data' -> 'contest_data'. "
-                    "Si es CU03, genera datos en 'ui_data' -> 'stepper_data'. "
-                    "Si es CU04, genera datos en 'ui_data' -> 'citation_data'. "
-                    "Asegúrate de no inventar datos que no estén en el contexto, pero simula IDs o nombres si es estrictamente necesario para armar la tarjeta visual. "
+                    "Por favor, analiza la pregunta y el contexto, clasifica el caso de uso y provee tu respuesta llenando la estructura requerida.\n"
+                    "Recuerda:\n"
+                    "1. Si la pregunta contiene términos como 'postular', 'inscribirme', 'vacantes', o 'postulación' hacia un grupo específico (ej. GI-01 o nombre del grupo), clasifica el caso obligatoriamente como CU02 (Convocatorias) y NO como CU01.\n"
+                    "2. Usa la fecha actual del sistema para evaluar si los cronogramas en el contexto están vigentes o ya cerrados. Si están cerrados, indica explícitamente que la convocatoria venció y no se puede realizar la postulación.\n\n"
+                    "Determina cuándo usar una interfaz estructurada o solo texto:\n"
+                    "- Si el caso es CU01 y el estudiante busca activamente que le recomiendes/listes grupos de investigación de acuerdo a su perfil, usa ui_type = 'matchmaking_cards' y genera 'ui_data' -> 'cards_data'.\n"
+                    "- Si el caso es CU02 y el estudiante pregunta por el cronograma, requisitos o detalles específicos de una o más convocatorias/concursos, usa ui_type = 'convocatoria_cards' y genera 'ui_data' -> 'contest_data'.\n"
+                    "- Si el caso es CU03 y el estudiante consulta por los pasos o requisitos de un trámite administrativo específico, usa ui_type = 'stepper_cards' y genera 'ui_data' -> 'stepper_data'.\n"
+                    "- Si el caso es CU04 y el estudiante solicita la cita exacta o validez de un artículo, norma o resolución específica, usa ui_type = 'citation_cards' y genera 'ui_data' -> 'citation_data'.\n"
+                    "- Para explicaciones conceptuales, preguntas generales, correos de contacto, aclaraciones o si no hay datos específicos en el contexto para llenar las tarjetas, utiliza siempre ui_type = 'text'.\n"
+                    "Asegúrate de no inventar datos que no estén en el contexto, pero simula IDs o nombres si es estrictamente necesario para armar la tarjeta visual."
                 )
             ),
         ]

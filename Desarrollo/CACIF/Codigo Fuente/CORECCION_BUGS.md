@@ -56,10 +56,10 @@ Ante una consulta con una tecnología absurda o inexistente, el LLM intenta forz
 Al mostrar resultados de convocatorias, aparecen etiquetas vacías al final del mensaje (`"Tipo:"`, `"Premio:"`, `"Documentos..."`). Esto indica que el componente de UI está intentando renderizar campos de un objeto `contest_data` que llega nulo o con propiedades mal mapeadas desde el backend.
 
 **Plan de Acción:**
-- [ ] **Backend (`Backend/services/bedrock_rag_service.py`):** El modelo Pydantic `StructuredAssistantResponse` no especifica las llaves requeridas para el objeto `contest_data` en el campo `ui_data`. Se debe actualizar la descripción del campo en Pydantic para indicarle explícitamente al LLM el esquema que espera el Frontend:
+- [x] **Backend (`Backend/services/bedrock_rag_service.py`):** El modelo Pydantic `StructuredAssistantResponse` no especifica las llaves requeridas para el objeto `contest_data` en el campo `ui_data`. Se debe actualizar la descripción del campo en Pydantic para indicarle explícitamente al LLM el esquema que espera el Frontend:
   - *Modificar la descripción de `ui_data` en `StructuredAssistantResponse` para `convocatoria_cards`:*
     `Para convocatoria_cards, la llave 'contest_data' debe contener una lista de objetos con: 'id', 'status_badge', 'status_label', 'title', 'contest_type', 'requirements' (lista de strings), 'prize', 'required_documents', 'apply_url', y 'timeline_events' (lista de objetos con 'title', 'date', 'status').`
-- [ ] **Frontend (`Frontend/src/features/chat/components/MessageBubble.tsx`):** Añadir guardas preventivas en el renderizado del componente (líneas 121-213) para asegurar que si campos como `contest_type`, `prize` o `required_documents` no vienen provistos por el backend, se renderice un fallback legible (ej. "No especificado") en lugar de etiquetas vacías o nulas.
+- [x] **Frontend (`Frontend/src/features/chat/components/MessageBubble.tsx`):** Añadir guardas preventivas en el renderizado del componente (líneas 121-213) para asegurar que si campos como `contest_type`, `prize` o `required_documents` no vienen provistos por el backend, se renderice un fallback legible (ej. "No especificado") en lugar de etiquetas vacías o nulas.
 
 ---
 
@@ -74,7 +74,7 @@ Al mostrar resultados de convocatorias, aparecen etiquetas vacías al final del 
 Cuando el usuario consulta sobre postulación a un grupo específico, el clasificador de intenciones lo enruta al flujo de orientación general (CU01) en lugar del flujo de convocatorias (CU02). La palabra clave "postular" está siendo asociada incorrectamente de forma global o confundiendo al LLM.
 
 **Plan de Acción:**
-- [ ] **Backend (`Backend/services/bedrock_rag_service.py`):** Si bien en la clase `BedrockRAGService` el clasificador de intenciones final está delegado a la propiedad `intent_type` en el output estructurado de Gemini, la consulta recibe un `SystemMessage` general. Debemos:
+- [x] **Backend (`Backend/services/bedrock_rag_service.py`):** Si bien en la clase `BedrockRAGService` el clasificador de intenciones final está delegado a la propiedad `intent_type` en el output estructurado de Gemini, la consulta recibe un `SystemMessage` general. Debemos:
   - Actualizar el modelo Pydantic y las instrucciones del SystemMessage (`CACIF_SYSTEM_PROMPT`) para desambiguar explícitamente: *"Si la consulta del usuario incluye términos como 'postular', 'inscribirme', 'vacantes', o 'postulación' hacia un grupo específico (ej. GI-XX o nombre del grupo), clasifica el caso obligatoriamente como CU02 (Convocatorias) y NO como CU01."*
 
 ---
@@ -90,14 +90,14 @@ Cuando el usuario consulta sobre postulación a un grupo específico, el clasifi
 El sistema no puede determinar si una convocatoria sigue activa o ya cerró, porque el motor RAG no tiene conocimiento de la fecha actual. Al consultar por una fecha límite que ya pasó (CP-010), el LLM asume que aún es válida o simplemente recita el texto sin advertir que ya venció, permitiendo flujos que deberían estar bloqueados.
 
 **Plan de Acción:**
-- [ ] **Backend (`Backend/services/bedrock_rag_service.py`):** En el método `run` de `BedrockRAGService`, modificar la construcción del `HumanMessage` que se envía a Gemini para inyectar dinámicamente la fecha y hora del sistema antes de procesar el contexto.
+- [x] **Backend (`Backend/services/bedrock_rag_service.py`):** En el método `run` de `BedrockRAGService`, modificar la construcción del `HumanMessage` que se envía a Gemini para inyectar dinámicamente la fecha y hora del sistema antes de procesar el contexto.
   - *Ejemplo de inyección:*
     ```python
     import datetime
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
     # Inyectar en el prompt: "La fecha actual del sistema es: {current_date}. Usa esta fecha como referencia absoluta para determinar si las convocatorias del contexto están activas o vencidas."
     ```
-- [ ] **Backend (`Backend/prompts/prompts.py`):** Asegurar en las directivas que el LLM compare la fecha inyectada con el cronograma y emita un mensaje informativo denegando la postulación si la fecha límite ya expiró.
+- [x] **Backend (`Backend/prompts/prompts.py`):** Asegurar en las directivas que el LLM compare la fecha inyectada con el cronograma y emita un mensaje informativo denegando la postulación si la fecha límite ya expiró.
 
 ---
 
@@ -128,9 +128,9 @@ Ocurre un error de compatibilidad de tipos porque la base de datos almacena núm
 |---|---|---|---|---|
 | **BUG-003** | CP-003 | Frontend / `Backend/prompts/prompts.py` | **RESUELTO** | Flujo guiado local en Frontend + prompt consolidado. |
 | **BUG-004** | CP-004 | `Backend/prompts/prompts.py` | **RESUELTO** | Regla EX1 estricta en prompt de sistema. |
-| **BUG-005** | CP-006 | `Backend/services/bedrock_rag_service.py` / `Frontend/src/features/chat/components/MessageBubble.tsx` | ABIERTO | Definición del esquema Pydantic para `contest_data` + fallbacks de UI. |
-| **BUG-007** | CP-008 | `Backend/services/bedrock_rag_service.py` / `Backend/prompts/prompts.py` | ABIERTO | Reglas de desambiguación en el System Prompt para clasificación del LLM. |
-| **BUG-008** | CP-009, CP-010 | `Backend/services/bedrock_rag_service.py` | ABIERTO | Inyección dinámica de fecha actual en el prompt para validación cronológica. |
+| **BUG-005** | CP-006 | `Backend/services/bedrock_rag_service.py` / `Frontend/src/features/chat/components/MessageBubble.tsx` | **RESUELTO** | Definición del esquema Pydantic para `contest_data` + fallbacks de UI. |
+| **BUG-007** | CP-008 | `Backend/services/bedrock_rag_service.py` / `Backend/prompts/prompts.py` | **RESUELTO** | Reglas de desambiguación en el System Prompt para clasificación del LLM. |
+| **BUG-008** | CP-009, CP-010 | `Backend/services/bedrock_rag_service.py` | **RESUELTO** | Inyección dinámica de fecha actual en el prompt para validación cronológica. |
 | **BUG-010** | — | Múltiples (SQL / ORM / Schemas / TS Types) | **RESUELTO** | Unificación de tipos a string/varchar para paginación alfanumérica. |
 
 

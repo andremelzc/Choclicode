@@ -117,6 +117,29 @@ export default function ChatPage() {
       }
     }
 
+    const lowerText = text.toLowerCase();
+    const isRecommendationQuery = 
+      !lowerText.startsWith("matchmaking:") && (
+        (lowerText.includes("recomienda") && lowerText.includes("grupo")) ||
+        lowerText.includes("matchmaking") ||
+        (lowerText.includes("grupo") && lowerText.includes("unirme")) ||
+        (lowerText.includes("grupo") && lowerText.includes("ayudar"))
+      );
+
+    if (isRecommendationQuery) {
+      const assistantMsg: Message = {
+        id: crypto.randomUUID(),
+        conversation_id: currentConvId,
+        role: 'assistant',
+        content: "Para ayudarte a encontrar el grupo de investigación ideal para ti, por favor completa este breve cuestionario de perfil:",
+        ui_type: 'matchmaking_quiz',
+        sent_at: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+      setIsLoadingMessages(false);
+      return;
+    }
+
     try {
       const response = await chatService.sendMessage(text, currentConvId);
       setMessages(prev => [...prev, response]);
