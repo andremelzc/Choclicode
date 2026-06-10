@@ -20,25 +20,17 @@ export const MessageList = ({ messages, isLoading, onQuickAction }: MessageListP
 
   useEffect(() => {
     if (!isLoading) {
-      setLoadingMessage("");
-      return;
+      const t0 = setTimeout(() => setLoadingMessage(""), 0);
+      return () => clearTimeout(t0);
     }
 
-    setLoadingMessage("Pensando...");
-
-    const t1 = setTimeout(() => {
-      setLoadingMessage("Espera un momento, por favor...");
-    }, 10000);
-
-    const t2 = setTimeout(() => {
-      setLoadingMessage("Está tardando un poco más de lo usual...");
-    }, 20000);
-
-    const t3 = setTimeout(() => {
-      setLoadingMessage("Ya casi está listo...");
-    }, 30000);
+    const t0 = setTimeout(() => setLoadingMessage("Pensando..."), 0);
+    const t1 = setTimeout(() => setLoadingMessage("Espera un momento, por favor..."), 10000);
+    const t2 = setTimeout(() => setLoadingMessage("Está tardando un poco más de lo usual..."), 20000);
+    const t3 = setTimeout(() => setLoadingMessage("Ya casi está listo..."), 30000);
 
     return () => {
+      clearTimeout(t0);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
