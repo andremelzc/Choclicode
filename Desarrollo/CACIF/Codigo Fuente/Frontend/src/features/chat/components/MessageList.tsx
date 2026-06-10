@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import type { Message } from "../../../types/chat"
 import { MessageBubble } from "./MessageBubble"
 import { Loader2 } from "lucide-react"
@@ -12,10 +12,38 @@ interface MessageListProps {
 
 export const MessageList = ({ messages, isLoading, onQuickAction }: MessageListProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadingMessage("");
+      return;
+    }
+
+    setLoadingMessage("Pensando...");
+
+    const t1 = setTimeout(() => {
+      setLoadingMessage("Espera un momento, por favor...");
+    }, 10000);
+
+    const t2 = setTimeout(() => {
+      setLoadingMessage("Está tardando un poco más de lo usual...");
+    }, 20000);
+
+    const t3 = setTimeout(() => {
+      setLoadingMessage("Ya casi está listo...");
+    }, 30000);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [isLoading]);
 
   return (
     <div className="flex-1 overflow-y-auto p-8 pb-40 scroll-smooth">
@@ -56,8 +84,13 @@ export const MessageList = ({ messages, isLoading, onQuickAction }: MessageListP
               CA
             </div>
             <div className="flex-1">
-              <div className="rounded-2xl rounded-tl-sm bg-chatbot p-6 border border-border/40 shadow-sm w-fit">
+              <div className="rounded-2xl rounded-tl-sm bg-chatbot p-6 border border-border/40 shadow-sm w-fit flex items-center gap-3">
                 <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                {loadingMessage && (
+                  <span className="text-[13px] text-muted-foreground/80 font-medium animate-pulse">
+                    {loadingMessage}
+                  </span>
+                )}
               </div>
             </div>
           </motion.div>

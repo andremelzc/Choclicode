@@ -117,6 +117,13 @@ class ContestDataResponse(BaseModel):
             return [item.strip() for item in v.split(",") if item.strip()]
         return v
 
+    @field_validator('required_documents', 'prize', 'contest_type', mode='before')
+    @classmethod
+    def parse_contest_strings(cls, v):
+        if isinstance(v, list):
+            return "\n".join(str(item) for item in v)
+        return v
+
 class GroupCardDataResponse(BaseModel):
     id: str
     name: Optional[str] = None

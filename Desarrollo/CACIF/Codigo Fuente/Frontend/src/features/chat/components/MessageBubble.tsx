@@ -266,16 +266,20 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
 
                   <div className="bg-surface/30 border border-border rounded-2xl p-6 shadow-sm mb-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="bg-warning text-warning-foreground px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                        {contest.status_badge}
-                      </span>
-                      <span className="bg-success text-success-foreground px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-success/30">
-                        {contest.status_label}
-                      </span>
+                      {contest.status_badge && (
+                        <span className="bg-warning text-warning-foreground px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                          {contest.status_badge}
+                        </span>
+                      )}
+                      {contest.status_label && (
+                        <span className="bg-success text-success-foreground px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-success/30">
+                          {contest.status_label}
+                        </span>
+                      )}
                     </div>
 
-                    <h4 className="font-bold text-[18px] text-foreground mb-2">{contest.title}</h4>
-                    <p className="text-[13px] text-muted-foreground mb-5">Tipo: <span className="font-medium text-foreground">{contest.contest_type}</span></p>
+                    <h4 className="font-bold text-[18px] text-foreground mb-2">{contest.title || 'Convocatoria sin título'}</h4>
+                    <p className="text-[13px] text-muted-foreground mb-5">Tipo: <span className="font-medium text-foreground">{contest.contest_type || 'No especificado'}</span></p>
 
                     <div className="mb-5">
                       <p className="text-[13px] text-muted-foreground mb-2">Requisitos para participar como grupo:</p>
