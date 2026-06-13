@@ -316,7 +316,7 @@ export const MessageBubble = ({ message, onQuickAction }: MessageBubbleProps) =>
                     </div>
 
                     <a
-                      href={contest.apply_url}
+                      href={contest.apply_url || "https://vrip.unmsm.edu.pe/convocatoria-2026/"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full bg-warning text-warning-foreground py-3 rounded-xl text-[14px] font-bold hover:bg-warning/90 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]"
