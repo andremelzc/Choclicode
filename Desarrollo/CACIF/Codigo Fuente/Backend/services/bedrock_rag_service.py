@@ -95,11 +95,12 @@ class BedrockRAGService:
             client=session.client("bedrock-agent-runtime"),
         )
 
-        self.llm = ChatGoogleGenerativeAI(
+        self.base_llm = ChatGoogleGenerativeAI(
             model=settings.GEMINI_MODEL,
             api_key=settings.GEMINI_API_KEY,
             temperature=0.0
-        ).with_structured_output(StructuredAssistantResponse)
+        )
+        self.llm = self.base_llm.with_structured_output(StructuredAssistantResponse)
 
     async def run(self, query: str) -> dict:
         """Ejecuta el pipeline RAG completo: recuperar → sintetizar.
@@ -169,16 +170,46 @@ class BedrockRAGService:
             ),
         ]
 
-        structured_response: StructuredAssistantResponse = await self.llm.ainvoke(messages)
+        from pydantic import ValidationError
+        try:
+            structured_response: StructuredAssistantResponse = await self.llm.ainvoke(messages)
+            if structured_response is None:
+                raise ValueError("Structured response returned None")
+            
+            result = {
+                "answer": structured_response.answer,
+                "intent": structured_response.intent_type,
+                "ui_type": structured_response.ui_type,
+                "ui_data": structured_response.ui_data,
+                "confidence": confidence,
+                "sources": sources,
+            }
+        except (ValidationError, AttributeError, ValueError) as err:
+            print(f"=== FALLBACK DE VALIDACIÓN: Obteniendo respuesta en texto plano debido a: {type(err).__name__} ===", flush=True)
+            import traceback
+            traceback.print_exc()
+            
+            raw_response = await self.base_llm.ainvoke(messages)
+            raw_content = raw_response.content if hasattr(raw_response, 'content') else str(raw_response)
+            
+            # Intentar extraer "answer" de un JSON mal formado si aplica
+            answer_text = raw_content
+            try:
+                import re
+                match = re.search(r'"answer"\s*:\s*"([^"]+)"', raw_content)
+                if match:
+                    answer_text = match.group(1)
+            except Exception:
+                pass
 
-        result = {
-            "answer": structured_response.answer,
-            "intent": structured_response.intent_type,
-            "ui_type": structured_response.ui_type,
-            "ui_data": structured_response.ui_data,
-            "confidence": confidence,
-            "sources": sources,
-        }
+            result = {
+                "answer": answer_text,
+                "intent": _detect_intent(query),
+                "ui_type": "text",
+                "ui_data": {},
+                "confidence": confidence,
+                "sources": sources,
+            }
 
         # ── Cache store ─────────────────────────────────────────────
         if cache is not None:
