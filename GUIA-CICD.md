@@ -1,134 +1,168 @@
-# Guia de Configuracion CI/CD — Choclicode
+# Guia de Configuracion CI/CD
 
-## Resumen del Pipeline
+## Arquitectura del Pipeline
 
 ```
-Rama cualquiera ──PR──> main ──merge──> main
-                   │                     │
-              ci.yml                 cd.yml
-           (tests gate)         (tests + deploy)
+                    ┌──────────────────────────────────────────┐
+                    │            REPOSITORIO GITHUB            │
+                    └──────────────────┬───────────────────────┘
+                                       │
+                 ┌─────────────────────┴─────────────────────┐
+                 │                                           │
+          Pull Request a main                         Push a main
+                 │                                           │
+           ┌─────┴─────┐                             ┌──────┴──────┐
+           │  ci.yml    │                             │   cd.yml    │
+           │  CI Gate   │                             │  CI + CD    │
+           └─────┬─────┘                             └──────┬──────┘
+                 │                                           │
+      ┌──────────┴──────────┐                    ┌───────────┴──────────┐
+      │                     │                    │                      │
+  Backend Tests      Frontend Tests         Tests pasan            Tests fallan
+      │                     │                    │                      │
+      └──────────┬──────────┘             ┌──────┴──────┐          ❌ Se detiene
+                 │                        │             │
+          Resumen en PR            Deploy Frontend  Deploy Backend
+                                   (Vercel)         (Render)
 ```
-
-- **`ci.yml`** — Se ejecuta en cada PR hacia `main`. Corre todos los tests. Si fallan, bloquea el merge.
-- **`cd.yml`** — Se ejecuta en cada push a `main` (despues del merge). Corre tests y si pasan, despliega a Vercel.
 
 ---
 
-## Pasos para completar la configuracion
+## Workflows
 
-### Paso 1: Obtener el Token de Vercel
+| Archivo | Trigger | Funcion |
+|---------|---------|---------|
+| `ci.yml` | PR hacia `main` | Ejecuta tests completos. Bloquea el merge si fallan. |
+| `cd.yml` | Push a `main` (post-merge) | Ejecuta tests y, si pasan, despliega Frontend a Vercel y Backend a Render en paralelo. |
+| `report-config-status.yml` | Manual (`workflow_dispatch`) | Genera reporte de estado de contabilidad de la configuracion. |
+| `report-version.yml` | Manual (`workflow_dispatch`) | Genera reporte de versionado de un item especifico. |
 
-1. Ir a [https://vercel.com/account/tokens](https://vercel.com/account/tokens)
-2. Click en **Create Token**
-3. Nombre: `github-actions-deploy` (o lo que quieras)
-4. Scope: seleccionar el team/cuenta donde esta el proyecto
-5. Copiar el token generado (no se vuelve a mostrar)
+---
 
-### Paso 2: Agregar el secret en GitHub
+## Configuracion Requerida
 
-1. Ir al repositorio en GitHub: [https://github.com/andremelzc/Choclicode](https://github.com/andremelzc/Choclicode)
-2. **Settings** > **Secrets and variables** > **Actions**
-3. Click en **New repository secret**
-4. Nombre: `VERCEL_TOKEN`
-5. Valor: pegar el token del Paso 1
-6. Click **Add secret**
+### 1. Secrets de GitHub
 
-### Paso 3: Vincular el proyecto de Vercel (si no esta vinculado)
+Ir a **GitHub > Settings > Secrets and variables > Actions** y agregar:
 
-Si el proyecto de Vercel ya esta conectado al repo via la integracion de GitHub, necesitas el `VERCEL_ORG_ID` y `VERCEL_PROJECT_ID`. Para obtenerlos:
+| Secret | Descripcion | Como obtenerlo |
+|--------|-------------|----------------|
+| `VERCEL_TOKEN` | Token de API de Vercel | [vercel.com/account/tokens](https://vercel.com/account/tokens) > Create Token |
+| `RENDER_DEPLOY_HOOK_URL` | URL del Deploy Hook de Render | Ver seccion 3 |
 
-1. Instalar Vercel CLI localmente:
-   ```bash
-   npm install -g vercel
-   ```
-2. Desde la carpeta del Frontend, ejecutar:
-   ```bash
-   cd "Desarrollo/CACIF/Codigo Fuente/Frontend"
-   vercel link
-   ```
-3. Esto crea una carpeta `.vercel/` con un archivo `project.json` que contiene:
-   ```json
-   {
-     "orgId": "team_xxxxxxxx",
-     "projectId": "prj_xxxxxxxx"
-   }
-   ```
-4. Agregar estos como secrets en GitHub (igual que el Paso 2):
-   - `VERCEL_ORG_ID` → el valor de `orgId`
-   - `VERCEL_PROJECT_ID` → el valor de `projectId`
+---
 
-> **Nota:** Si `vercel pull` funciona solo con el token (sin necesitar org/project ID como secrets separados), puedes omitir este paso. Prueba primero sin ellos.
+### 2. Configurar Vercel (Frontend)
 
-### Paso 4: Desactivar el auto-deploy de Vercel
+#### 2.1 Obtener el token
 
-Esto es **critico**. Si no lo haces, Vercel va a desplegar en cada push sin esperar a que pasen los tests.
+1. Ir a [vercel.com/account/tokens](https://vercel.com/account/tokens)
+2. **Create Token**
+3. Nombre: `github-actions-deploy`
+4. Scope: seleccionar el team/cuenta del proyecto
+5. Copiar el token y guardarlo como secret `VERCEL_TOKEN` en GitHub
 
-1. Ir al dashboard de Vercel: [https://vercel.com](https://vercel.com)
-2. Seleccionar el proyecto de Choclicode
-3. **Settings** > **Git**
-4. En la seccion **Deploy Hooks** o **Connected Git Repository**, desactivar los deploys automaticos:
-   - Opcion A: **Ignorar el branch `main`** en la configuracion de Git de Vercel
-   - Opcion B: Ir a **Settings** > **General** > buscar **"Build & Development Settings"** y en la seccion de Git, desactivar "Auto-deploy"
-   - Opcion C: Si no encuentras la opcion, puedes desconectar la integracion de GitHub en Vercel y solo usar el deploy via CLI (que es lo que hace el workflow `cd.yml`)
+#### 2.2 Vincular el proyecto
 
-### Paso 5: Configurar Branch Protection en GitHub
-
-Esto es lo que **bloquea el merge** si los tests fallan en el PR.
-
-1. Ir al repositorio en GitHub
-2. **Settings** > **Branches**
-3. Click en **Add branch ruleset** (o **Add rule** si usas el formato clasico)
-4. Branch name pattern: `main`
-5. Activar **Require status checks to pass before merging**
-6. Buscar y agregar estos checks:
-   - `🐍 Backend — Full Test Suite`
-   - `⚛️ Frontend — Full Test Suite + Build`
-7. Activar **Require branches to be up to date before merging** (opcional pero recomendado)
-8. Guardar
-
-### Paso 6: Commit y push de los cambios
+Si el proyecto no esta vinculado, ejecutar localmente:
 
 ```bash
-git add .github/workflows/
-git add GUIA-CICD.md
-git commit -m "ci: simplificar pipeline CI/CD, eliminar workflows de docs"
-git push
+npm install -g vercel
+cd "Desarrollo/CACIF/Codigo Fuente/Frontend"
+vercel link
 ```
+
+Esto genera `.vercel/project.json` con `orgId` y `projectId`. El comando `vercel pull` del workflow los usa automaticamente.
+
+#### 2.3 Desactivar auto-deploy de Vercel
+
+Esto es **critico**. Sin esto, Vercel despliega en cada push sin esperar los tests.
+
+1. Ir al proyecto en [vercel.com](https://vercel.com)
+2. **Settings > Git**
+3. Desactivar los deploys automaticos para la rama `main`
+
+> **Nota:** Si no encuentras la opcion, puedes desconectar la integracion de GitHub completamente desde Vercel. El workflow `cd.yml` se encarga del deploy via CLI.
+
+---
+
+### 3. Configurar Render (Backend)
+
+#### 3.1 Crear el Deploy Hook
+
+1. Ir al servicio del backend en [dashboard.render.com](https://dashboard.render.com)
+2. **Settings > Deploy Hook**
+3. Click en **Create Deploy Hook**
+4. Copiar la URL generada (tiene formato `https://api.render.com/deploy/srv-xxxxx?key=xxxxx`)
+5. Guardar como secret `RENDER_DEPLOY_HOOK_URL` en GitHub
+
+#### 3.2 Desactivar auto-deploy de Render
+
+1. Ir al servicio del backend en Render
+2. **Settings > Build & Deploy**
+3. En **Auto-Deploy**, seleccionar **No**
+
+> **Nota:** Si dejas auto-deploy activado, Render desplegara en cada push sin esperar los tests, igual que con Vercel.
+
+---
+
+### 4. Branch Protection en GitHub
+
+Esto bloquea el merge del PR si los tests no pasan.
+
+1. Ir a **GitHub > Settings > Branches**
+2. **Add branch ruleset** (o Add rule)
+3. Branch name pattern: `main`
+4. Activar **Require status checks to pass before merging**
+5. Agregar estos checks como requeridos:
+   - `🐍 Backend — Full Test Suite`
+   - `⚛️ Frontend — Full Test Suite + Build`
+6. (Opcional) Activar **Require branches to be up to date before merging**
+7. Guardar
 
 ---
 
 ## Verificacion
 
-### Probar el CI (PR gate)
-1. Crear una rama nueva desde `main`
-2. Hacer un cambio cualquiera y push
-3. Crear un PR hacia `main`
-4. Verificar que el workflow `🔒 CI — Pull Request` se ejecuta
-5. Si los tests pasan, el PR deberia estar habilitado para merge
-6. Si fallan, el boton de merge deberia estar bloqueado
+### Probar CI (gate de PR)
 
-### Probar el CD (deploy)
-1. Mergear el PR a `main`
-2. Verificar que el workflow `🚀 CD — Deploy a Produccion` se ejecuta
-3. Deberia correr tests y luego desplegar a Vercel
-4. Verificar en el dashboard de Vercel que el deploy se completo
+1. Crear rama desde `main`
+2. Hacer un cambio y push
+3. Crear PR hacia `main`
+4. Verificar que `🔒 CI — Pull Request` se ejecuta
+5. Si los tests pasan → merge habilitado
+6. Si fallan → merge bloqueado
+
+### Probar CD (deploy)
+
+1. Mergear un PR a `main`
+2. Verificar que `🚀 CD — Deploy a Produccion` se ejecuta
+3. Verificar los jobs de deploy:
+   - `🌐 Deploy Frontend — Vercel` → verificar en dashboard de Vercel
+   - `🖥️ Deploy Backend — Render` → verificar en dashboard de Render
 
 ---
-
-## Estructura final de workflows
-
-```
-.github/workflows/
-├── ci.yml    # PR → main: tests (gate para merge)
-└── cd.yml    # Push a main: tests + deploy a Vercel
-```
 
 ## Troubleshooting
 
 | Problema | Solucion |
-|---|---|
-| Deploy falla con "Project not found" | Ejecutar `vercel link` y agregar `VERCEL_ORG_ID` y `VERCEL_PROJECT_ID` como secrets |
-| Deploy falla con "Invalid token" | Verificar que el secret `VERCEL_TOKEN` esta bien configurado |
-| PR se puede mergear sin pasar tests | Verificar que los branch protection rules estan configurados (Paso 5) |
-| El workflow no se ejecuta | Verificar que el archivo esta en `.github/workflows/` y tiene la sintaxis correcta |
-| Vercel sigue desplegando automaticamente | Completar el Paso 4 para desactivar auto-deploy |
+|----------|----------|
+| Vercel: "Project not found" | Ejecutar `vercel link` localmente y verificar que `.vercel/project.json` existe |
+| Vercel: "Invalid token" | Verificar que `VERCEL_TOKEN` esta correcto en GitHub Secrets |
+| Render: deploy no se activa | Verificar que `RENDER_DEPLOY_HOOK_URL` esta correcto y el servicio esta activo |
+| Render: deploy hook retorna 4xx | Regenerar el deploy hook en Render y actualizar el secret |
+| PR se puede mergear sin tests | Configurar branch protection rules (seccion 4) |
+| Workflow no se ejecuta | Verificar que el archivo esta en `.github/workflows/` con sintaxis YAML valida |
+| Vercel/Render despliegan sin esperar tests | Desactivar auto-deploy en ambas plataformas (secciones 2.3 y 3.2) |
+
+---
+
+## Estructura final
+
+```
+.github/workflows/
+├── ci.yml                      # PR → main: tests (gate para merge)
+├── cd.yml                      # Push a main: tests + deploy (Vercel + Render)
+├── report-config-status.yml    # Manual: reporte de configuracion
+└── report-version.yml          # Manual: reporte de versionado
+```
