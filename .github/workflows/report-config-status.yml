@@ -1,4 +1,4 @@
-name: "📦 Reporte de Estado de Configuración"
+name: "Reportes para el Estado de Contabilidad de la Configuración"
 
 on:
   workflow_dispatch:
