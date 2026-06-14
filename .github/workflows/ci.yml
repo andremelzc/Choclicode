@@ -1,16 +1,13 @@
-name: "🔒 CI — Tests para PR a Main"
+name: "🔒 CI — Pull Request"
 
 on:
   pull_request:
     branches:
       - main
     types: [opened, synchronize, reopened]
-    paths:
-      - 'Desarrollo/CACIF/Codigo Fuente/**'
-      - '.github/workflows/ci-pr-main.yml'
 
 concurrency:
-  group: ci-pr-main-${{ github.event.pull_request.number }}
+  group: ci-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
