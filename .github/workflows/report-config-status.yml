@@ -1,4 +1,4 @@
-name: "Reportes para el Estado de Contabilidad de la Configuración"
+name: "Lista de ítems de la gestión de la configuración"
 
 on:
   workflow_dispatch:
