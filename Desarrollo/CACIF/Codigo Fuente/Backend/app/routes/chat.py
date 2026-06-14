@@ -239,14 +239,33 @@ async def send_message(
         settings = get_settings()
         rag_service = get_bedrock_rag_service(settings)
         rag_result = await rag_service.run(payload.content)
+        print("=== RESULTADO RAG EXITOSO ===", flush=True)
+        print(rag_result, flush=True)
+        print("==============================", flush=True)
     except Exception as exc:
+        import traceback
+        print("=== ERROR EN PIPELINE RAG ===", flush=True)
+        traceback.print_exc()
+        print("==============================", flush=True)
+        
+        exc_str = str(exc).lower()
+        if "resource_exhausted" in exc_str or "quota" in exc_str or "429" in exc_str:
+            err_msg = (
+                "¡Hola! Lo siento mucho, pero en este momento mi servicio de inteligencia artificial está un poco saturado "
+                "debido al límite de consultas diarias. 🥺 Por favor, espera un par de minutos e inténtalo de nuevo. "
+                "Si el problema persiste, puedes escribirnos directamente a investigacion.fisi@unmsm.edu.pe para ayudarte."
+            )
+        else:
+            err_msg = (
+                "¡Ups! En este momento no logro conectarme a mi base de conocimientos. 🔍 "
+                "Por favor, intenta enviar tu mensaje nuevamente en unos instantes. "
+                "Si el inconveniente continúa, no dudes en escribir a la Unidad de Investigación "
+                "(investigacion.fisi@unmsm.edu.pe) para darte soporte."
+            )
+
         # Respuesta de fallback si Bedrock no está disponible
         rag_result = {
-            "answer": (
-                "En este momento no puedo acceder a la base de conocimientos. "
-                "Por favor, intenta nuevamente o contacta a "
-                "investigacion.fisi@unmsm.edu.pe"
-            ),
+            "answer": err_msg,
             "intent": "CU00",
             "confidence": 0.0,
             "sources": [],

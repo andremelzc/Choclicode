@@ -1,0 +1,188 @@
+import pandas as pd
+import re
+from datetime import datetime
+
+
+# ──────────────────────────────────────────────
+# Constantes de columnas
+# ──────────────────────────────────────────────
+COL_TIEMPO      = "FECHA TIEMPO REAL"
+COL_INICIO_REAL = "FECHA INICIO REAL"
+COL_FINAL_REAL  = "FECHA FINAL REAL"
+COL_INICIO_COLA = "TIEMPO DE INICIO COLA"
+COL_FIN_COLA    = "TIEMPO DE FIN DE COLA"
+COL_DIFF        = "DIFERENCIA DE TIEMPO"
+
+DATETIME_FORMATS = [
+    "%d/%m/%Y %H:%M",
+    "%d/%m/%Y %H:%M:%S",
+    "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%d %H:%M",
+]
+
+# Tope conocido de OTRS en minutos (838:59:59 = 50339 min)
+OTRS_TOPE_MINUTOS = 50339
+
+
+# ──────────────────────────────────────────────
+# Helpers
+# ──────────────────────────────────────────────
+def parse_datetime(value) -> datetime | None:
+    """Intenta convertir un valor a datetime probando varios formatos."""
+    if pd.isna(value) or str(value).strip() == "":
+        return None
+    s = str(value).strip()
+    for fmt in DATETIME_FORMATS:
+        try:
+            return datetime.strptime(s, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def diff_en_minutos(col_inicio: str, col_fin: str, row) -> int | None:
+    """Calcula diferencia en minutos entre dos columnas datetime de una fila."""
+    inicio = parse_datetime(row.get(col_inicio))
+    fin    = parse_datetime(row.get(col_fin))
+    if inicio is None or fin is None:
+        return None
+    diff = fin - inicio
+    minutos = round(diff.total_seconds() / 60)
+    if minutos < 0:
+        print(f"  [WARN] Diferencia negativa en fila (ticket {row.get('#TICKET', '?')}), se descarta.")
+        return None
+    return minutos
+
+
+def parse_tiempo_real(value, row) -> int | None:
+    """
+    Convierte FECHA TIEMPO REAL a minutos enteros.
+
+    Casos manejados:
+      1. Vacío / NaN        → calcula desde FECHA INICIO REAL y FECHA FINAL REAL
+      2. Número puro        → ya está en minutos
+      3. Texto natural      → "3 horas", "2horas y 20 minutos"
+      4. Formato HH:MM:SS   → convierte a minutos
+      5. No parseado        → None con advertencia
+    """
+    if pd.isna(value) or str(value).strip() == "":
+        result = diff_en_minutos(COL_INICIO_REAL, COL_FINAL_REAL, row)
+        if result is None:
+            print(f"  [WARN] Ticket {row.get('#TICKET', '?')}: sin FECHA TIEMPO REAL ni fechas colindantes.")
+        return result
+
+    s = str(value).strip()
+
+    # Número puro
+    try:
+        return round(float(s))
+    except ValueError:
+        pass
+
+    # Texto en lenguaje natural
+    s_norm = s.lower()
+    s_norm = re.sub(r"\bund\b|\bun\b", "1", s_norm)
+    s_norm = re.sub(r"\by\b", " ", s_norm)
+
+    hours, minutes = 0.0, 0.0
+    m_h = re.search(r"(\d+(?:[.,]\d+)?)\s*hora[s]?", s_norm)
+    m_m = re.search(r"(\d+(?:[.,]\d+)?)\s*min(?:uto[s]?)?", s_norm)
+    if m_h:
+        hours = float(m_h.group(1).replace(",", "."))
+    if m_m:
+        minutes = float(m_m.group(1).replace(",", "."))
+    if m_h or m_m:
+        return round(hours * 60 + minutes)
+
+    # HH:MM:SS o HH:MM
+    m_hms = re.match(r"^(\d+):(\d{2})(?::(\d{2}))?$", s)
+    if m_hms:
+        h  = int(m_hms.group(1))
+        mi = int(m_hms.group(2))
+        sc = int(m_hms.group(3)) if m_hms.group(3) else 0
+        return round(h * 60 + mi + sc / 60)
+
+    print(f"  [WARN] No se pudo parsear FECHA TIEMPO REAL: '{value}' (ticket {row.get('#TICKET', '?')})")
+    return None
+
+
+# ──────────────────────────────────────────────
+# Función principal
+# ──────────────────────────────────────────────
+def process_excel(input_path: str, output_path: str, sheet_name: int | str = 0) -> pd.DataFrame:
+    """
+    Lee el Excel, recalcula DIFERENCIA DE TIEMPO desde las columnas de cola,
+    parsea FECHA TIEMPO REAL a minutos, y guarda el resultado.
+    """
+    print(f"Leyendo: {input_path}")
+    df = pd.read_excel(input_path, sheet_name=sheet_name, dtype=str)
+
+    # Corregir encoding de columna AÑO si viene mal codificada
+    df.columns = [
+        col.encode("latin1").decode("utf-8", errors="replace")
+        if "Ã" in col else col
+        for col in df.columns
+    ]
+
+    # ── 1. Recalcular DIFERENCIA DE TIEMPO desde inicio/fin de cola ────────────
+    if COL_INICIO_COLA in df.columns and COL_FIN_COLA in df.columns:
+        print(f"Recalculando '{COL_DIFF}' desde '{COL_INICIO_COLA}' y '{COL_FIN_COLA}'...")
+        df[COL_DIFF] = df.apply(
+            lambda row: diff_en_minutos(COL_INICIO_COLA, COL_FIN_COLA, row), axis=1
+        )
+        df[COL_DIFF] = pd.to_numeric(df[COL_DIFF], errors="coerce").astype("Int64")
+
+        tope = (df[COL_DIFF] >= OTRS_TOPE_MINUTOS).sum()
+        if tope > 0:
+            print(f"  [INFO] {tope} filas alcanzaban el tope de OTRS — ahora recalculadas correctamente.")
+    else:
+        print(f"  [WARN] No se encontraron columnas de cola para recalcular '{COL_DIFF}'.")
+
+    # ── 2. Parsear FECHA TIEMPO REAL a minutos ─────────────────────────────────
+    if COL_TIEMPO not in df.columns:
+        raise ValueError(
+            f"Columna '{COL_TIEMPO}' no encontrada. Columnas disponibles:\n{list(df.columns)}"
+        )
+
+    print(f"Procesando '{COL_TIEMPO}' en {len(df)} filas...")
+    df[COL_TIEMPO] = df.apply(
+        lambda row: parse_tiempo_real(row[COL_TIEMPO], row), axis=1
+    )
+    df[COL_TIEMPO] = pd.to_numeric(df[COL_TIEMPO], errors="coerce").astype("Int64")
+
+    # ── 3. Guardar ─────────────────────────────────────────────────────────────
+    df.to_excel(output_path, index=False)
+    print(f"\nGuardado en: {output_path}")
+
+    # ── 4. Resumen ─────────────────────────────────────────────────────────────
+    for col in [COL_TIEMPO, COL_DIFF]:
+        if col in df.columns:
+            serie = df[col].dropna()
+            print(f"\nResumen '{col}':")
+            print(f"  Filas con dato : {len(serie)}")
+            print(f"  Nulos          : {df[col].isna().sum()}")
+            if len(serie) > 0:
+                print(f"  Min (min)      : {int(serie.min())}")
+                print(f"  Max (min)      : {int(serie.max())}")
+                print(f"  Mediana (min)  : {int(serie.median())}")
+                print(f"  Promedio (min) : {int(serie.mean())}")
+
+    return df
+
+
+# ──────────────────────────────────────────────
+# Ejecución directa
+# ──────────────────────────────────────────────
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) < 3:
+        print("Uso: python parse_tiempo_real.py <input.xlsx> <output.xlsx> [sheet_name]")
+        print("Ejemplo: python parse_tiempo_real.py reporte.xlsx reporte_clean.xlsx")
+        sys.exit(1)
+
+    input_file  = sys.argv[1]
+    output_file = sys.argv[2]
+    sheet       = sys.argv[3] if len(sys.argv) > 3 else 0
+
+    process_excel(input_file, output_file, sheet_name=sheet)

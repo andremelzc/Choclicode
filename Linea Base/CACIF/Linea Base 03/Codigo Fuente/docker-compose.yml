@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./Backend
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+    dns:
+      - 8.8.8.8
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Backend:/app
+    env_file:
+      - ./Backend/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build: ./Frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
