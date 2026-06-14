@@ -1,4 +1,4 @@
-name: "Reportes para el Estado de Contabilidad de la Configuración"
+name: "Lista de versiones de un ítem"
 
 on:
   workflow_dispatch:
