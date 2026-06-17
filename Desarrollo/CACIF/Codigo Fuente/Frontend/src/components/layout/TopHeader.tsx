@@ -1,6 +1,7 @@
 import { Avatar } from "../ui/Avatar"
 import { useAuth } from "../../features/auth/context/AuthContext"
 import { LogOut } from "lucide-react"
+import logoIcon from "../../assets/icono_cacif.png"
 
 export const TopHeader = () => {
   const { user, logout } = useAuth();
@@ -17,9 +18,11 @@ export const TopHeader = () => {
   return (
     <header className="h-[72px] border-b border-border bg-background flex items-center justify-between px-4 md:px-6 shrink-0 w-full z-10 relative shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
       <div className="flex items-center gap-4">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-white font-bold text-lg shadow-[0_0_15px_rgba(88,101,242,0.4)]">
-          CA
-        </div>
+        <img
+          src={logoIcon}
+          alt="CACIF"
+          className="h-11 w-11 shrink-0 rounded-xl object-contain shadow-[0_0_15px_rgba(88,101,242,0.4)]"
+        />
         <div className="flex flex-col">
           <h1 className="text-[15px] font-bold text-foreground leading-tight tracking-wide">
             SISTEMA CACIF

@@ -1,4 +1,4 @@
-name: "📦 Reporte de Estado de Configuración"
+name: "Lista de ítems de la gestión de la configuración"
 
 on:
   workflow_dispatch:

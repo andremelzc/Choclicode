@@ -1,4 +1,4 @@
-name: "📋 Reporte de Versionado de Archivo"
+name: "Lista de versiones de un ítem"
 
 on:
   workflow_dispatch:

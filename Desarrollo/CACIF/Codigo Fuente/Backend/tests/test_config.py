@@ -37,7 +37,7 @@ class TestSettings:
     def test_default_gemini_model(self):
         """El modelo Gemini por defecto."""
         s = Settings()
-        assert s.GEMINI_MODEL == "gemini-flash-latest"
+        assert s.GEMINI_MODEL == "gemini-2.5-flash"
 
     def test_default_azure_search_index(self):
         """El índice de Azure AI Search por defecto."""
