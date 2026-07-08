@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { Menu, X, AlertTriangle } from "lucide-react"
+import { Menu, X, AlertTriangle, Download } from "lucide-react"
+import { downloadChatPDF } from "../../features/chat/utils/pdfGenerator"
 import { Sidebar } from "../../components/layout/Sidebar"
 import { TopHeader } from "../../components/layout/TopHeader"
 import { MessageList } from "../../features/chat/components/MessageList"
@@ -216,8 +217,20 @@ export default function ChatPage() {
                 </p>
               </div>
             </div>
-            <div className="hidden sm:block rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary tracking-widest uppercase shadow-[0_0_10px_rgba(88,101,242,0.2)]">
-              Asistente CACIF
+            <div className="flex items-center gap-2">
+              {messages.length > 0 && (
+                <button
+                  onClick={() => downloadChatPDF(headerTitle, messages)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-surface text-[12px] font-bold text-foreground hover:bg-muted transition-colors shadow-sm cursor-pointer"
+                  title="Descargar chat como PDF"
+                >
+                  <Download className="w-4 h-4 text-primary" />
+                  <span className="hidden sm:inline">PDF</span>
+                </button>
+              )}
+              <div className="hidden sm:block rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary tracking-widest uppercase shadow-[0_0_10px_rgba(88,101,242,0.2)]">
+                Asistente CACIF
+              </div>
             </div>
           </div>
 
