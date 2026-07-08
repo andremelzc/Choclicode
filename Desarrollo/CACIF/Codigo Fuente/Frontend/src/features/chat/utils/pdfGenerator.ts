@@ -127,7 +127,7 @@ export function downloadChatPDF(title: string, messages: Message[]) {
   });
 
   // 4. Numeración de Páginas en el Pie de Página
-  const pageCount = (doc.internal as any).getNumberOfPages();
+  const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
